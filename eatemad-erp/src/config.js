@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════
 // SUPABASE CONFIG
 // ═══════════════════════════════════════════════════════════
-export const SB = "https://fmajfprdlczvfudhwbcj.supabase.co"
-export const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYWpmcHJkbGN6dmZ1ZGh3YmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTk2NDQsImV4cCI6MjA4ODEzNTY0NH0.EjCDKzsZvbT31mbaBhoW4DfZtVj0rNc1U3w_goSouaU"
+export const SB = "https://rgbzximweiafgdukppbf.supabase.co"
+export const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnYnp4aW13ZWlhZmdkdWtwcGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDU5MDcsImV4cCI6MjA4ODYyMTkwN30.fMGcuP-E2mxG_LHCq4TLaI8087pi17oIMoQuNlNspUs"
 
 // ═══════════════════════════════════════════════════════════
 // DESIGN TOKENS
