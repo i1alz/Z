@@ -5,14 +5,52 @@
 export const supabaseUrl = "https://fmajfprdlczvfudhwbcj.supabase.co";
 export const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtYWpmcHJkbGN6dmZ1ZGh3YmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NTk2NDQsImV4cCI6MjA4ODEzNTY0NH0.EjCDKzsZvbT31mbaBhoW4DfZtVj0rNc1U3w_goSouaU";
 
+const isUsableJwt = (token) =>
+  typeof token === "string" &&
+  token.split(".").length === 3 &&
+  !token.startsWith("token-") &&
+  token !== "demo-token" &&
+  token !== "mock-token";
+
 // API Helper Functions
 const headers = (token) => ({
   "apikey": supabaseAnonKey,
   "Content-Type": "application/json",
-  ...(token && { "Authorization": `Bearer ${token}` })
+  ...(isUsableJwt(token) && { "Authorization": `Bearer ${token}` }),
 });
 
 export const api = {
+  async getTableRows(table, token, options = {}) {
+    try {
+      const {
+        select = "*",
+        orderBy = "created_at.desc",
+        limit,
+        filters = "",
+      } = options;
+
+      const params = new URLSearchParams();
+      params.set("select", select);
+      if (orderBy) params.set("order", orderBy);
+      if (typeof limit === "number") params.set("limit", String(limit));
+
+      const query = filters
+        ? `${params.toString()}&${filters.replace(/^\?/, "")}`
+        : params.toString();
+      const response = await fetch(`${supabaseUrl}/rest/v1/${table}?${query}`, {
+        headers: headers(token),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data?.message || "Unable to load data", data: [] };
+      }
+      return { success: true, data: Array.isArray(data) ? data : [] };
+    } catch (error) {
+      return { success: false, error: error.message, data: [] };
+    }
+  },
+
   // Authentication
   async signIn(email, password) {
     try {
@@ -94,15 +132,7 @@ export const api = {
 
   // Employees
   async getEmployees(token) {
-    try {
-      const response = await fetch(`${supabaseUrl}/rest/v1/employees?order=created_at.desc`, {
-        headers: headers(token)
-      });
-      const data = await response.json();
-      return { success: true, data };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+    return this.getTableRows("employees", token, { orderBy: "created_at.desc" });
   },
 
   async createEmployee(employeeData, token) {
@@ -152,6 +182,26 @@ export const api = {
     } catch (error) {
       return { success: false, error: error.message };
     }
+  },
+
+  async getAttendanceRecords(token) {
+    return this.getTableRows("attendance", token, { orderBy: "date.desc,time_in.desc", limit: 50 });
+  },
+
+  async getLeaveRequests(token) {
+    return this.getTableRows("leave_requests", token, { orderBy: "created_at.desc", limit: 50 });
+  },
+
+  async getPayrollRecords(token) {
+    return this.getTableRows("payroll", token, { orderBy: "period.desc,created_at.desc", limit: 50 });
+  },
+
+  async getRecruitmentRecords(token) {
+    return this.getTableRows("recruitment", token, { orderBy: "created_at.desc", limit: 50 });
+  },
+
+  async getPerformanceRecords(token) {
+    return this.getTableRows("performance_reviews", token, { orderBy: "review_date.desc,created_at.desc", limit: 50 });
   }
 };
 

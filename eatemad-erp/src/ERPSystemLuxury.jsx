@@ -9,7 +9,7 @@ import {
   FiCreditCard,
   FiGrid,
   FiLogOut,
-  FiBell,
+  FiRefreshCw,
   FiSearch,
   FiChevronDown,
   FiChevronRight,
@@ -22,7 +22,7 @@ import {
 import HRDashboard from "./components/HRDashboard";
 import { MODULE_CONFIG } from "./config/moduleConfig";
 import { userHasPermission } from "./config/roleConfig";
-import { buildHRDashboardData } from "./data/hrDashboardData";
+import { useHRData } from "./hooks/useHRData";
 
 const Colors = {
   gold: "#d4a574",
@@ -157,10 +157,16 @@ function ERPSystemLuxury({
     if (!modules.some((m) => m.id === activeModule)) setActiveModule(modules[0]?.id || "dashboard");
   }, [modules, activeModule]);
 
-  const dashboardData = useMemo(
-    () => buildHRDashboardData({ language, user: currentUser, permissions: currentUser.permissions }),
-    [language, currentUser]
-  );
+  const {
+    loading: dataLoading,
+    error: dataError,
+    dashboardData,
+    moduleData,
+    refresh: refreshData,
+  } = useHRData({
+    language,
+    user: currentUser,
+  });
 
   const renderModule = () => {
     if (activeModule === "dashboard") {
@@ -174,7 +180,15 @@ function ERPSystemLuxury({
         />
       );
     }
-    return <HRSubModule module={activeModule} theme={theme} language={language} isCompact={isTablet} />;
+    return (
+      <HRSubModule
+        module={activeModule}
+        theme={theme}
+        language={language}
+        isCompact={isTablet}
+        moduleData={moduleData?.[activeModule]}
+      />
+    );
   };
 
   return (
@@ -202,12 +216,38 @@ function ERPSystemLuxury({
             )}
             <button onClick={() => onLanguageChange?.(language === "ar" ? "en" : "ar")} style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, border: "none", borderRadius: 10, padding: "0.55rem 0.8rem", fontWeight: 700, cursor: "pointer", color: isDarkMode ? Colors.bgDark : "#fff" }}>{language === "ar" ? "EN" : "عربي"}</button>
             <button onClick={() => onThemeChange?.(!isDarkMode)} style={{ width: 40, height: 40, borderRadius: "50%", border: `2px solid ${theme.accent}`, background: theme.surface, color: theme.accent, display: "grid", placeItems: "center", cursor: "pointer" }}>{isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}</button>
+            <button
+              onClick={refreshData}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: `1px solid ${theme.border}`,
+                background: theme.surface,
+                color: theme.accent,
+                display: "grid",
+                placeItems: "center",
+                cursor: "pointer",
+              }}
+              title={language === "ar" ? "تحديث البيانات" : "Refresh Data"}
+            >
+              <FiRefreshCw size={17} style={{ animation: dataLoading ? "spin 1s linear infinite" : "none" }} />
+            </button>
             {!isMobile && (
               <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", padding: "0.4rem 0.7rem 0.4rem 0.45rem", border: `1px solid ${theme.border}`, borderRadius: 20, background: theme.surface }}>
                 <div style={{ width: 34, height: 34, borderRadius: "50%", background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, color: isDarkMode ? Colors.bgDark : "#fff", fontWeight: 800, fontSize: "0.85rem", display: "grid", placeItems: "center" }}>{currentUser.avatar}</div>
                 <div style={{ textAlign: language === "ar" ? "right" : "left" }}>
                   <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 700 }}>{language === "ar" ? currentUser.fullName : currentUser.englishName}</p>
                   <p style={{ margin: 0, fontSize: "0.72rem", color: theme.textMuted }}>{currentUser.title}</p>
+                  <p style={{ margin: 0, fontSize: "0.68rem", color: dataError ? "#ef4444" : "#22c55e" }}>
+                    {dataError
+                      ? language === "ar"
+                        ? "وضع احتياطي"
+                        : "Fallback Mode"
+                      : language === "ar"
+                        ? "متصل"
+                        : "Connected"}
+                  </p>
                 </div>
               </div>
             )}
@@ -297,14 +337,38 @@ function ERPSystemLuxury({
             )}
           </aside>
 
-          <main style={{ flex: 1, padding: isMobile ? "1rem" : isTablet ? "1.4rem" : "2.2rem", overflowY: "auto" }}>{renderModule()}</main>
+          <main style={{ flex: 1, padding: isMobile ? "1rem" : isTablet ? "1.4rem" : "2.2rem", overflowY: "auto" }}>
+            {dataError && (
+              <div
+                style={{
+                  marginBottom: "0.9rem",
+                  padding: "0.75rem 0.95rem",
+                  borderRadius: 10,
+                  border: "1px solid rgba(239,68,68,0.4)",
+                  background: "rgba(239,68,68,0.12)",
+                  color: "#fecaca",
+                  fontSize: "0.82rem",
+                  fontWeight: 500,
+                }}
+              >
+                {dataError}
+              </div>
+            )}
+            {renderModule()}
+          </main>
         </div>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </ThemeContext.Provider>
   );
 }
 
-function HRSubModule({ module, theme, language, isCompact }) {
+function HRSubModule({ module, theme, language, isCompact, moduleData }) {
+  const [filter, setFilter] = useState("");
   const t = (ar, en) => (language === "ar" ? ar : en);
   const config = {
     employees: { icon: FiUsers, title: t("الموظفون", "Employees"), sub: t("إدارة بيانات الموظفين", "Manage employee records") },
@@ -314,18 +378,21 @@ function HRSubModule({ module, theme, language, isCompact }) {
     recruitment: { icon: FiUserPlus, title: t("التوظيف", "Recruitment"), sub: t("الوظائف والمقابلات", "Jobs and interviews") },
     performance: { icon: FiBarChart2, title: t("تقييم الأداء", "Performance"), sub: t("متابعة الأداء", "Performance tracking") },
   };
-  const c = config[module] || config.employees;
-  const Icon = c.icon;
-  const rows = [
+  const c = moduleData || config[module] || config.employees;
+  const Icon = c.icon || config[module]?.icon || FiGrid;
+  const fallbackRows = [
     { name: t("أحمد الفارسي", "Ahmed Al-Farsi"), status: t("نشط", "Active"), meta: "ID-1024" },
     { name: t("ريم الحربي", "Reem Al-Harbi"), status: t("معلق", "Pending"), meta: "ID-1088" },
     { name: t("عمر آل سعود", "Omar Al-Saud"), status: t("نشط", "Active"), meta: "ID-1112" },
   ];
+  const rows = (c.records && c.records.length ? c.records : fallbackRows).filter((row) =>
+    `${row.name} ${row.status} ${row.meta}`.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <div>
       <h2 style={{ margin: "0 0 0.35rem", fontSize: isCompact ? "1.7rem" : "2rem", fontWeight: 800, color: theme.accent }}>{c.title}</h2>
-      <p style={{ margin: "0 0 1.2rem", color: theme.textMuted }}>{c.sub}</p>
+      <p style={{ margin: "0 0 1.2rem", color: theme.textMuted }}>{c.sub || c.subtitle}</p>
       <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, padding: isCompact ? "1rem" : "1.3rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.7rem" }}>
           <strong>{t("السجلات", "Records")}</strong>
@@ -333,8 +400,26 @@ function HRSubModule({ module, theme, language, isCompact }) {
             <Icon size={15} /> {t("إضافة جديد", "Add New")}
           </button>
         </div>
+        <div style={{ marginBottom: "0.65rem" }}>
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder={t("ابحث في السجلات...", "Search records...")}
+            style={{
+              width: "100%",
+              borderRadius: 10,
+              border: `1px solid ${theme.border}`,
+              background: "transparent",
+              color: theme.text,
+              padding: "0.55rem 0.7rem",
+              outline: "none",
+              fontFamily: "inherit",
+              fontSize: "0.85rem",
+            }}
+          />
+        </div>
         {rows.map((row) => (
-          <div key={row.meta} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem" }}>
+          <div key={row.id || row.meta} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: `${theme.accent}20`, color: theme.accent, display: "grid", placeItems: "center", fontWeight: 700, fontSize: "0.78rem" }}>{getInitials(row.name)}</div>
               <div>
@@ -342,9 +427,14 @@ function HRSubModule({ module, theme, language, isCompact }) {
                 <small style={{ color: theme.textMuted }}>{row.meta}</small>
               </div>
             </div>
-            <span style={{ padding: "0.25rem 0.7rem", borderRadius: 14, background: `${theme.accent}18`, color: theme.accent, fontSize: "0.78rem", fontWeight: 700 }}>{row.status}</span>
+            <span style={{ padding: "0.25rem 0.7rem", borderRadius: 14, background: `${row.color || theme.accent}22`, color: row.color || theme.accent, fontSize: "0.78rem", fontWeight: 700 }}>{row.status}</span>
           </div>
         ))}
+        {rows.length === 0 && (
+          <div style={{ padding: "1rem 0.4rem", color: theme.textMuted, textAlign: "center", fontSize: "0.85rem" }}>
+            {t("لا توجد نتائج مطابقة.", "No matching results.")}
+          </div>
+        )}
       </div>
     </div>
   );
