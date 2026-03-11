@@ -1,650 +1,487 @@
-import React, { useState, useEffect } from 'react';
-import { FiUser, FiLock, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
-import { getRolePermissions, getRoleTitle } from '../config/roleConfig';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  FiUser,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiGlobe,
+  FiShield,
+  FiTrendingUp,
+  FiUsers,
+  FiCheckCircle,
+} from "react-icons/fi";
+import { getRolePermissions, getRoleTitle } from "../config/roleConfig";
 
-// Brand Colors - Matching HR1 Design
 const Colors = {
-  bronze: "#c4915c",
-  bronzeDark: "#8b6239",
-  bronzeLight: "#d4a574",
   gold: "#d4a574",
   goldLight: "#e8c9a0",
   goldDark: "#b8935f",
-  goldBright: "#f4c430",
   darkRed: "#8b2c2c",
   red: "#c73e3e",
   bgDark: "#0f0c0a",
   bgPrimary: "#1a1410",
   bgSecondary: "#201812",
-  bgCard: "#2a1f18",
+  bgCard: "#221912",
   textDark: "#f5e6d3",
   textMuted: "#b8a088",
-  textGold: "#d4a574",
+  borderDark: "rgba(212,165,116,0.24)",
+  borderAccent: "rgba(212,165,116,0.45)",
   success: "#22c55e",
   error: "#ef4444",
-  borderDark: "rgba(212,165,116,0.25)",
-  borderGold: "rgba(212,165,116,0.4)",
-  shadowDark: "0 20px 60px rgba(0,0,0,0.7)",
-  shadowGold: "0 10px 40px rgba(212,165,116,0.2)",
 };
 
-// Users Database with Roles
 const USERS_DATABASE = {
-  'zaid.alazzam': {
-    username: 'zaid.alazzam',
-    password: 'admin@2024',
-    fullName: 'زيد العزام',
-    englishName: 'Zaid Al-Azzam',
-    role: 'admin',
-    title: 'مدير النظام',
-    titleEn: 'System Administrator',
-    department: 'الإدارة العامة',
-    permissions: ['*'],
-    email: 'zaid@eatemad.com'
+  "zaid.alazzam": {
+    username: "zaid.alazzam",
+    password: "admin@2024",
+    fullName: "زيد العزام",
+    englishName: "Zaid Al-Azzam",
+    role: "admin",
+    title: "مدير النظام",
+    titleEn: "System Administrator",
+    department: "الإدارة العامة",
+    permissions: ["*"],
+    email: "zaid@eatemad.com",
   },
-  'akram.qasim': {
-    username: 'akram.qasim',
-    password: 'hr@2024',
-    fullName: 'أكرم قاسم',
-    englishName: 'Akram Qasim',
-    role: 'hr_manager',
-    title: 'مدير الموارد البشرية',
-    titleEn: 'HR Manager',
-    department: 'الموارد البشرية',
-    permissions: ['hr', 'employees', 'attendance', 'leaves', 'payroll', 'recruitment', 'performance', 'reports'],
-    email: 'akram@eatemad.com'
+  "akram.qasim": {
+    username: "akram.qasim",
+    password: "hr@2024",
+    fullName: "أكرم قاسم",
+    englishName: "Akram Qasim",
+    role: "hr_manager",
+    title: "مدير الموارد البشرية",
+    titleEn: "HR Manager",
+    department: "الموارد البشرية",
+    permissions: ["hr", "employees", "attendance", "leaves", "payroll", "recruitment", "performance", "reports"],
+    email: "akram@eatemad.com",
   },
-  'sarah.ahmad': {
-    username: 'sarah.ahmad',
-    password: 'hr@123',
-    fullName: 'سارة أحمد',
-    englishName: 'Sarah Ahmad',
-    role: 'hr_specialist',
-    title: 'أخصائي موارد بشرية',
-    titleEn: 'HR Specialist',
-    department: 'الموارد البشرية',
-    permissions: ['hr', 'employees', 'attendance'],
-    email: 'sarah@eatemad.com'
-  }
+  "sarah.ahmad": {
+    username: "sarah.ahmad",
+    password: "hr@123",
+    fullName: "سارة أحمد",
+    englishName: "Sarah Ahmad",
+    role: "hr_specialist",
+    title: "أخصائي موارد بشرية",
+    titleEn: "HR Specialist",
+    department: "الموارد البشرية",
+    permissions: ["hr", "employees", "attendance"],
+    email: "sarah@eatemad.com",
+  },
 };
 
-function LoginPage({ onLogin, language = 'ar', setLanguage }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const loginStats = [
+  { icon: FiUsers, value: "248+", labelAr: "موظف نشط", labelEn: "Active Employees" },
+  { icon: FiTrendingUp, value: "92%", labelAr: "معدل حضور", labelEn: "Attendance Rate" },
+  { icon: FiShield, value: "100%", labelAr: "تحكم بالصلاحيات", labelEn: "Role Security" },
+];
+
+const t = (language, ar, en) => (language === "ar" ? ar : en);
+
+function LoginPage({ onLogin, language = "ar", setLanguage }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [viewport, setViewport] = useState(typeof window !== "undefined" ? window.innerWidth : 1440);
+
+  const isTablet = viewport <= 1024;
+  const isMobile = viewport <= 768;
 
   useEffect(() => {
-    document.dir = language === 'ar' ? 'rtl' : 'ltr';
+    const onResize = () => setViewport(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
-    // Load saved username if remember me was checked
-    const savedUsername = localStorage.getItem('rememberedUsername');
+  useEffect(() => {
+    document.dir = language === "ar" ? "rtl" : "ltr";
+    const savedUsername = localStorage.getItem("rememberedUsername");
     if (savedUsername) {
       setUsername(savedUsername);
       setRememberMe(true);
     }
   }, [language]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  const title = useMemo(
+    () => t(language, "نظام إدارة الموارد البشرية", "Human Resources Management System"),
+    [language]
+  );
+
+  const subtitle = useMemo(
+    () =>
+      t(
+        language,
+        "سجّل الدخول لإدارة الموظفين، الحضور، الإجازات، والرواتب من لوحة واحدة.",
+        "Sign in to manage employees, attendance, leaves, and payroll from one dashboard."
+      ),
+    [language]
+  );
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
     setIsLoading(true);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 700));
 
-    try {
-      // Check credentials against database
-      const user = USERS_DATABASE[username];
-
-      if (user && user.password === password) {
-        const resolvedPermissions = Array.isArray(user.permissions) && user.permissions.length > 0
-          ? user.permissions
-          : getRolePermissions(user.role);
-
-        const resolvedTitle = language === 'ar'
-          ? (user.title || getRoleTitle(user.role, 'ar'))
-          : (user.titleEn || getRoleTitle(user.role, 'en'));
-
-        // Successful login
-        const userData = {
-          id: username,
-          username: user.username,
-          fullName: user.fullName,
-          englishName: user.englishName,
-          role: user.role,
-          title: resolvedTitle,
-          department: user.department,
-          permissions: resolvedPermissions,
-          email: user.email,
-          loginTime: new Date().toISOString()
-        };
-
-        // Handle remember me
-        if (rememberMe) {
-          localStorage.setItem('rememberedUsername', username);
-        } else {
-          localStorage.removeItem('rememberedUsername');
-        }
-
-        localStorage.setItem('authToken', `token-${username}`);
-        localStorage.setItem('user', JSON.stringify(userData));
-        onLogin(userData);
-      } else {
-        setError(language === 'ar' ?
-          'اسم المستخدم أو كلمة المرور غير صحيحة' :
-          'Invalid username or password');
-      }
-    } catch (err) {
-      setError(language === 'ar' ? 'حدث خطأ في النظام' : 'System error occurred');
-    } finally {
+    const user = USERS_DATABASE[username];
+    if (!user || user.password !== password) {
+      setError(
+        t(language, "اسم المستخدم أو كلمة المرور غير صحيحة", "Invalid username or password")
+      );
       setIsLoading(false);
+      return;
     }
+
+    const resolvedPermissions =
+      Array.isArray(user.permissions) && user.permissions.length > 0
+        ? user.permissions
+        : getRolePermissions(user.role);
+    const resolvedTitle =
+      language === "ar"
+        ? user.title || getRoleTitle(user.role, "ar")
+        : user.titleEn || getRoleTitle(user.role, "en");
+
+    const userData = {
+      id: username,
+      username: user.username,
+      fullName: user.fullName,
+      englishName: user.englishName,
+      role: user.role,
+      title: resolvedTitle,
+      department: user.department,
+      permissions: resolvedPermissions,
+      email: user.email,
+      loginTime: new Date().toISOString(),
+    };
+
+    if (rememberMe) localStorage.setItem("rememberedUsername", username);
+    else localStorage.removeItem("rememberedUsername");
+
+    localStorage.setItem("authToken", `token-${username}`);
+    localStorage.setItem("user", JSON.stringify(userData));
+    onLogin(userData);
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: `linear-gradient(135deg, ${Colors.bgDark} 0%, ${Colors.bgPrimary} 25%, ${Colors.bgSecondary} 50%, ${Colors.bgPrimary} 75%, ${Colors.bgDark} 100%)`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem',
-      position: 'relative',
-      fontFamily: language === 'ar' ?
-        "'Cairo', 'Tajawal', 'Arial', sans-serif" :
-        "'Inter', 'Segoe UI', 'Arial', sans-serif",
-      direction: language === 'ar' ? 'rtl' : 'ltr',
-    }}>
-      {/* Background Decorations */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflow: 'hidden',
-        pointerEvents: 'none',
-      }}>
-        {/* Gold accent gradients */}
-        <div style={{
-          position: 'absolute',
-          top: '-30%',
-          right: '-20%',
-          width: '800px',
-          height: '800px',
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${Colors.gold}15 0%, transparent 60%)`,
-          filter: 'blur(60px)',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-30%',
-          left: '-20%',
-          width: '800px',
-          height: '800px',
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${Colors.bronze}10 0%, transparent 60%)`,
-          filter: 'blur(60px)',
-        }} />
-      </div>
-
-      {/* Language Toggle */}
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(circle at 10% 20%, rgba(212,165,116,0.08), transparent 35%), radial-gradient(circle at 90% 10%, rgba(139,44,44,0.14), transparent 30%), linear-gradient(135deg, #0f0c0a 0%, #1a1410 50%, #0f0c0a 100%)",
+        display: "grid",
+        gridTemplateColumns: isTablet ? "1fr" : "1.2fr 1fr",
+        gap: isTablet ? "1rem" : "2rem",
+        padding: isMobile ? "1rem" : "2rem",
+        fontFamily:
+          language === "ar"
+            ? "'Cairo', 'Tajawal', system-ui, sans-serif"
+            : "'Inter', 'Segoe UI', system-ui, sans-serif",
+        direction: language === "ar" ? "rtl" : "ltr",
+      }}
+    >
       <button
-        onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+        onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
         style={{
-          position: 'absolute',
-          top: '2rem',
-          [language === 'ar' ? 'left' : 'right']: '2rem',
-          background: `linear-gradient(135deg, ${Colors.bgCard}, ${Colors.bgSecondary})`,
-          border: `1px solid ${Colors.borderGold}`,
-          borderRadius: '12px',
-          padding: '0.75rem 1.25rem',
-          color: Colors.textGold,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          fontWeight: 600,
-          transition: 'all 0.3s',
-          zIndex: 10,
-          boxShadow: Colors.shadowGold,
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = `${Colors.shadowGold}, 0 0 20px rgba(212,165,116,0.3)`;
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = Colors.shadowGold;
+          position: "fixed",
+          top: isMobile ? "0.9rem" : "1.5rem",
+          [language === "ar" ? "left" : "right"]: isMobile ? "0.9rem" : "1.5rem",
+          background: "rgba(34,25,18,0.9)",
+          border: `1px solid ${Colors.borderAccent}`,
+          borderRadius: "10px",
+          padding: "0.55rem 0.85rem",
+          color: Colors.gold,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          zIndex: 11,
+          backdropFilter: "blur(8px)",
         }}
       >
-        <FiGlobe size={18} />
-        {language === 'ar' ? 'English' : 'عربي'}
+        <FiGlobe size={16} />
+        {language === "ar" ? "English" : "عربي"}
       </button>
 
-      {/* Login Card */}
-      <div style={{
-        width: '100%',
-        maxWidth: '480px',
-        background: `linear-gradient(135deg, ${Colors.bgCard} 0%, ${Colors.bgSecondary} 100%)`,
-        borderRadius: '24px',
-        padding: '3.5rem 3rem',
-        boxShadow: `${Colors.shadowDark}, 0 0 60px rgba(212,165,116,0.1)`,
-        border: `1px solid ${Colors.borderGold}`,
-        position: 'relative',
-        zIndex: 1,
-        backdropFilter: 'blur(10px)',
-      }}>
-        {/* Logo and Title */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          {/* Logo Circle */}
-          <div style={{
-            width: '100px',
-            height: '100px',
-            margin: '0 auto 1.5rem',
-            background: `linear-gradient(135deg, ${Colors.gold}, ${Colors.bronzeDark})`,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: `0 15px 40px rgba(212,165,116,0.4)`,
-            position: 'relative',
-            border: `2px solid ${Colors.borderGold}`,
-          }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              color: '#fff',
-              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-            }}>
-              <span style={{
-                fontSize: '1.3rem',
-                fontWeight: 'bold',
-                marginBottom: '2px',
-              }}>الاعتماد</span>
-              <span style={{
-                fontSize: '0.6rem',
-                letterSpacing: '2px',
-                opacity: 0.95,
-              }}>AL EATEMAD</span>
+      {!isTablet && (
+        <section
+          style={{
+            borderRadius: "24px",
+            border: `1px solid ${Colors.borderDark}`,
+            background:
+              "linear-gradient(150deg, rgba(34,25,18,0.95) 0%, rgba(24,18,13,0.95) 100%)",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.45)",
+            padding: "2.2rem",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              width: 380,
+              height: 380,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(212,165,116,0.18), transparent 65%)",
+              top: -140,
+              right: language === "ar" ? "auto" : -120,
+              left: language === "ar" ? -120 : "auto",
+              pointerEvents: "none",
+            }}
+          />
+          <div style={{ display: "flex", alignItems: "center", gap: "0.9rem", marginBottom: "1.3rem" }}>
+            <img
+              src="/eatemad-logo.png"
+              alt="Al Eatemad Logo"
+              style={{
+                width: 68,
+                height: 68,
+                objectFit: "contain",
+                borderRadius: "14px",
+                border: `1px solid ${Colors.borderAccent}`,
+                background: "rgba(0,0,0,0.25)",
+                padding: "0.35rem",
+              }}
+            />
+            <div>
+              <h2 style={{ margin: 0, color: Colors.textDark, fontSize: "1.4rem", fontWeight: 800 }}>
+                AL EATEMAD
+              </h2>
+              <p style={{ margin: 0, color: Colors.textMuted, fontSize: "0.85rem" }}>
+                {t(language, "حلول موارد بشرية متكاملة", "Integrated HR Solutions")}
+              </p>
             </div>
           </div>
 
-          <h1 style={{
-            fontSize: '2rem',
-            fontWeight: 700,
-            color: Colors.textGold,
-            margin: '0 0 0.5rem',
-            textShadow: '0 2px 10px rgba(212,165,116,0.2)',
-          }}>
-            {language === 'ar' ? 'نظام الموارد البشرية' : 'Human Resources System'}
+          <h1 style={{ margin: "0 0 0.7rem", color: Colors.goldLight, fontSize: "2rem", lineHeight: 1.3 }}>
+            {title}
           </h1>
-          <p style={{
-            color: Colors.textMuted,
-            fontSize: '0.95rem',
-          }}>
-            {language === 'ar' ?
-              'مرحباً بك في نظام إدارة الموارد البشرية' :
-              'Welcome to HR Management System'}
+          <p style={{ margin: "0 0 1.4rem", color: Colors.textMuted, maxWidth: 520, lineHeight: 1.8 }}>
+            {subtitle}
           </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.8rem" }}>
+            {loginStats.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.value}
+                  style={{
+                    borderRadius: "14px",
+                    border: `1px solid ${Colors.borderDark}`,
+                    background: "rgba(0,0,0,0.22)",
+                    padding: "0.85rem",
+                  }}
+                >
+                  <Icon size={18} color={Colors.gold} />
+                  <p style={{ margin: "0.5rem 0 0", color: Colors.textDark, fontSize: "1.15rem", fontWeight: 800 }}>
+                    {item.value}
+                  </p>
+                  <p style={{ margin: "0.15rem 0 0", color: Colors.textMuted, fontSize: "0.75rem" }}>
+                    {language === "ar" ? item.labelAr : item.labelEn}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section
+        style={{
+          borderRadius: "24px",
+          border: `1px solid ${Colors.borderDark}`,
+          background: "linear-gradient(160deg, rgba(34,25,18,0.98), rgba(18,13,10,0.98))",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+          padding: isMobile ? "1.15rem" : "2rem",
+          alignSelf: "center",
+          maxWidth: isTablet ? 560 : "100%",
+          width: "100%",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "1rem" }}>
+          <img
+            src="/eatemad-logo.png"
+            alt="Al Eatemad Logo"
+            style={{
+              width: isMobile ? 54 : 64,
+              height: isMobile ? 54 : 64,
+              objectFit: "contain",
+              borderRadius: "12px",
+              border: `1px solid ${Colors.borderAccent}`,
+              background: "rgba(0,0,0,0.25)",
+              padding: "0.28rem",
+            }}
+          />
+          <div>
+            <h3 style={{ margin: 0, color: Colors.textDark, fontSize: isMobile ? "1.05rem" : "1.2rem", fontWeight: 800 }}>
+              {t(language, "تسجيل الدخول", "Sign In")}
+            </h3>
+            <p style={{ margin: 0, color: Colors.textMuted, fontSize: "0.8rem" }}>
+              {t(language, "ادخل بيانات الحساب", "Enter your credentials")}
+            </p>
+          </div>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div style={{
-            background: `${Colors.error}15`,
-            border: `1px solid ${Colors.error}40`,
-            borderRadius: '12px',
-            padding: '1rem',
-            marginBottom: '1.5rem',
-            textAlign: 'center',
-            color: '#ff6b6b',
-            fontSize: '0.9rem',
-            animation: 'fadeIn 0.3s ease',
-          }}>
+          <div
+            style={{
+              marginBottom: "0.9rem",
+              borderRadius: "10px",
+              border: "1px solid rgba(239,68,68,0.4)",
+              background: "rgba(239,68,68,0.12)",
+              color: "#fecaca",
+              fontSize: "0.85rem",
+              padding: "0.7rem 0.8rem",
+            }}
+          >
             {error}
           </div>
         )}
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit}>
-          {/* Username Field */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              color: Colors.textGold,
-              fontSize: '0.9rem',
-              fontWeight: 600,
-            }}>
-              {language === 'ar' ? 'اسم المستخدم' : 'Username'}
-            </label>
-            <div style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-              <FiUser style={{
-                position: 'absolute',
-                [language === 'ar' ? 'right' : 'left']: '1rem',
-                color: Colors.bronzeDark,
-                fontSize: '1.2rem',
-              }} />
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل اسم المستخدم' : 'Enter username'}
-                required
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '1rem 3rem',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: `1px solid ${Colors.borderDark}`,
-                  borderRadius: '12px',
-                  color: Colors.textDark,
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'all 0.3s',
-                  fontFamily: 'inherit',
-                }}
-                onFocus={e => {
-                  e.target.style.borderColor = Colors.gold;
-                  e.target.style.background = 'rgba(0,0,0,0.5)';
-                  e.target.style.boxShadow = `0 0 20px ${Colors.gold}30`;
-                }}
-                onBlur={e => {
-                  e.target.style.borderColor = Colors.borderDark;
-                  e.target.style.background = 'rgba(0,0,0,0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Password Field */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              color: Colors.textGold,
-              fontSize: '0.9rem',
-              fontWeight: 600,
-            }}>
-              {language === 'ar' ? 'كلمة المرور' : 'Password'}
-            </label>
-            <div style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-              <FiLock style={{
-                position: 'absolute',
-                [language === 'ar' ? 'right' : 'left']: '1rem',
-                color: Colors.bronzeDark,
-                fontSize: '1.2rem',
-              }} />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={language === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'}
-                required
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: '1rem 3rem',
-                  background: 'rgba(0,0,0,0.3)',
-                  border: `1px solid ${Colors.borderDark}`,
-                  borderRadius: '12px',
-                  color: Colors.textDark,
-                  fontSize: '1rem',
-                  outline: 'none',
-                  transition: 'all 0.3s',
-                  fontFamily: 'inherit',
-                }}
-                onFocus={e => {
-                  e.target.style.borderColor = Colors.gold;
-                  e.target.style.background = 'rgba(0,0,0,0.5)';
-                  e.target.style.boxShadow = `0 0 20px ${Colors.gold}30`;
-                }}
-                onBlur={e => {
-                  e.target.style.borderColor = Colors.borderDark;
-                  e.target.style.background = 'rgba(0,0,0,0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  [language === 'ar' ? 'left' : 'right']: '1rem',
-                  background: 'transparent',
-                  border: 'none',
-                  color: Colors.bronzeDark,
-                  cursor: 'pointer',
-                  padding: '0.5rem',
-                  transition: 'color 0.3s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = Colors.gold}
-                onMouseLeave={e => e.currentTarget.style.color = Colors.bronzeDark}
-              >
-                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          {/* Remember Me */}
-          <div style={{
-            marginBottom: '1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}>
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: "0.8rem" }}>
+          <label style={{ color: Colors.gold, fontSize: "0.85rem", fontWeight: 600 }}>
+            {t(language, "اسم المستخدم", "Username")}
+          </label>
+          <div style={{ position: "relative" }}>
+            <FiUser
               style={{
-                width: '18px',
-                height: '18px',
-                cursor: 'pointer',
-                accentColor: Colors.gold,
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                [language === "ar" ? "right" : "left"]: "0.8rem",
+                color: "#8b7258",
               }}
             />
-            <label
-              htmlFor="rememberMe"
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder={t(language, "مثال: akram.qasim", "e.g. akram.qasim")}
+              required
+              disabled={isLoading}
               style={{
-                color: Colors.textMuted,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
+                width: "100%",
+                borderRadius: "12px",
+                border: `1px solid ${Colors.borderDark}`,
+                background: "rgba(0,0,0,0.25)",
+                color: Colors.textDark,
+                padding: "0.88rem 2.7rem",
+                outline: "none",
+                fontFamily: "inherit",
               }}
-            >
-              {language === 'ar' ? 'تذكرني' : 'Remember me'}
-            </label>
+            />
           </div>
 
-          {/* Submit Button */}
+          <label style={{ color: Colors.gold, fontSize: "0.85rem", fontWeight: 600 }}>
+            {t(language, "كلمة المرور", "Password")}
+          </label>
+          <div style={{ position: "relative" }}>
+            <FiLock
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                [language === "ar" ? "right" : "left"]: "0.8rem",
+                color: "#8b7258",
+              }}
+            />
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t(language, "أدخل كلمة المرور", "Enter password")}
+              required
+              disabled={isLoading}
+              style={{
+                width: "100%",
+                borderRadius: "12px",
+                border: `1px solid ${Colors.borderDark}`,
+                background: "rgba(0,0,0,0.25)",
+                color: Colors.textDark,
+                padding: "0.88rem 2.7rem",
+                outline: "none",
+                fontFamily: "inherit",
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                [language === "ar" ? "left" : "right"]: "0.65rem",
+                border: "none",
+                background: "transparent",
+                color: "#8b7258",
+                cursor: "pointer",
+              }}
+            >
+              {showPassword ? <FiEyeOff size={17} /> : <FiEye size={17} />}
+            </button>
+          </div>
+
+          <label style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: Colors.textMuted, fontSize: "0.85rem" }}>
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              style={{ accentColor: Colors.gold }}
+            />
+            {t(language, "تذكرني", "Remember me")}
+          </label>
+
           <button
             type="submit"
             disabled={isLoading}
             style={{
-              width: '100%',
-              background: `linear-gradient(135deg, ${Colors.gold}, ${Colors.bronzeDark})`,
-              color: '#fff',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '1.1rem',
-              fontSize: '1.1rem',
-              fontWeight: 700,
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.7 : 1,
-              transition: 'all 0.3s',
-              boxShadow: `0 10px 30px ${Colors.gold}40`,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-            onMouseEnter={e => {
-              if (!isLoading) {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = `0 15px 40px ${Colors.gold}50`;
-              }
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = `0 10px 30px ${Colors.gold}40`;
+              marginTop: "0.3rem",
+              borderRadius: "12px",
+              border: "none",
+              background: "linear-gradient(135deg, #d4a574, #8b6239)",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: "1rem",
+              padding: "0.92rem",
+              cursor: isLoading ? "not-allowed" : "pointer",
+              opacity: isLoading ? 0.75 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.45rem",
             }}
           >
-            {isLoading ? (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-              }}>
-                <div style={{
-                  width: '20px',
-                  height: '20px',
-                  border: '3px solid rgba(255,255,255,0.3)',
-                  borderTopColor: '#fff',
-                  borderRadius: '50%',
-                  animation: 'spin 0.8s linear infinite',
-                }} />
-                {language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
-              </div>
-            ) : (
-              language === 'ar' ? 'تسجيل الدخول' : 'Sign In'
-            )}
+            {isLoading && <FiCheckCircle size={16} style={{ animation: "pulse 1s ease infinite" }} />}
+            {isLoading ? t(language, "جاري تسجيل الدخول...", "Signing in...") : t(language, "دخول", "Sign In")}
           </button>
-
-          {/* Demo Accounts Info */}
-          <div style={{
-            marginTop: '2rem',
-            padding: '1.2rem',
-            background: `linear-gradient(135deg, rgba(212,165,116,0.05), rgba(212,165,116,0.1))`,
-            borderRadius: '12px',
-            border: `1px solid ${Colors.borderGold}`,
-          }}>
-            <p style={{
-              color: Colors.textGold,
-              fontSize: '0.85rem',
-              margin: '0 0 0.75rem',
-              fontWeight: 600,
-              textAlign: 'center',
-            }}>
-              {language === 'ar' ? 'حسابات تجريبية للاختبار' : 'Demo Accounts for Testing'}
-            </p>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '0.5rem 0.75rem',
-                background: 'rgba(0,0,0,0.2)',
-                borderRadius: '8px',
-                fontSize: '0.8rem',
-              }}>
-                <span style={{ color: Colors.textGold, fontWeight: 500 }}>
-                  {language === 'ar' ? 'مدير النظام:' : 'Admin:'}
-                </span>
-                <span style={{ color: Colors.textMuted, fontFamily: 'monospace' }}>
-                  zaid.alazzam / admin@2024
-                </span>
-              </div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '0.5rem 0.75rem',
-                background: 'rgba(0,0,0,0.2)',
-                borderRadius: '8px',
-                fontSize: '0.8rem',
-              }}>
-                <span style={{ color: Colors.textGold, fontWeight: 500 }}>
-                  {language === 'ar' ? 'مدير HR:' : 'HR Manager:'}
-                </span>
-                <span style={{ color: Colors.textMuted, fontFamily: 'monospace' }}>
-                  akram.qasim / hr@2024
-                </span>
-              </div>
-            </div>
-          </div>
         </form>
-      </div>
 
-      {/* Inline Styles */}
+        <div
+          style={{
+            marginTop: "1rem",
+            borderRadius: "12px",
+            border: `1px solid ${Colors.borderDark}`,
+            background: "rgba(0,0,0,0.2)",
+            padding: "0.8rem",
+          }}
+        >
+          <p style={{ margin: "0 0 0.45rem", color: Colors.goldLight, fontSize: "0.8rem", fontWeight: 700 }}>
+            {t(language, "حسابات تجريبية", "Demo Accounts")}
+          </p>
+          <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.78rem", color: Colors.textMuted }}>
+            <div>zaid.alazzam / admin@2024</div>
+            <div>akram.qasim / hr@2024</div>
+            <div>sarah.ahmad / hr@123</div>
+          </div>
+        </div>
+      </section>
+
       <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        input::placeholder {
-          color: #6b5d4f;
-          opacity: 0.7;
-        }
-
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-
-        input[type=checkbox] {
-          -webkit-appearance: none;
-          appearance: none;
-          background-color: rgba(0,0,0,0.3);
-          margin: 0;
-          font: inherit;
-          color: currentColor;
-          width: 1.15em;
-          height: 1.15em;
-          border: 1px solid ${Colors.borderDark};
-          border-radius: 0.25em;
-          display: grid;
-          place-content: center;
-        }
-
-        input[type=checkbox]::before {
-          content: "";
-          width: 0.65em;
-          height: 0.65em;
-          transform: scale(0);
-          transition: 120ms transform ease-in-out;
-          box-shadow: inset 1em 1em ${Colors.gold};
-          background-color: ${Colors.gold};
-          transform-origin: bottom left;
-          clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-
-        input[type=checkbox]:checked::before {
-          transform: scale(1);
-        }
-
-        input[type=checkbox]:focus {
-          outline: 2px solid ${Colors.gold};
-          outline-offset: 2px;
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
         }
       `}</style>
     </div>
