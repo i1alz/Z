@@ -20,6 +20,14 @@ function AppMain() {
     setIsDarkMode(savedTheme === 'dark');
   }, []);
 
+  // MUST be before any conditional returns (React Hooks rule)
+  useEffect(() => {
+    if (user) {
+      window.currentUser = user;
+      window.handleLogout = handleLogout;
+    }
+  }, [user]);
+
   const checkAuth = () => {
     if (isAuthenticated()) {
       const currentUser = getCurrentUser();
@@ -39,7 +47,6 @@ function AppMain() {
     if (token && token !== 'demo-token' && token !== 'mock-token') {
       await api.signOut(token);
     } else {
-      // Clear local storage for demo/mock users
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
     }
@@ -101,14 +108,6 @@ function AppMain() {
       />
     );
   }
-
-  // Pass logout function and user data to ERP system
-  // We'll modify the ERPSystemLuxury to use the logout from window
-  useEffect(() => {
-    // Make logout and user available globally
-    window.currentUser = user;
-    window.handleLogout = handleLogout;
-  }, [user]);
 
   return <ERPSystemLuxury />;
 }
