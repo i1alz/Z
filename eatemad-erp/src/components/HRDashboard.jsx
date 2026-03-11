@@ -1,907 +1,471 @@
 import React, { useState, useEffect } from 'react';
 import {
-  FiUsers, FiCalendar, FiClock, FiDollarSign, FiFileText,
-  FiCheckCircle, FiUserCheck, FiUserX, FiBriefcase,
-  FiPhone, FiMail, FiSearch, FiPlus, FiDownload,
-  FiChevronRight, FiTrendingUp, FiAward, FiClipboard,
-  FiPieChart, FiEdit, FiEye, FiStar, FiTarget,
-  FiUserPlus, FiCreditCard, FiAlertCircle
+  FiUsers, FiCalendar, FiUserPlus, FiBriefcase,
+  FiCreditCard, FiBarChart2, FiCheckCircle, FiChevronRight,
+  FiEye, FiActivity, FiBell
 } from 'react-icons/fi';
 
 // ═══════════════════════════════════════════════
-// Brand Colors - Eatemad Official Palette
+// SVG Donut Chart - matches HR1 exactly
 // ═══════════════════════════════════════════════
-const Colors = {
-  bronze: "#995d26",
-  bronzeDark: "#7a4a1e",
-  bronzeLight: "#b37840",
-  gold: "#d4a574",
-  goldLight: "#e8c9a0",
-  goldDark: "#b8935f",
-  darkRed: "#7d0a12",
-  red: "#9b0d16",
-  redLight: "#b91a23",
-  bgDark: "#0a0806",
-  bgPrimary: "#1a1512",
-  bgSecondary: "#1c1410",
-  bgCard: "#221a15",
-  bgCardHover: "#2d231c",
-  success: "#22c55e",
-  warning: "#f59e0b",
-  error: "#ef4444",
-  info: "#3b82f6",
-};
-
-// ═══════════════════════════════════════════════
-// SVG Donut Chart Component
-// ═══════════════════════════════════════════════
-function AttendanceDonut({ present, absent, onLeave, isDarkMode, language }) {
+function AttendanceDonut({ present, absent, onLeave, language }) {
   const total = present + absent + onLeave;
-  const percentage = Math.round((present / total) * 100);
-  
-  const radius = 80;
-  const circumference = 2 * Math.PI * radius;
-  
-  const presentArc = (present / total) * circumference;
-  const absentArc = (absent / total) * circumference;
-  const leaveArc = (onLeave / total) * circumference;
-  
-  const presentOffset = 0;
-  const absentOffset = presentArc;
-  const leaveOffset = presentArc + absentArc;
+  const pct = Math.round((present / total) * 100);
+  const r = 70;
+  const circ = 2 * Math.PI * r;
+  const presentArc = (present / total) * circ;
+  const absentArc  = (absent  / total) * circ;
+  const leaveArc   = (onLeave / total) * circ;
 
   return (
-    <div style={{ position: 'relative', width: '220px', height: '220px', margin: '0 auto' }}>
-      <svg width="220" height="220" viewBox="0 0 220 220">
-        {/* Background circle */}
-        <circle
-          cx="110" cy="110" r={radius}
-          fill="none"
-          stroke={isDarkMode ? 'rgba(212,165,116,0.1)' : '#f0f0f0'}
-          strokeWidth="24"
-        />
-        {/* Present arc */}
-        <circle
-          cx="110" cy="110" r={radius}
-          fill="none"
-          stroke={Colors.darkRed}
-          strokeWidth="24"
-          strokeDasharray={`${presentArc} ${circumference - presentArc}`}
-          strokeDashoffset={-presentOffset}
-          strokeLinecap="round"
-          transform="rotate(-90 110 110)"
-          style={{ transition: 'all 1s ease-out' }}
-        />
-        {/* Absent arc */}
-        <circle
-          cx="110" cy="110" r={radius}
-          fill="none"
-          stroke={isDarkMode ? '#333' : '#666'}
-          strokeWidth="24"
-          strokeDasharray={`${absentArc} ${circumference - absentArc}`}
-          strokeDashoffset={-absentOffset}
-          strokeLinecap="round"
-          transform="rotate(-90 110 110)"
-          style={{ transition: 'all 1s ease-out' }}
-        />
-        {/* On Leave arc */}
-        <circle
-          cx="110" cy="110" r={radius}
-          fill="none"
-          stroke={Colors.gold}
-          strokeWidth="24"
-          strokeDasharray={`${leaveArc} ${circumference - leaveArc}`}
-          strokeDashoffset={-leaveOffset}
-          strokeLinecap="round"
-          transform="rotate(-90 110 110)"
-          style={{ transition: 'all 1s ease-out' }}
-        />
-      </svg>
-      {/* Center Text */}
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        textAlign: 'center',
-      }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', flexWrap: 'wrap' }}>
+      {/* Donut */}
+      <div style={{ position: 'relative', width: 180, height: 180, flexShrink: 0 }}>
+        <svg width="180" height="180" style={{ transform: 'rotate(-90deg)' }}>
+          {/* bg ring */}
+          <circle cx="90" cy="90" r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="22" />
+          {/* present - gold */}
+          <circle cx="90" cy="90" r={r} fill="none"
+            stroke="#d4a574" strokeWidth="22"
+            strokeDasharray={`${presentArc} ${circ - presentArc}`}
+            strokeDashoffset={0} strokeLinecap="round"
+          />
+          {/* absent - dark */}
+          <circle cx="90" cy="90" r={r} fill="none"
+            stroke="#3a2520" strokeWidth="22"
+            strokeDasharray={`${absentArc} ${circ - absentArc}`}
+            strokeDashoffset={-presentArc} strokeLinecap="round"
+          />
+          {/* leave - red */}
+          <circle cx="90" cy="90" r={r} fill="none"
+            stroke="#9b0d16" strokeWidth="22"
+            strokeDasharray={`${leaveArc} ${circ - leaveArc}`}
+            strokeDashoffset={-(presentArc + absentArc)} strokeLinecap="round"
+          />
+        </svg>
+        {/* Center text */}
         <div style={{
-          fontSize: '2.5rem',
-          fontWeight: 900,
-          color: Colors.darkRed,
-          lineHeight: 1,
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)', textAlign: 'center',
         }}>
-          {percentage}%
+          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#d4a574', lineHeight: 1 }}>{pct}%</div>
+          <div style={{ fontSize: '0.65rem', color: 'rgba(212,165,116,0.8)', marginTop: '0.25rem', fontWeight: 600 }}>
+            {language === 'ar' ? 'نسبة الحضور' : 'Attendance Rate'}
+          </div>
         </div>
-        <div style={{
-          fontSize: '0.8rem',
-          color: isDarkMode ? '#a89580' : '#666',
-          marginTop: '4px',
-          fontWeight: 600,
-        }}>
-          {language === 'ar' ? 'نسبة الحضور' : 'Attendance Rate'}
-        </div>
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {[
+          { label: language === 'ar' ? 'حاضر' : 'Present',  val: present, color: '#d4a574' },
+          { label: language === 'ar' ? 'غائب' : 'Absent',   val: absent,  color: '#3a2520' },
+          { label: language === 'ar' ? 'إجازة' : 'On Leave', val: onLeave, color: '#9b0d16' },
+        ].map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ width: 14, height: 14, borderRadius: '50%', background: item.color, border: '2px solid rgba(212,165,116,0.3)', flexShrink: 0 }} />
+            <span style={{ color: 'rgba(245,230,211,0.85)', fontSize: '0.95rem', fontWeight: 500, flex: 1 }}>{item.label}</span>
+            <span style={{ color: '#d4a574', fontSize: '1.1rem', fontWeight: 800, minWidth: 30, textAlign: 'right' }}>{item.val}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════
-// Main HR Dashboard Component
+// Main HRDashboard Component
 // ═══════════════════════════════════════════════
-function HRDashboard({ language = 'ar', isDarkMode = true, theme }) {
-  const [animateIn, setAnimateIn] = useState(false);
-  const [selectedTab, setSelectedTab] = useState('overview');
+export default function HRDashboard({ theme, language, isDarkMode }) {
+  const [attendancePeriod, setAttendancePeriod] = useState(language === 'ar' ? 'هذا الشهر' : 'This Month');
+  const [animIn, setAnimIn] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => setAnimateIn(true), 100);
+    const t = setTimeout(() => setAnimIn(true), 50);
+    return () => clearTimeout(t);
   }, []);
 
-  const isRTL = language === 'ar';
+  // ───── Data ─────
+  const userName  = language === 'ar' ? 'زيد العزام' : 'Zaid Al-Azzam';
+  const userTitle = language === 'ar' ? 'مدير الموارد البشرية' : 'HR Manager';
 
-  // HR Manager data
-  const hrManager = {
-    name: language === 'ar' ? 'زيد العزام' : 'Zaid Al-Azzam',
-    role: language === 'ar' ? 'مدير الموارد البشرية' : 'HR Manager',
-    avatar: 'ZA',
-  };
+  const attendance = { present: 215, absent: 18, onLeave: 15 };
 
-  // Theme colors
-  const t = {
-    bg: isDarkMode ? Colors.bgPrimary : '#f8f9fa',
-    card: isDarkMode ? Colors.bgCard : '#ffffff',
-    cardHover: isDarkMode ? Colors.bgCardHover : '#f5f5f5',
-    text: isDarkMode ? '#e8d5c4' : '#1a1a1c',
-    textMuted: isDarkMode ? '#a89580' : '#6b6c70',
-    border: isDarkMode ? 'rgba(212,165,116,0.2)' : 'rgba(153,93,38,0.15)',
-    accent: isDarkMode ? Colors.gold : Colors.bronze,
-    accentLight: isDarkMode ? Colors.goldLight : Colors.bronzeLight,
-    surface: isDarkMode ? Colors.bgPrimary : '#faf8f5',
-    shadow: isDarkMode ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.08)',
-    glass: isDarkMode ? 'rgba(34,26,21,0.8)' : 'rgba(255,255,255,0.9)',
-  };
-
-  // Sample data
   const recentEmployees = [
-    { name: 'Ahmed Al-Farsi', nameAr: 'أحمد الفارسي', position: 'HR Officer', positionAr: 'مسؤول موارد بشرية', department: 'Human Resources', departmentAr: 'الموارد البشرية', date: '2/04/2026', avatar: 'AF' },
-    { name: 'Reem Al-Harbi', nameAr: 'ريم الحربي', position: 'Recruiter', positionAr: 'أخصائي توظيف', department: 'Recruitment', departmentAr: 'التوظيف', date: '2/04/2026', avatar: 'RH' },
-    { name: 'Omar Al-Saud', nameAr: 'عمر آل سعود', position: 'Payroll Specialist', positionAr: 'أخصائي رواتب', department: 'Finance', departmentAr: 'المالية', date: '20/03/2026', avatar: 'OS' },
-    { name: 'Layla Ibrahim', nameAr: 'ليلى إبراهيم', position: 'Training Coordinator', positionAr: 'منسق تدريب', department: 'Development', departmentAr: 'التطوير', date: '15/03/2026', avatar: 'LI' },
-    { name: 'Hassan Al-Qahtani', nameAr: 'حسن القحطاني', position: 'IT Support', positionAr: 'دعم تقنية المعلومات', department: 'IT', departmentAr: 'تقنية المعلومات', date: '10/03/2026', avatar: 'HQ' },
+    { name: language === 'ar' ? 'أحمد الفارسي'  : 'Ahmed Al-Farsi',  pos: language === 'ar' ? 'مسؤول HR'          : 'HR Officer',         dept: language === 'ar' ? 'الموارد البشرية' : 'Human Resources', date: '2/04/2023' },
+    { name: language === 'ar' ? 'ريم الحربي'    : 'Reem Al-Harbi',   pos: language === 'ar' ? 'متخصصة توظيف'      : 'Recruiter',          dept: language === 'ar' ? 'التوظيف'          : 'Recruitment',      date: '2/00/2023' },
+    { name: language === 'ar' ? 'عمر آل سعود'   : 'Omar AL Saud',    pos: language === 'ar' ? 'متخصص رواتب'       : 'Payroll Specialist', dept: language === 'ar' ? 'المالية'          : 'Finance',          date: '2/04/2023' },
   ];
 
   const upcomingLeaves = [
-    { name: 'Maha Al-Zahrani', nameAr: 'مها الزهراني', dates: '23 - 26 Apr', datesAr: '23 - 26 أبريل', type: 'Annual', typeAr: 'سنوية', avatar: 'MZ' },
-    { name: 'Faisal Al-Qahtani', nameAr: 'فيصل القحطاني', dates: '23 - 25 Apr', datesAr: '23 - 25 أبريل', type: 'Sick', typeAr: 'مرضية', avatar: 'FQ' },
-    { name: 'Noura Al-Salem', nameAr: 'نورة السالم', dates: '28 - 30 Apr', datesAr: '28 - 30 أبريل', type: 'Personal', typeAr: 'شخصية', avatar: 'NS' },
+    { name: language === 'ar' ? 'مها الزهراني'     : 'Maha Al-Zahrani',   period: '23 – 26 Apr' },
+    { name: language === 'ar' ? 'فيصل القحطاني'    : 'Faisal Al-Qahtani', period: '23 – 25 Apr' },
   ];
 
   const quickActions = [
-    { label: language === 'ar' ? 'الموظفين' : 'Employees', labelSub: language === 'ar' ? 'إدارة الموظفين' : 'Manage staff', icon: FiUsers, color: Colors.darkRed },
-    { label: language === 'ar' ? 'التوظيف' : 'Recruitment', labelSub: language === 'ar' ? 'التوظيف' : 'Recruiting', icon: FiUserPlus, color: Colors.bronze },
-    { label: language === 'ar' ? 'التقييمات' : 'Performance', labelSub: language === 'ar' ? 'إدارة الأداء' : 'Reviews', icon: FiTarget, color: Colors.info },
-    { label: language === 'ar' ? 'الرواتب' : 'Payroll', labelSub: language === 'ar' ? 'إدارة الرواتب' : 'Salary mgmt', icon: FiCreditCard, color: Colors.success },
+    { label: language === 'ar' ? 'الموظفين\nإضافة موظف' : 'Employees\nإضافة موظف',    icon: FiUsers,     color: '#7d0a12' },
+    { label: language === 'ar' ? 'التوظيف\nالتوظيفة'   : 'Recruitment\nالتوظيفة',      icon: FiUserPlus,  color: '#7d0a12' },
+    { label: language === 'ar' ? 'الأداء\nإدارة الأداء' : 'Performance\nإدارة الأداء', icon: FiBarChart2, color: '#7d0a12' },
+    { label: language === 'ar' ? 'الرواتب\nإدارة الرواتب' : 'Payroll\nإدارة الرواتب', icon: FiCreditCard, color: '#7d0a12' },
   ];
+
+  // ───── Styles ─────
+  const card = {
+    background: 'linear-gradient(145deg, #2a1f18 0%, #1f1611 100%)',
+    borderRadius: '16px',
+    border: '1px solid rgba(212,165,116,0.18)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+    overflow: 'hidden',
+  };
 
   return (
     <div style={{
-      animation: animateIn ? 'fadeIn 0.6s ease' : 'none',
-      opacity: animateIn ? 1 : 0,
-      direction: isRTL ? 'rtl' : 'ltr',
-      fontFamily: isRTL ? "'Cairo', 'Tajawal', sans-serif" : "'Inter', 'Segoe UI', sans-serif",
+      opacity: animIn ? 1 : 0,
+      transform: animIn ? 'translateY(0)' : 'translateY(16px)',
+      transition: 'all 0.5s ease',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1.5rem',
     }}>
-      {/* ═══ Welcome Banner ═══ */}
-      <div style={{
-        background: `linear-gradient(135deg, ${Colors.bgCard} 0%, ${isDarkMode ? '#2a1f18' : '#f9f5f0'} 50%, ${Colors.bgCard} 100%)`,
-        borderRadius: '24px',
-        padding: '2rem 2.5rem',
-        marginBottom: '2rem',
-        border: `1px solid ${t.border}`,
-        boxShadow: t.shadow,
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '1.5rem',
-      }}>
-        {/* Decorative background elements */}
-        <div style={{
-          position: 'absolute',
-          top: -60,
-          [isRTL ? 'left' : 'right']: -40,
-          width: '200px',
-          height: '200px',
-          background: `radial-gradient(circle, ${t.accent}15 0%, transparent 70%)`,
-          borderRadius: '50%',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: -30,
-          [isRTL ? 'right' : 'left']: '30%',
-          width: '120px',
-          height: '120px',
-          background: `radial-gradient(circle, ${Colors.darkRed}10 0%, transparent 70%)`,
-          borderRadius: '50%',
-        }} />
 
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '16px',
-              background: `linear-gradient(135deg, ${Colors.darkRed}, ${Colors.red})`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '1.2rem',
-              boxShadow: `0 8px 24px ${Colors.darkRed}40`,
-            }}>
-              {hrManager.avatar}
-            </div>
-            <div>
-              <h2 style={{
-                fontSize: '1.8rem',
-                fontWeight: 800,
-                margin: 0,
-                color: t.text,
-              }}>
-                {language === 'ar' ? `مرحباً، ${hrManager.name}` : `Welcome, ${hrManager.name}`}
-              </h2>
-              <p style={{
-                margin: 0,
-                color: t.textMuted,
-                fontSize: '1rem',
-                fontWeight: 500,
-              }}>
-                {language === 'ar' ? 'أدر فريقك بكفاءة' : 'Manage your team efficiently'}
-              </p>
-            </div>
+      {/* ── Row 1: Welcome + Stats ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '1.25rem', alignItems: 'stretch' }}>
+
+        {/* Welcome Card */}
+        <div style={{
+          ...card,
+          padding: '2rem 2.5rem',
+          position: 'relative',
+          background: 'linear-gradient(135deg, #2a1f18 0%, #3a2520 50%, #2a1f18 100%)',
+          overflow: 'hidden',
+        }}>
+          {/* Gold leaf decoration */}
+          <div style={{
+            position: 'absolute', top: 0, right: language === 'ar' ? 'auto' : 0, left: language === 'ar' ? 0 : 'auto',
+            width: 180, height: '100%', opacity: 0.12,
+            background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 300'%3E%3Cpath d='M100 20 Q140 60 120 120 Q160 100 180 150 Q140 160 120 200 Q150 220 140 280 Q100 250 80 200 Q40 230 30 280 Q20 220 60 200 Q40 160 0 150 Q20 100 60 120 Q40 60 100 20Z' fill='%23d4a574'/%3E%3C/svg%3E") center/contain no-repeat`,
+            pointerEvents: 'none',
+          }} />
+          {/* Gold corner ornament circles */}
+          <div style={{ position: 'absolute', top: -40, right: language === 'ar' ? 'auto' : -40, left: language === 'ar' ? -40 : 'auto', width: 150, height: 150, borderRadius: '50%', background: 'rgba(212,165,116,0.06)', pointerEvents: 'none' }} />
+
+          <h2 style={{
+            margin: 0,
+            fontSize: '2.4rem',
+            fontWeight: 900,
+            color: '#f5e6d3',
+            letterSpacing: '-0.5px',
+            lineHeight: 1.2,
+          }}>
+            {language === 'ar' ? `مرحباً، ${userName}` : `Welcome, ${userName}`}
+          </h2>
+          <p style={{ margin: '0.6rem 0 0', color: 'rgba(212,165,116,0.85)', fontSize: '1.05rem', fontWeight: 500 }}>
+            {language === 'ar' ? 'أدر فريقك بكفاءة' : 'Manage your team efficiently'}
+          </p>
+          <div style={{
+            display: 'inline-block',
+            marginTop: '1.25rem',
+            background: 'linear-gradient(135deg, #7d0a12, #9b0d16)',
+            borderRadius: '8px',
+            padding: '0.4rem 1.1rem',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: '#f5e6d3',
+          }}>
+            {userTitle}
           </div>
         </div>
 
-        {/* Stats in welcome banner */}
-        <div style={{ display: 'flex', gap: '1.5rem', position: 'relative', zIndex: 1, flexWrap: 'wrap' }}>
-          {/* Total Employees */}
-          <div style={{
-            background: t.glass,
-            backdropFilter: 'blur(12px)',
-            borderRadius: '16px',
-            padding: '1.25rem 1.75rem',
-            border: `1px solid ${t.border}`,
-            minWidth: '140px',
-            textAlign: 'center',
-            transition: 'all 0.3s',
-          }}>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: t.textMuted, marginBottom: '0.5rem' }}>
-              {language === 'ar' ? 'إجمالي الموظفين' : 'Total Employees'}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <span style={{
-                fontSize: '2.2rem',
-                fontWeight: 900,
-                color: t.text,
-              }}>248</span>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: `${Colors.info}20`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <FiUsers size={16} style={{ color: Colors.info }} />
-              </div>
+        {/* Total Employees */}
+        <div style={{
+          ...card,
+          padding: '2rem',
+          minWidth: 180,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          background: 'linear-gradient(145deg, #2a1f18 0%, #221813 100%)',
+        }}>
+          <p style={{ margin: 0, color: 'rgba(212,165,116,0.7)', fontSize: '0.85rem', fontWeight: 600, textAlign: 'right' }}>
+            {language === 'ar' ? 'إجمالي الموظفين' : 'Total Employees'}
+          </p>
+          <p style={{ margin: 0, color: 'rgba(212,165,116,0.55)', fontSize: '0.75rem', marginTop: '0.2rem', textAlign: 'right' }}>
+            {language === 'ar' ? 'إجمالي الموظفين' : 'إجمالي الموظفين'}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.75rem' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #221813, #3a2520)', border: '2px solid rgba(212,165,116,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FiUsers size={22} color="#d4a574" />
             </div>
+            <span style={{ fontSize: '3rem', fontWeight: 900, color: '#f5e6d3', lineHeight: 1 }}>248</span>
           </div>
+          <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginTop: '1rem', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: '75%', background: 'linear-gradient(90deg, #7d0a12, #d4a574)', borderRadius: 2 }} />
+          </div>
+        </div>
 
-          {/* New Hires */}
-          <div style={{
-            background: t.glass,
-            backdropFilter: 'blur(12px)',
-            borderRadius: '16px',
-            padding: '1.25rem 1.75rem',
-            border: `1px solid ${t.border}`,
-            minWidth: '140px',
-            textAlign: 'center',
-            transition: 'all 0.3s',
-          }}>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: t.textMuted, marginBottom: '0.5rem' }}>
-              {language === 'ar' ? 'موظفون جدد' : 'New Hires'}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <span style={{
-                fontSize: '2.2rem',
-                fontWeight: 900,
-                color: t.text,
-              }}>12</span>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: `${Colors.success}20`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <FiUserPlus size={16} style={{ color: Colors.success }} />
-              </div>
+        {/* New Hires */}
+        <div style={{
+          ...card,
+          padding: '2rem',
+          minWidth: 160,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+          background: 'linear-gradient(145deg, #2a1f18 0%, #221813 100%)',
+        }}>
+          <p style={{ margin: 0, color: 'rgba(212,165,116,0.7)', fontSize: '0.85rem', fontWeight: 600, textAlign: 'right' }}>
+            {language === 'ar' ? 'موظفون جدد' : 'New Hires'}
+          </p>
+          <p style={{ margin: 0, color: 'rgba(212,165,116,0.55)', fontSize: '0.75rem', marginTop: '0.2rem', textAlign: 'right' }}>
+            {language === 'ar' ? 'موظفون جدد' : 'موظفون جدد'}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.75rem' }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #221813, #3a2520)', border: '2px solid rgba(212,165,116,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FiUserPlus size={22} color="#d4a574" />
             </div>
+            <span style={{ fontSize: '3rem', fontWeight: 900, color: '#f5e6d3', lineHeight: 1 }}>12</span>
+          </div>
+          <div style={{ width: '100%', height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginTop: '1rem', overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: '30%', background: 'linear-gradient(90deg, #d4a574, #f5d9b8)', borderRadius: 2 }} />
           </div>
         </div>
       </div>
 
-      {/* ═══ Main Content Grid ═══ */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '1.75rem',
-        marginBottom: '1.75rem',
-      }}>
-        {/* ═══ Attendance Overview ═══ */}
-        <div style={{
-          background: t.card,
-          borderRadius: '20px',
-          padding: '1.75rem',
-          border: `1px solid ${t.border}`,
-          boxShadow: t.shadow,
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-          }}>
-            <h3 style={{
-              margin: 0,
-              fontSize: '1.2rem',
-              fontWeight: 700,
-              color: t.text,
-            }}>
+      {/* ── Row 2: Attendance + Quick Actions ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+
+        {/* Attendance Overview */}
+        <div style={{ ...card, padding: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f5e6d3' }}>
               {language === 'ar' ? 'نظرة عامة على الحضور' : 'Attendance Overview'}
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(212,165,116,0.6)', fontWeight: 500, marginTop: '0.15rem' }}>
+                {language === 'ar' ? 'نظرة عامة على الحضور' : 'نظرة عامة على الحضور'}
+              </span>
             </h3>
-            <select style={{
-              background: t.surface,
-              border: `1px solid ${t.border}`,
-              borderRadius: '10px',
-              padding: '0.4rem 0.75rem',
-              color: t.text,
-              fontSize: '0.85rem',
+            <button style={{
+              background: 'rgba(212,165,116,0.1)',
+              border: '1px solid rgba(212,165,116,0.25)',
+              borderRadius: '8px',
+              padding: '0.4rem 0.9rem',
+              color: '#d4a574',
+              fontSize: '0.8rem',
+              fontWeight: 600,
               cursor: 'pointer',
-              outline: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
               fontFamily: 'inherit',
             }}>
-              <option>{language === 'ar' ? 'هذا الشهر' : 'This Month'}</option>
-              <option>{language === 'ar' ? 'الأسبوع' : 'This Week'}</option>
-            </select>
+              {language === 'ar' ? 'هذا الشهر' : 'This Month'} ▾
+            </button>
           </div>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2rem',
-          }}>
-            <AttendanceDonut
-              present={215}
-              absent={18}
-              onLeave={15}
-              isDarkMode={isDarkMode}
-              language={language}
-            />
-            
-            <div style={{ flex: 1 }}>
-              {[
-                { label: language === 'ar' ? 'حاضر' : 'Present', value: 215, color: Colors.darkRed, dot: Colors.darkRed },
-                { label: language === 'ar' ? 'غائب' : 'Absent', value: 18, color: isDarkMode ? '#555' : '#666', dot: isDarkMode ? '#555' : '#666' },
-                { label: language === 'ar' ? 'إجازة' : 'On Leave', value: 15, color: Colors.gold, dot: Colors.gold },
-              ].map((item, i) => (
-                <div key={i} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.75rem 0',
-                  borderBottom: i < 2 ? `1px solid ${t.border}` : 'none',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      background: item.dot,
-                    }} />
-                    <span style={{ color: t.textMuted, fontSize: '0.95rem' }}>{item.label}</span>
-                  </div>
-                  <span style={{
-                    fontSize: '1.2rem',
-                    fontWeight: 700,
-                    color: t.text,
-                  }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <AttendanceDonut {...attendance} language={language} />
         </div>
 
-        {/* ═══ Quick Actions ═══ */}
-        <div style={{
-          background: t.card,
-          borderRadius: '20px',
-          padding: '1.75rem',
-          border: `1px solid ${t.border}`,
-          boxShadow: t.shadow,
-        }}>
-          <h3 style={{
-            margin: 0,
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: t.text,
-            marginBottom: '1.5rem',
-          }}>
+        {/* Quick Actions */}
+        <div style={{ ...card, padding: '2rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#f5e6d3' }}>
             {language === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}
+            <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(212,165,116,0.6)', fontWeight: 500, marginTop: '0.15rem' }}>
+              {language === 'ar' ? 'إجراءات سريعة' : 'إجراءات سريعة'}
+            </span>
           </h3>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', height: 'calc(100% - 80px)' }}>
             {quickActions.map((action, i) => {
               const Icon = action.icon;
+              const [line1, line2] = action.label.split('\n');
               return (
-                <button
+                <div
                   key={i}
                   style={{
-                    background: t.surface,
-                    border: `1px solid ${t.border}`,
-                    borderRadius: '16px',
+                    background: 'linear-gradient(145deg, #3a1a1a, #2a1210)',
+                    border: '1px solid rgba(155,13,22,0.35)',
+                    borderRadius: '14px',
                     padding: '1.25rem',
                     cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.6rem',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    textAlign: isRTL ? 'right' : 'left',
-                    position: 'relative',
-                    overflow: 'hidden',
+                    textAlign: 'center',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = `0 12px 28px ${action.color}20`;
-                    e.currentTarget.style.borderColor = action.color;
+                    e.currentTarget.style.background = 'linear-gradient(145deg, #4a1f1f, #3a1515)';
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(155,13,22,0.3)';
+                    e.currentTarget.style.borderColor = 'rgba(212,165,116,0.5)';
                   }}
                   onMouseLeave={e => {
+                    e.currentTarget.style.background = 'linear-gradient(145deg, #3a1a1a, #2a1210)';
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = t.border;
+                    e.currentTarget.style.borderColor = 'rgba(155,13,22,0.35)';
                   }}
                 >
                   <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '12px',
-                    background: `${action.color}18`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '0.75rem',
+                    width: 48, height: 48, borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #7d0a12, #9b0d16)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 15px rgba(155,13,22,0.4)',
                   }}>
-                    <Icon size={22} style={{ color: action.color }} />
+                    <Icon size={22} color="#f5e6d3" />
                   </div>
-                  <div style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 700,
-                    color: t.text,
-                    marginBottom: '0.25rem',
-                  }}>
-                    {action.label}
+                  <div>
+                    <p style={{ margin: 0, color: '#f5e6d3', fontWeight: 700, fontSize: '0.9rem' }}>{line1}</p>
+                    <p style={{ margin: 0, color: 'rgba(212,165,116,0.65)', fontSize: '0.75rem', marginTop: '0.15rem' }}>{line2}</p>
                   </div>
-                  <div style={{
-                    fontSize: '0.8rem',
-                    color: t.textMuted,
-                  }}>
-                    {action.labelSub}
-                  </div>
-                </button>
+                </div>
               );
             })}
           </div>
         </div>
       </div>
 
-      {/* ═══ Second Row: Recent Employees + Upcoming Leaves ═══ */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.6fr 1fr',
-        gap: '1.75rem',
-        marginBottom: '1.75rem',
-      }}>
-        {/* ═══ Recent Employees Table ═══ */}
-        <div style={{
-          background: t.card,
-          borderRadius: '20px',
-          padding: '1.75rem',
-          border: `1px solid ${t.border}`,
-          boxShadow: t.shadow,
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-          }}>
-            <h3 style={{
-              margin: 0,
-              fontSize: '1.2rem',
-              fontWeight: 700,
-              color: t.text,
-            }}>
+      {/* ── Row 3: Recent Employees + Upcoming Leaves ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '1.25rem' }}>
+
+        {/* Recent Employees Table */}
+        <div style={{ ...card, padding: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f5e6d3' }}>
               {language === 'ar' ? 'الموظفون الجدد' : 'Recent Employees'}
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(212,165,116,0.6)', fontWeight: 500, marginTop: '0.1rem' }}>
+                {language === 'ar' ? 'Recent Employees' : 'الموظفون الجدد'}
+              </span>
             </h3>
             <button style={{
-              background: 'transparent',
-              border: 'none',
-              color: t.accent,
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
+              background: 'transparent', border: '1px solid rgba(212,165,116,0.3)',
+              borderRadius: '8px', padding: '0.4rem 0.9rem',
+              color: '#d4a574', fontSize: '0.8rem', fontWeight: 600,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
               fontFamily: 'inherit',
             }}>
-              {language === 'ar' ? 'عرض الكل' : 'View All'}
-              <FiChevronRight size={16} style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }} />
+              <FiEye size={14} /> {language === 'ar' ? 'عرض الكل' : 'View All'}
             </button>
           </div>
 
-          {/* Table */}
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{
-                  borderBottom: `2px solid ${t.border}`,
-                }}>
-                  {[
-                    language === 'ar' ? 'الاسم' : 'Name',
-                    language === 'ar' ? 'المنصب' : 'Position',
-                    language === 'ar' ? 'القسم' : 'Department',
-                    language === 'ar' ? 'التاريخ' : 'Date',
-                  ].map((header, i) => (
-                    <th key={i} style={{
-                      padding: '0.75rem',
-                      textAlign: isRTL ? 'right' : 'left',
-                      fontWeight: 600,
-                      fontSize: '0.85rem',
-                      color: t.textMuted,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                    }}>
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentEmployees.map((emp, idx) => (
-                  <tr
-                    key={idx}
-                    style={{
-                      borderBottom: `1px solid ${t.border}`,
-                      transition: 'all 0.2s',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = isDarkMode ? 'rgba(212,165,116,0.06)' : 'rgba(0,0,0,0.02)';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <td style={{ padding: '0.9rem 0.75rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '10px',
-                          background: `linear-gradient(135deg, ${Colors.bronze}40, ${Colors.gold}30)`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: t.accent,
-                          fontWeight: 700,
-                          fontSize: '0.8rem',
-                        }}>
-                          {emp.avatar}
-                        </div>
-                        <span style={{ fontWeight: 600, color: t.text, fontSize: '0.9rem' }}>
-                          {isRTL ? emp.nameAr : emp.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.9rem 0.75rem', color: t.textMuted, fontSize: '0.9rem' }}>
-                      {isRTL ? emp.positionAr : emp.position}
-                    </td>
-                    <td style={{ padding: '0.9rem 0.75rem' }}>
-                      <span style={{
-                        background: `${Colors.info}15`,
-                        color: Colors.info,
-                        padding: '4px 10px',
-                        borderRadius: '8px',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                      }}>
-                        {isRTL ? emp.departmentAr : emp.department}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.9rem 0.75rem', color: t.textMuted, fontSize: '0.85rem' }}>
-                      {emp.date}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Table Header */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 1fr',
+            padding: '0.6rem 1rem', borderRadius: '8px',
+            background: 'rgba(212,165,116,0.08)',
+            marginBottom: '0.5rem',
+          }}>
+            {[
+              language === 'ar' ? 'الاسم' : 'Name',
+              language === 'ar' ? 'المسمى' : 'Position',
+              language === 'ar' ? 'القسم' : 'Department',
+              language === 'ar' ? 'التاريخ' : 'View All',
+            ].map((h, i) => (
+              <span key={i} style={{ color: 'rgba(212,165,116,0.7)', fontSize: '0.78rem', fontWeight: 700, textAlign: i === 3 ? 'center' : 'inherit' }}>{h}</span>
+            ))}
           </div>
+
+          {/* Table Rows */}
+          {recentEmployees.map((emp, i) => (
+            <div
+              key={i}
+              style={{
+                display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 1fr',
+                padding: '0.9rem 1rem',
+                borderBottom: i < recentEmployees.length - 1 ? '1px solid rgba(212,165,116,0.08)' : 'none',
+                alignItems: 'center',
+                transition: 'background 0.2s',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,165,116,0.05)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              {/* Avatar + Name */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #7d0a12, #3a1a1a)',
+                  border: '1.5px solid rgba(212,165,116,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.8rem', fontWeight: 700, color: '#d4a574', flexShrink: 0,
+                }}>
+                  {emp.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                </div>
+                <span style={{ color: '#f5e6d3', fontWeight: 600, fontSize: '0.9rem' }}>{emp.name}</span>
+              </div>
+              <span style={{ color: 'rgba(245,230,211,0.7)', fontSize: '0.85rem' }}>{emp.pos}</span>
+              <span style={{ color: 'rgba(245,230,211,0.7)', fontSize: '0.85rem' }}>{emp.dept}</span>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{
+                  background: 'rgba(212,165,116,0.12)', color: '#d4a574',
+                  padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
+                }}>{emp.date}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* ═══ Upcoming Leaves ═══ */}
-        <div style={{
-          background: t.card,
-          borderRadius: '20px',
-          padding: '1.75rem',
-          border: `1px solid ${t.border}`,
-          boxShadow: t.shadow,
-        }}>
-          <h3 style={{
-            margin: 0,
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: t.text,
-            marginBottom: '1.5rem',
-          }}>
+        {/* Upcoming Leaves */}
+        <div style={{ ...card, padding: '2rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#f5e6d3' }}>
             {language === 'ar' ? 'الإجازات القادمة' : 'Upcoming Leaves'}
+            <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(212,165,116,0.6)', fontWeight: 500, marginTop: '0.1rem' }}>
+              {language === 'ar' ? 'Upcoming Leaves' : 'الإجازات القادمة'}
+            </span>
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {upcomingLeaves.map((leave, i) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {upcomingLeaves.map((lv, i) => (
               <div
                 key={i}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  background: t.surface,
-                  borderRadius: '14px',
-                  border: `1px solid transparent`,
-                  transition: 'all 0.3s',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = t.accent;
-                  e.currentTarget.style.transform = `translateX(${isRTL ? '5px' : '-5px'})`;
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'transparent';
-                  e.currentTarget.style.transform = 'translateX(0)';
-                }}
-              >
-                <div style={{
-                  width: '42px',
-                  height: '42px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '1rem 1.25rem',
+                  background: 'linear-gradient(135deg, rgba(125,10,18,0.2), rgba(42,31,24,0.5))',
                   borderRadius: '12px',
-                  background: `linear-gradient(135deg, ${Colors.darkRed}30, ${Colors.red}20)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: Colors.darkRed,
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  flexShrink: 0,
-                }}>
-                  {leave.avatar}
+                  border: '1px solid rgba(155,13,22,0.25)',
+                  cursor: 'pointer',
+                  transition: 'all 0.25s',
+                  borderLeft: '3px solid #9b0d16',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,165,116,0.4)'; e.currentTarget.style.background = 'rgba(212,165,116,0.07)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(155,13,22,0.25)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(125,10,18,0.2), rgba(42,31,24,0.5))'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #7d0a12, #3a1a1a)', border: '1.5px solid rgba(212,165,116,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <FiCalendar size={16} color="#d4a574" />
+                  </div>
+                  <span style={{ color: '#f5e6d3', fontWeight: 600, fontSize: '0.88rem' }}>{lv.name}</span>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{
-                    margin: 0,
-                    fontWeight: 600,
-                    color: t.text,
-                    fontSize: '0.9rem',
-                  }}>
-                    {isRTL ? leave.nameAr : leave.name}
-                  </p>
-                  <span style={{
-                    fontSize: '0.8rem',
-                    color: t.textMuted,
-                  }}>
-                    {isRTL ? leave.typeAr : leave.type}
-                  </span>
-                </div>
-                <div style={{
-                  textAlign: isRTL ? 'left' : 'right',
-                }}>
-                  <span style={{
-                    background: `${Colors.warning}18`,
-                    color: Colors.warning,
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                  }}>
-                    {isRTL ? leave.datesAr : leave.dates}
-                  </span>
-                </div>
+                <span style={{ color: 'rgba(212,165,116,0.85)', fontSize: '0.82rem', fontWeight: 600, background: 'rgba(212,165,116,0.1)', padding: '0.25rem 0.6rem', borderRadius: '6px' }}>{lv.period}</span>
               </div>
             ))}
           </div>
 
-          {/* Quick Leave Stats */}
-          <div style={{
-            marginTop: '1.5rem',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '0.75rem',
-          }}>
-            <div style={{
-              background: `${Colors.success}10`,
-              borderRadius: '12px',
-              padding: '1rem',
-              textAlign: 'center',
-              border: `1px solid ${Colors.success}20`,
-            }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: Colors.success }}>18</div>
-              <div style={{ fontSize: '0.8rem', color: t.textMuted }}>
-                {language === 'ar' ? 'تمت الموافقة' : 'Approved'}
+          {/* Stats cards at bottom */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '1.5rem' }}>
+            {[
+              { label: language === 'ar' ? 'أيام الإجازة المتبقية' : 'Days Remaining', value: '18', color: '#d4a574' },
+              { label: language === 'ar' ? 'طلبات معلقة' : 'Pending Requests', value: '5', color: '#9b0d16' },
+            ].map((s, i) => (
+              <div key={i} style={{ background: 'rgba(212,165,116,0.06)', borderRadius: '10px', padding: '0.9rem', border: `1px solid ${s.color}25`, textAlign: 'center' }}>
+                <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(212,165,116,0.65)', marginTop: '0.2rem', fontWeight: 500 }}>{s.label}</div>
               </div>
-            </div>
-            <div style={{
-              background: `${Colors.warning}10`,
-              borderRadius: '12px',
-              padding: '1rem',
-              textAlign: 'center',
-              border: `1px solid ${Colors.warning}20`,
-            }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: Colors.warning }}>5</div>
-              <div style={{ fontSize: '0.8rem', color: t.textMuted }}>
-                {language === 'ar' ? 'معلق' : 'Pending'}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ═══ Bottom Stats Row ═══ */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '1.25rem',
-      }}>
-        {[
-          {
-            label: language === 'ar' ? 'الرواتب المعالجة' : 'Payroll Processed',
-            value: '₹ 2.4M',
-            icon: FiCreditCard,
-            change: '+12%',
-            color: Colors.success,
-            gradient: `linear-gradient(135deg, ${Colors.success}20, ${Colors.success}05)`,
-          },
-          {
-            label: language === 'ar' ? 'التوظيف المفتوح' : 'Open Positions',
-            value: '8',
-            icon: FiBriefcase,
-            change: '3 urgent',
-            color: Colors.warning,
-            gradient: `linear-gradient(135deg, ${Colors.warning}20, ${Colors.warning}05)`,
-          },
-          {
-            label: language === 'ar' ? 'رضا الموظفين' : 'Employee Satisfaction',
-            value: '94%',
-            icon: FiStar,
-            change: '+2.3%',
-            color: Colors.gold,
-            gradient: `linear-gradient(135deg, ${Colors.gold}20, ${Colors.gold}05)`,
-          },
-          {
-            label: language === 'ar' ? 'معدل الدوران' : 'Turnover Rate',
-            value: '3.2%',
-            icon: FiTrendingUp,
-            change: '-0.5%',
-            color: Colors.info,
-            gradient: `linear-gradient(135deg, ${Colors.info}20, ${Colors.info}05)`,
-          },
-        ].map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={idx}
-              style={{
-                background: t.card,
-                borderRadius: '18px',
-                padding: '1.5rem',
-                border: `1px solid ${t.border}`,
-                boxShadow: t.shadow,
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-6px)';
-                e.currentTarget.style.boxShadow = `0 16px 40px ${stat.color}15`;
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = t.shadow;
-              }}
-            >
-              {/* Background decoration */}
-              <div style={{
-                position: 'absolute',
-                top: -20,
-                [isRTL ? 'left' : 'right']: -20,
-                width: '80px',
-                height: '80px',
-                background: stat.gradient,
-                borderRadius: '50%',
-              }} />
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', position: 'relative' }}>
-                <div>
-                  <p style={{
-                    margin: 0,
-                    color: t.textMuted,
-                    fontSize: '0.85rem',
-                    marginBottom: '0.5rem',
-                    fontWeight: 500,
-                  }}>
-                    {stat.label}
-                  </p>
-                  <h3 style={{
-                    margin: 0,
-                    fontSize: '1.6rem',
-                    fontWeight: 800,
-                    color: t.text,
-                  }}>
-                    {stat.value}
-                  </h3>
-                  <span style={{
-                    fontSize: '0.8rem',
-                    color: stat.color,
-                    fontWeight: 600,
-                    marginTop: '0.25rem',
-                    display: 'inline-block',
-                  }}>
-                    {stat.change}
-                  </span>
-                </div>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '14px',
-                  background: `${stat.color}15`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: stat.color,
-                }}>
-                  <Icon size={24} />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ═══ Animations ═══ */}
+      {/* Global animation */}
       <style>{`
-        @keyframes fadeIn {
+        @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
   );
 }
-
-export default HRDashboard;
