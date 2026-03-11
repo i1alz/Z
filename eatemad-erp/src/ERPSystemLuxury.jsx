@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
   FiSun, FiMoon, FiHome, FiUsers, FiShoppingCart, FiBarChart2,
   FiSettings, FiBox, FiTruck, FiDollarSign, FiFileText, FiCalendar,
@@ -8,9 +8,9 @@ import {
 } from 'react-icons/fi';
 import HRDashboard from './components/HRDashboard';
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 // Brand Colors - Eatemad Official Palette
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 const Colors = {
   // Primary Brand Colors - Bronze & Gold
   bronze: "#995d26",
@@ -67,9 +67,9 @@ const Colors = {
   shadowLight: "0 8px 30px rgba(153,93,38,0.12)",
 };
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 // Decorative Wheat/Leaf Element
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function WheatDecor({ size = 100, opacity = 0.15, flip = false, style = {} }) {
   return (
     <svg
@@ -112,15 +112,15 @@ function WheatDecor({ size = 100, opacity = 0.15, flip = false, style = {} }) {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 // Theme Context
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 // Main ERP System Component
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function ERPSystemLuxury() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeModule, setActiveModule] = useState('dashboard');
@@ -131,8 +131,8 @@ function ERPSystemLuxury() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const user = {
-    name: 'Ø²ÙŠØ¯ Ø§Ù„Ø¹Ø²Ø§Ù…',
-    role: 'Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù…',
+    name: 'زيد العزام',
+    role: 'مدير النظام',
     email: 'admin@eatemad.com',
     avatar: 'ZA'
   };
@@ -169,49 +169,49 @@ function ERPSystemLuxury() {
   const modules = [
     {
       id: 'dashboard',
-      label: 'Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…',
+      label: 'لوحة التحكم',
       labelEn: 'Dashboard',
       icon: FiGrid,
       gradient: `linear-gradient(135deg, ${Colors.gold}, ${Colors.goldDark})`
     },
     {
       id: 'employees',
-      label: 'Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†',
+      label: 'الموظفين',
       labelEn: 'Employees',
       icon: FiUsers,
       gradient: `linear-gradient(135deg, ${Colors.darkRed}, ${Colors.red})`
     },
     {
       id: 'attendance',
-      label: 'Ø§Ù„Ø­Ø¶ÙˆØ± ÙˆØ§Ù„Ø§Ù†ØµØ±Ø§Ù',
+      label: 'الحضور والانصراف',
       labelEn: 'Attendance',
       icon: FiCheckCircle,
       gradient: `linear-gradient(135deg, #22c55e, #16a34a)`
     },
     {
       id: 'leaves',
-      label: 'Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª',
+      label: 'الإجازات',
       labelEn: 'Leaves',
       icon: FiCalendar,
       gradient: `linear-gradient(135deg, #3b82f6, #2563eb)`
     },
     {
       id: 'payroll',
-      label: 'Ø§Ù„Ø±ÙˆØ§ØªØ¨',
+      label: 'الرواتب',
       labelEn: 'Payroll',
       icon: FiCreditCard,
       gradient: `linear-gradient(135deg, #f59e0b, #d97706)`
     },
     {
       id: 'recruitment',
-      label: 'Ø§Ù„ØªÙˆØ¸ÙŠÙ',
+      label: 'التوظيف',
       labelEn: 'Recruitment',
       icon: FiActivity,
       gradient: `linear-gradient(135deg, #8b5cf6, #7c3aed)`
     },
     {
       id: 'performance',
-      label: 'ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø£Ø¯Ø§Ø¡',
+      label: 'تقييم الأداء',
       labelEn: 'Performance',
       icon: FiBarChart2,
       gradient: `linear-gradient(135deg, #ef4444, #dc2626)`
@@ -338,7 +338,7 @@ function ERPSystemLuxury() {
                 }}
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = '<span style="font-size: 28px;">ðŸ¥©</span>';
+                  e.target.parentElement.innerHTML = '<span style="font-size: 28px;">🥩</span>';
                 }}
               />
             </div>
@@ -354,7 +354,7 @@ function ERPSystemLuxury() {
                 margin: 0,
                 letterSpacing: language === 'ar' ? '0.5px' : '-0.5px',
               }}>
-                {language === 'ar' ? 'Ù†Ø¸Ø§Ù… Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…ØªÙƒØ§Ù…Ù„' : 'Al Eatemad ERP'}
+                {language === 'ar' ? 'نظام الاعتماد المتكامل' : 'Al Eatemad ERP'}
               </h1>
               <p style={{
                 fontSize: '0.85rem',
@@ -362,7 +362,7 @@ function ERPSystemLuxury() {
                 margin: 0,
                 fontWeight: 500,
               }}>
-                {language === 'ar' ? 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ù…Ø¤Ø³Ø³ÙŠØ©' : 'Enterprise Resource Planning'}
+                {language === 'ar' ? 'إدارة الموارد المؤسسية' : 'Enterprise Resource Planning'}
               </p>
             </div>
           </div>
@@ -394,7 +394,7 @@ function ERPSystemLuxury() {
               <FiSearch style={{ color: currentTheme.accent, minWidth: '18px' }} size={18} />
               <input
                 type="text"
-                placeholder={language === 'ar' ? 'Ø§Ù„Ø¨Ø­Ø« ÙÙŠ Ø§Ù„Ù†Ø¸Ø§Ù…...' : 'Search system...'}
+                placeholder={language === 'ar' ? 'البحث في النظام...' : 'Search system...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -497,7 +497,7 @@ function ERPSystemLuxury() {
                 e.target.style.boxShadow = `0 4px 15px ${currentTheme.accent}30`;
               }}
             >
-              {language === 'ar' ? 'EN' : 'Ø¹Ø±Ø¨ÙŠ'}
+              {language === 'ar' ? 'EN' : 'عربي'}
             </button>
 
             {/* Theme Toggle with Animation */}
@@ -765,7 +765,7 @@ function ERPSystemLuxury() {
                 >
                   <FiSettings size={20} />
                   <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                    {language === 'ar' ? 'Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª' : 'Settings'}
+                    {language === 'ar' ? 'الإعدادات' : 'Settings'}
                   </span>
                 </button>
 
@@ -803,7 +803,7 @@ function ERPSystemLuxury() {
                   }}
                 >
                   <FiLogOut size={18} />
-                  <span>{language === 'ar' ? 'ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬' : 'Logout'}</span>
+                  <span>{language === 'ar' ? 'تسجيل الخروج' : 'Logout'}</span>
                 </button>
               </div>
             )}
@@ -885,188 +885,51 @@ function ERPSystemLuxury() {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 // Dashboard Module - HR Focused
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function DashboardModule({ theme, language, isDarkMode }) {
   const stats = [
-    {
-      label: language === 'ar' ? 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†' : 'Total Employees',
-      value: '248',
-      unit: language === 'ar' ? 'Ù…ÙˆØ¸Ù' : 'Staff',
-      change: '+5%',
-      icon: FiUsers,
-      gradient: `linear-gradient(135deg, #3b82f6, #2563eb)`,
-      trending: 'up'
-    },
-    {
-      label: language === 'ar' ? 'Ø§Ù„Ø­Ø¶ÙˆØ± Ø§Ù„ÙŠÙˆÙ…' : 'Present Today',
-      value: '215',
-      unit: language === 'ar' ? 'Ø­Ø§Ø¶Ø±' : 'Present',
-      change: '86.7%',
-      icon: FiCheckCircle,
-      gradient: `linear-gradient(135deg, #22c55e, #16a34a)`,
-      trending: 'up'
-    },
-    {
-      label: language === 'ar' ? 'Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø©' : 'Leave Requests',
-      value: '12',
-      unit: language === 'ar' ? 'Ø·Ù„Ø¨' : 'Request',
-      change: '5 pending',
-      icon: FiCalendar,
-      gradient: `linear-gradient(135deg, #f59e0b, #d97706)`,
-      trending: 'up'
-    },
-    {
-      label: language === 'ar' ? 'ÙˆØ¸Ø§Ø¦Ù Ø´Ø§ØºØ±Ø©' : 'Open Positions',
-      value: '8',
-      unit: language === 'ar' ? 'ÙˆØ¸ÙŠÙØ©' : 'Position',
-      change: '3 urgent',
-      icon: FiActivity,
-      gradient: `linear-gradient(135deg, #8b5cf6, #7c3aed)`,
-      trending: 'down'
-    },
+    { label: language === 'ar' ? 'إجمالي الموظفين' : 'Total Employees', value: '248', unit: language === 'ar' ? 'موظف' : 'Staff', change: '+5%', icon: FiUsers, gradient: `linear-gradient(135deg, #3b82f6, #2563eb)`, trending: 'up' },
+    { label: language === 'ar' ? 'الحضور اليوم' : 'Present Today', value: '215', unit: language === 'ar' ? 'حاضر' : 'Present', change: '86.7%', icon: FiCheckCircle, gradient: `linear-gradient(135deg, #22c55e, #16a34a)`, trending: 'up' },
+    { label: language === 'ar' ? 'طلبات الإجازة' : 'Leave Requests', value: '12', unit: language === 'ar' ? 'طلب' : 'Request', change: '5 pending', icon: FiCalendar, gradient: `linear-gradient(135deg, #f59e0b, #d97706)`, trending: 'up' },
+    { label: language === 'ar' ? 'وظائف شاغرة' : 'Open Positions', value: '8', unit: language === 'ar' ? 'وظيفة' : 'Position', change: '3 urgent', icon: FiActivity, gradient: `linear-gradient(135deg, #8b5cf6, #7c3aed)`, trending: 'down' },
   ];
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
-      {/* Page Header */}
       <div style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{
-          fontSize: '2.2rem',
-          fontWeight: 800,
-          marginBottom: '0.5rem',
-          background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
-          {language === 'ar' ? 'Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©' : 'HR Dashboard'}
+        <h2 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.5rem', background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+          {language === 'ar' ? 'لوحة تحكم الموارد البشرية' : 'HR Dashboard'}
         </h2>
         <p style={{ color: theme.textMuted, fontSize: '1rem' }}>
-          {language === 'ar' ?
-            `Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨ÙƒØŒ Ø²ÙŠØ¯ Ø§Ù„Ø¹Ø²Ø§Ù…! Ø¥Ù„ÙŠÙƒ Ù†Ø¸Ø±Ø© Ø¹Ø§Ù…Ø© Ø¹Ù„Ù‰ Ù‚Ø³Ù… Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ© Ø§Ù„ÙŠÙˆÙ…` :
-            `Welcome, Zaid Al-Azzam! Here's your HR department overview for today`
-          }
+          {language === 'ar' ? 'مرحباً بك، زيد العزام! إليك نظرة عامة على قسم الموارد البشرية اليوم' : "Welcome, Zaid Al-Azzam! Here's your HR department overview for today"}
         </p>
       </div>
-
-      {/* Stats Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.75rem',
-        marginBottom: '3rem',
-      }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.75rem', marginBottom: '3rem' }}>
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           const TrendIcon = stat.trending === 'up' ? FiTrendingUp : FiTrendingDown;
-
           return (
-            <div
-              key={index}
-              style={{
-                background: theme.card,
-                borderRadius: '20px',
-                padding: '1.75rem',
-                border: `1px solid ${theme.border}`,
-                boxShadow: theme.shadow,
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
-                e.currentTarget.style.boxShadow = `0 20px 60px ${Colors.gold}15`;
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = theme.shadow;
-              }}
+            <div key={index} style={{ background: theme.card, borderRadius: '20px', padding: '1.75rem', border: `1px solid ${theme.border}`, boxShadow: theme.shadow, transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)'; e.currentTarget.style.boxShadow = `0 20px 60px ${Colors.gold}15`; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = theme.shadow; }}
             >
-              <div style={{
-                position: 'absolute',
-                top: -50,
-                right: -50,
-                width: 150,
-                height: 150,
-                background: stat.gradient,
-                borderRadius: '50%',
-                opacity: 0.1,
-              }} />
-
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'start',
-                position: 'relative',
-              }}>
+              <div style={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, background: stat.gradient, borderRadius: '50%', opacity: 0.1 }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', position: 'relative' }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{
-                    color: theme.textMuted,
-                    marginBottom: '0.75rem',
-                    fontSize: '0.9rem',
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}>
-                    {stat.label}
-                  </p>
-                  <h3 style={{
-                    fontSize: '2rem',
-                    margin: '0.5rem 0',
-                    fontWeight: 800,
-                    color: theme.text,
-                  }}>
+                  <p style={{ color: theme.textMuted, marginBottom: '0.75rem', fontSize: '0.9rem', fontWeight: 500 }}>{stat.label}</p>
+                  <h3 style={{ fontSize: '2rem', margin: '0.5rem 0', fontWeight: 800, color: theme.text }}>
                     {stat.value}
-                    <span style={{
-                      fontSize: '0.9rem',
-                      marginLeft: '0.5rem',
-                      color: theme.textMuted,
-                      fontWeight: 400,
-                    }}>
-                      {stat.unit}
-                    </span>
+                    <span style={{ fontSize: '0.9rem', marginLeft: '0.5rem', color: theme.textMuted, fontWeight: 400 }}>{stat.unit}</span>
                   </h3>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    marginTop: '0.75rem',
-                  }}>
-                    <TrendIcon
-                      size={16}
-                      style={{
-                        color: stat.trending === 'up' ? Colors.success : Colors.error
-                      }}
-                    />
-                    <span style={{
-                      color: stat.trending === 'up' ? Colors.success : Colors.error,
-                      fontSize: '0.95rem',
-                      fontWeight: 700,
-                    }}>
-                      {stat.change}
-                    </span>
-                    <span style={{
-                      color: theme.textMuted,
-                      fontSize: '0.85rem',
-                    }}>
-                      {language === 'ar' ? 'Ù…Ù† Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø§Ø¶ÙŠ' : 'from last month'}
-                    </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.75rem' }}>
+                    <TrendIcon size={16} style={{ color: stat.trending === 'up' ? Colors.success : Colors.error }} />
+                    <span style={{ color: stat.trending === 'up' ? Colors.success : Colors.error, fontSize: '0.95rem', fontWeight: 700 }}>{stat.change}</span>
+                    <span style={{ color: theme.textMuted, fontSize: '0.85rem' }}>{language === 'ar' ? 'من الشهر الماضي' : 'from last month'}</span>
                   </div>
                 </div>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  background: stat.gradient,
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  boxShadow: `0 8px 24px ${Colors.gold}20`,
-                }}>
+                <div style={{ width: '60px', height: '60px', background: stat.gradient, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: `0 8px 24px ${Colors.gold}20` }}>
                   <Icon size={28} />
                 </div>
               </div>
@@ -1074,163 +937,45 @@ function DashboardModule({ theme, language, isDarkMode }) {
           );
         })}
       </div>
-
-      {/* Recent Activities */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.5fr 1fr',
-        gap: '1.75rem',
-      }}>
-        <div style={{
-          background: theme.card,
-          borderRadius: '20px',
-          padding: '2rem',
-          border: `1px solid ${theme.border}`,
-          boxShadow: theme.shadow,
-        }}>
-          <h3 style={{
-            fontSize: '1.3rem',
-            fontWeight: 700,
-            marginBottom: '1.5rem',
-            color: theme.text,
-          }}>
-            {language === 'ar' ? 'Ø§Ù„Ø£Ù†Ø´Ø·Ø© Ø§Ù„Ø£Ø®ÙŠØ±Ø©' : 'Recent Activities'}
-          </h3>
-
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.75rem' }}>
+        <div style={{ background: theme.card, borderRadius: '20px', padding: '2rem', border: `1px solid ${theme.border}`, boxShadow: theme.shadow }}>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1.5rem', color: theme.text }}>{language === 'ar' ? 'الأنشطة الأخيرة' : 'Recent Activities'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[
-              {
-                title: language === 'ar' ? 'ØªÙ… ØªØ¹ÙŠÙŠÙ† Ù…ÙˆØ¸Ù Ø¬Ø¯ÙŠØ¯' : 'New Employee Hired',
-                time: language === 'ar' ? 'Ù…Ù†Ø° 5 Ø¯Ù‚Ø§Ø¦Ù‚' : '5 minutes ago',
-                icon: FiUsers,
-                color: Colors.success,
-              },
-              {
-                title: language === 'ar' ? 'Ø·Ù„Ø¨ Ø¥Ø¬Ø§Ø²Ø© Ø¬Ø¯ÙŠØ¯' : 'New Leave Request',
-                time: language === 'ar' ? 'Ù…Ù†Ø° 15 Ø¯Ù‚ÙŠÙ‚Ø©' : '15 minutes ago',
-                icon: FiCalendar,
-                color: Colors.info,
-              },
-              {
-                title: language === 'ar' ? 'ØªÙ‚ÙŠÙŠÙ… Ø£Ø¯Ø§Ø¡ Ù…ÙƒØªÙ…Ù„' : 'Performance Review Completed',
-                time: language === 'ar' ? 'Ù…Ù†Ø° Ø³Ø§Ø¹Ø©' : '1 hour ago',
-                icon: FiBarChart2,
-                color: Colors.warning,
-              },
-              {
-                title: language === 'ar' ? 'ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø±ÙˆØ§ØªØ¨' : 'Payroll Data Updated',
-                time: language === 'ar' ? 'Ù…Ù†Ø° 3 Ø³Ø§Ø¹Ø§Øª' : '3 hours ago',
-                icon: FiCreditCard,
-                color: Colors.bronze,
-              },
-            ].map((activity, i) => {
-              const Icon = activity.icon;
-              return (
-                <div
-                  key={i}
-                  style={{
-                    padding: '1rem',
-                    background: theme.surface,
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    transition: 'all 0.3s',
-                    cursor: 'pointer',
-                    border: `1px solid transparent`,
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.border = `1px solid ${theme.accent}`;
-                    e.currentTarget.style.transform = 'translateX(-5px)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.border = `1px solid transparent`;
-                    e.currentTarget.style.transform = 'translateX(0)';
-                  }}
-                >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '10px',
-                    background: `${activity.color}20`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: activity.color,
-                  }}>
-                    <Icon size={20} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{
-                      margin: 0,
-                      fontWeight: 600,
-                      color: theme.text,
-                    }}>
-                      {activity.title}
-                    </p>
-                    <span style={{
-                      color: theme.textMuted,
-                      fontSize: '0.85rem'
-                    }}>
-                      {activity.time}
-                    </span>
-                  </div>
-                  <FiChevronRight
-                    size={16}
-                    style={{
-                      color: theme.textMuted,
-                      transform: language === 'ar' ? 'rotate(180deg)' : 'none',
-                    }}
-                  />
-                </div>
-              );
-            })}
+              { title: language === 'ar' ? 'تم تعيين موظف جديد' : 'New Employee Hired', time: language === 'ar' ? 'منذ 5 دقائق' : '5 min ago', icon: FiUsers, color: Colors.success },
+              { title: language === 'ar' ? 'طلب إجازة جديد' : 'New Leave Request', time: language === 'ar' ? 'منذ 15 دقيقة' : '15 min ago', icon: FiCalendar, color: Colors.info },
+              { title: language === 'ar' ? 'تقييم أداء مكتمل' : 'Performance Review Done', time: language === 'ar' ? 'منذ ساعة' : '1 hour ago', icon: FiBarChart2, color: Colors.warning },
+              { title: language === 'ar' ? 'تحديث بيانات الرواتب' : 'Payroll Data Updated', time: language === 'ar' ? 'منذ 3 ساعات' : '3 hours ago', icon: FiCreditCard, color: Colors.bronze },
+            ].map((a, i) => { const Ic = a.icon; return (
+              <div key={i} style={{ padding: '1rem', background: theme.surface, borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '1rem', transition: 'all 0.3s', cursor: 'pointer', border: '1px solid transparent' }}
+                onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${theme.accent}`; e.currentTarget.style.transform = 'translateX(-5px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.border = '1px solid transparent'; e.currentTarget.style.transform = 'translateX(0)'; }}
+              >
+                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: `${a.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.color }}><Ic size={20} /></div>
+                <div style={{ flex: 1 }}><p style={{ margin: 0, fontWeight: 600, color: theme.text }}>{a.title}</p><span style={{ color: theme.textMuted, fontSize: '0.85rem' }}>{a.time}</span></div>
+                <FiChevronRight size={16} style={{ color: theme.textMuted, transform: language === 'ar' ? 'rotate(180deg)' : 'none' }} />
+              </div>
+            ); })}
           </div>
         </div>
-
-        {/* Department Overview */}
-        <div style={{
-          background: theme.card,
-          borderRadius: '20px',
-          padding: '2rem',
-          border: `1px solid ${theme.border}`,
-          boxShadow: theme.shadow,
-        }}>
-          <h3 style={{
-            fontSize: '1.3rem',
-            fontWeight: 700,
-            marginBottom: '1.5rem',
-            color: theme.text,
-          }}>
-            {language === 'ar' ? 'ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ù‚Ø³Ø§Ù…' : 'Department Distribution'}
-          </h3>
+        <div style={{ background: theme.card, borderRadius: '20px', padding: '2rem', border: `1px solid ${theme.border}`, boxShadow: theme.shadow }}>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '1.5rem', color: theme.text }}>{language === 'ar' ? 'توزيع الأقسام' : 'Department Distribution'}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[
-              { name: language === 'ar' ? 'Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©' : 'Management', count: 12, color: Colors.gold },
-              { name: language === 'ar' ? 'Ø§Ù„Ù…Ø§Ù„ÙŠØ©' : 'Finance', count: 35, color: Colors.success },
-              { name: language === 'ar' ? 'Ø§Ù„ØªÙ‚Ù†ÙŠØ©' : 'IT', count: 48, color: Colors.info },
-              { name: language === 'ar' ? 'Ø§Ù„Ø¥Ù†ØªØ§Ø¬' : 'Production', count: 85, color: Colors.bronze },
-              { name: language === 'ar' ? 'Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª' : 'Sales', count: 42, color: '#8b5cf6' },
-              { name: language === 'ar' ? 'Ø§Ù„Ù„ÙˆØ¬Ø³ØªÙŠØ§Øª' : 'Logistics', count: 26, color: Colors.warning },
+              { name: language === 'ar' ? 'الإدارة' : 'Management', count: 12, color: Colors.gold },
+              { name: language === 'ar' ? 'المالية' : 'Finance', count: 35, color: Colors.success },
+              { name: language === 'ar' ? 'التقنية' : 'IT', count: 48, color: Colors.info },
+              { name: language === 'ar' ? 'الإنتاج' : 'Production', count: 85, color: Colors.bronze },
+              { name: language === 'ar' ? 'المبيعات' : 'Sales', count: 42, color: '#8b5cf6' },
+              { name: language === 'ar' ? 'اللوجستيات' : 'Logistics', count: 26, color: Colors.warning },
             ].map((dept, i) => (
               <div key={i}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                   <span style={{ color: theme.text, fontSize: '0.9rem', fontWeight: 500 }}>{dept.name}</span>
                   <span style={{ color: theme.textMuted, fontSize: '0.85rem' }}>{dept.count}</span>
                 </div>
-                <div style={{
-                  height: '8px',
-                  background: theme.surface,
-                  borderRadius: '4px',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${(dept.count / 85) * 100}%`,
-                    background: dept.color,
-                    borderRadius: '4px',
-                    transition: 'width 1s ease',
-                  }} />
+                <div style={{ height: '8px', background: theme.surface, borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${(dept.count / 85) * 100}%`, background: dept.color, borderRadius: '4px', transition: 'width 1s ease' }} />
                 </div>
               </div>
             ))}
@@ -1241,170 +986,67 @@ function DashboardModule({ theme, language, isDarkMode }) {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// HR Sub-Module Component (Attendance, Leaves, Payroll, etc.)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
+// HR Sub-Module Component
+// ═══════════════════════════════════════════════
 function HRSubModule({ module, theme, language, isDarkMode }) {
-  const moduleConfig = {
-    attendance: {
-      title: language === 'ar' ? 'Ø§Ù„Ø­Ø¶ÙˆØ± ÙˆØ§Ù„Ø§Ù†ØµØ±Ø§Ù' : 'Attendance Management',
-      subtitle: language === 'ar' ? 'ØªØªØ¨Ø¹ Ø­Ø¶ÙˆØ± ÙˆØ§Ù†ØµØ±Ø§Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†' : 'Track employee attendance and work hours',
-      icon: FiCheckCircle,
-      data: [
-        { name: language === 'ar' ? 'Ø£Ø­Ù…Ø¯ Ø§Ù„ÙØ§Ø±Ø³ÙŠ' : 'Ahmed Al-Farsi', status: language === 'ar' ? 'Ø­Ø§Ø¶Ø±' : 'Present', time: '08:00', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ø±ÙŠÙ… Ø§Ù„Ø­Ø±Ø¨ÙŠ' : 'Reem Al-Harbi', status: language === 'ar' ? 'Ø­Ø§Ø¶Ø±' : 'Present', time: '08:15', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ø¹Ù…Ø± Ø¢Ù„ Ø³Ø¹ÙˆØ¯' : 'Omar Al-Saud', status: language === 'ar' ? 'Ù…ØªØ£Ø®Ø±' : 'Late', time: '09:30', statusColor: Colors.warning },
-        { name: language === 'ar' ? 'Ù„ÙŠÙ„Ù‰ Ø¥Ø¨Ø±Ø§Ù‡ÙŠÙ…' : 'Layla Ibrahim', status: language === 'ar' ? 'ØºØ§Ø¦Ø¨' : 'Absent', time: '--', statusColor: Colors.error },
-        { name: language === 'ar' ? 'Ø­Ø³Ù† Ø§Ù„Ù‚Ø­Ø·Ø§Ù†ÙŠ' : 'Hassan Al-Qahtani', status: language === 'ar' ? 'Ø­Ø§Ø¶Ø±' : 'Present', time: '07:55', statusColor: Colors.success },
-      ]
-    },
-    leaves: {
-      title: language === 'ar' ? 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª' : 'Leave Management',
-      subtitle: language === 'ar' ? 'Ø¹Ø±Ø¶ ÙˆØ¥Ø¯Ø§Ø±Ø© Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª' : 'View and manage leave requests',
-      icon: FiCalendar,
-      data: [
-        { name: language === 'ar' ? 'Ù…Ù‡Ø§ Ø§Ù„Ø²Ù‡Ø±Ø§Ù†ÙŠ' : 'Maha Al-Zahrani', status: language === 'ar' ? 'Ù…Ø¹Ù„Ù‚' : 'Pending', time: '23-26 Ø£Ø¨Ø±ÙŠÙ„', statusColor: Colors.warning },
-        { name: language === 'ar' ? 'ÙÙŠØµÙ„ Ø§Ù„Ù‚Ø­Ø·Ø§Ù†ÙŠ' : 'Faisal Al-Qahtani', status: language === 'ar' ? 'Ù…ÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡' : 'Approved', time: '23-25 Ø£Ø¨Ø±ÙŠÙ„', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ù†ÙˆØ±Ø© Ø§Ù„Ø³Ø§Ù„Ù…' : 'Noura Al-Salem', status: language === 'ar' ? 'Ù…Ø¹Ù„Ù‚' : 'Pending', time: '28-30 Ø£Ø¨Ø±ÙŠÙ„', statusColor: Colors.warning },
-      ]
-    },
-    payroll: {
-      title: language === 'ar' ? 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø±ÙˆØ§ØªØ¨' : 'Payroll Management',
-      subtitle: language === 'ar' ? 'Ù…Ø¹Ø§Ù„Ø¬Ø© ÙˆØ¥Ø¯Ø§Ø±Ø© Ø±ÙˆØ§ØªØ¨ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†' : 'Process and manage employee salaries',
-      icon: FiCreditCard,
-      data: [
-        { name: language === 'ar' ? 'Ù‚Ø³Ù… Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©' : 'Management Dept', status: language === 'ar' ? 'ØªÙ… Ø§Ù„Ø¯ÙØ¹' : 'Paid', time: '85,000 Ø±.Ø³', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ù‚Ø³Ù… Ø§Ù„ØªÙ‚Ù†ÙŠØ©' : 'IT Dept', status: language === 'ar' ? 'ØªÙ… Ø§Ù„Ø¯ÙØ¹' : 'Paid', time: '120,000 Ø±.Ø³', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ù‚Ø³Ù… Ø§Ù„Ø¥Ù†ØªØ§Ø¬' : 'Production Dept', status: language === 'ar' ? 'Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø¹Ø§Ù„Ø¬Ø©' : 'Processing', time: '210,000 Ø±.Ø³', statusColor: Colors.warning },
-      ]
-    },
-    recruitment: {
-      title: language === 'ar' ? 'Ø§Ù„ØªÙˆØ¸ÙŠÙ' : 'Recruitment',
-      subtitle: language === 'ar' ? 'Ø¥Ø¯Ø§Ø±Ø© Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„ØªÙˆØ¸ÙŠÙ ÙˆØ§Ù„Ù…Ù‚Ø§Ø¨Ù„Ø§Øª' : 'Manage hiring and interviews',
-      icon: FiActivity,
-      data: [
-        { name: language === 'ar' ? 'Ù…Ù‡Ù†Ø¯Ø³ Ø¨Ø±Ù…Ø¬ÙŠØ§Øª' : 'Software Engineer', status: language === 'ar' ? 'Ù…ÙØªÙˆØ­' : 'Open', time: '12 Ù…ØªÙ‚Ø¯Ù…', statusColor: Colors.info },
-        { name: language === 'ar' ? 'Ù…Ø­Ø§Ø³Ø¨' : 'Accountant', status: language === 'ar' ? 'Ù…Ù‚Ø§Ø¨Ù„Ø§Øª' : 'Interviews', time: '5 Ù…Ø±Ø´Ø­ÙŠÙ†', statusColor: Colors.warning },
-        { name: language === 'ar' ? 'Ù…Ø¯ÙŠØ± Ù…Ø´Ø§Ø±ÙŠØ¹' : 'Project Manager', status: language === 'ar' ? 'Ù…ÙØªÙˆØ­' : 'Open', time: '8 Ù…ØªÙ‚Ø¯Ù…', statusColor: Colors.info },
-      ]
-    },
-    performance: {
-      title: language === 'ar' ? 'ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø£Ø¯Ø§Ø¡' : 'Performance Reviews',
-      subtitle: language === 'ar' ? 'ØªÙ‚ÙŠÙŠÙ…Ø§Øª ÙˆÙ…Ø±Ø§Ø¬Ø¹Ø§Øª Ø£Ø¯Ø§Ø¡ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†' : 'Employee performance evaluations',
-      icon: FiBarChart2,
-      data: [
-        { name: language === 'ar' ? 'Ø£Ø­Ù…Ø¯ Ø§Ù„ÙØ§Ø±Ø³ÙŠ' : 'Ahmed Al-Farsi', status: language === 'ar' ? 'Ù…Ù…ØªØ§Ø²' : 'Excellent', time: '95%', statusColor: Colors.success },
-        { name: language === 'ar' ? 'Ø±ÙŠÙ… Ø§Ù„Ø­Ø±Ø¨ÙŠ' : 'Reem Al-Harbi', status: language === 'ar' ? 'Ø¬ÙŠØ¯ Ø¬Ø¯Ø§Ù‹' : 'Very Good', time: '88%', statusColor: Colors.info },
-        { name: language === 'ar' ? 'Ø¹Ù…Ø± Ø¢Ù„ Ø³Ø¹ÙˆØ¯' : 'Omar Al-Saud', status: language === 'ar' ? 'Ø¬ÙŠØ¯' : 'Good', time: '75%', statusColor: Colors.warning },
-      ]
-    },
+  const cfg = {
+    attendance: { title: language === 'ar' ? 'الحضور والانصراف' : 'Attendance', subtitle: language === 'ar' ? 'تتبع حضور وانصراف الموظفين' : 'Track attendance', icon: FiCheckCircle, data: [
+      { name: language === 'ar' ? 'أحمد الفارسي' : 'Ahmed Al-Farsi', status: language === 'ar' ? 'حاضر' : 'Present', time: '08:00', sc: Colors.success },
+      { name: language === 'ar' ? 'ريم الحربي' : 'Reem Al-Harbi', status: language === 'ar' ? 'حاضر' : 'Present', time: '08:15', sc: Colors.success },
+      { name: language === 'ar' ? 'عمر آل سعود' : 'Omar Al-Saud', status: language === 'ar' ? 'متأخر' : 'Late', time: '09:30', sc: Colors.warning },
+      { name: language === 'ar' ? 'ليلى إبراهيم' : 'Layla Ibrahim', status: language === 'ar' ? 'غائب' : 'Absent', time: '--', sc: Colors.error },
+      { name: language === 'ar' ? 'حسن القحطاني' : 'Hassan Al-Qahtani', status: language === 'ar' ? 'حاضر' : 'Present', time: '07:55', sc: Colors.success },
+    ]},
+    leaves: { title: language === 'ar' ? 'إدارة الإجازات' : 'Leave Management', subtitle: language === 'ar' ? 'عرض وإدارة طلبات الإجازات' : 'Manage leave requests', icon: FiCalendar, data: [
+      { name: language === 'ar' ? 'مها الزهراني' : 'Maha Al-Zahrani', status: language === 'ar' ? 'معلق' : 'Pending', time: '23-26 أبريل', sc: Colors.warning },
+      { name: language === 'ar' ? 'فيصل القحطاني' : 'Faisal Al-Qahtani', status: language === 'ar' ? 'موافق عليه' : 'Approved', time: '23-25 أبريل', sc: Colors.success },
+      { name: language === 'ar' ? 'نورة السالم' : 'Noura Al-Salem', status: language === 'ar' ? 'معلق' : 'Pending', time: '28-30 أبريل', sc: Colors.warning },
+    ]},
+    payroll: { title: language === 'ar' ? 'إدارة الرواتب' : 'Payroll', subtitle: language === 'ar' ? 'معالجة رواتب الموظفين' : 'Process salaries', icon: FiCreditCard, data: [
+      { name: language === 'ar' ? 'قسم الإدارة' : 'Management', status: language === 'ar' ? 'تم الدفع' : 'Paid', time: '85,000 ر.س', sc: Colors.success },
+      { name: language === 'ar' ? 'قسم التقنية' : 'IT Dept', status: language === 'ar' ? 'تم الدفع' : 'Paid', time: '120,000 ر.س', sc: Colors.success },
+      { name: language === 'ar' ? 'قسم الإنتاج' : 'Production', status: language === 'ar' ? 'قيد المعالجة' : 'Processing', time: '210,000 ر.س', sc: Colors.warning },
+    ]},
+    recruitment: { title: language === 'ar' ? 'التوظيف' : 'Recruitment', subtitle: language === 'ar' ? 'إدارة التوظيف والمقابلات' : 'Manage hiring', icon: FiActivity, data: [
+      { name: language === 'ar' ? 'مهندس برمجيات' : 'Software Engineer', status: language === 'ar' ? 'مفتوح' : 'Open', time: '12 متقدم', sc: Colors.info },
+      { name: language === 'ar' ? 'محاسب' : 'Accountant', status: language === 'ar' ? 'مقابلات' : 'Interviews', time: '5 مرشحين', sc: Colors.warning },
+      { name: language === 'ar' ? 'مدير مشاريع' : 'Project Manager', status: language === 'ar' ? 'مفتوح' : 'Open', time: '8 متقدم', sc: Colors.info },
+    ]},
+    performance: { title: language === 'ar' ? 'تقييم الأداء' : 'Performance', subtitle: language === 'ar' ? 'تقييمات أداء الموظفين' : 'Employee reviews', icon: FiBarChart2, data: [
+      { name: language === 'ar' ? 'أحمد الفارسي' : 'Ahmed Al-Farsi', status: language === 'ar' ? 'ممتاز' : 'Excellent', time: '95%', sc: Colors.success },
+      { name: language === 'ar' ? 'ريم الحربي' : 'Reem Al-Harbi', status: language === 'ar' ? 'جيد جداً' : 'Very Good', time: '88%', sc: Colors.info },
+      { name: language === 'ar' ? 'عمر آل سعود' : 'Omar Al-Saud', status: language === 'ar' ? 'جيد' : 'Good', time: '75%', sc: Colors.warning },
+    ]},
   };
-
-  const config = moduleConfig[module] || moduleConfig.attendance;
-  const Icon = config.icon;
-
+  const c = cfg[module] || cfg.attendance;
+  const Icon = c.icon;
   return (
     <div style={{ animation: 'fadeIn 0.5s ease' }}>
       <div style={{ marginBottom: '2.5rem' }}>
-        <h2 style={{
-          fontSize: '2.2rem',
-          fontWeight: 800,
-          marginBottom: '0.5rem',
-          background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
-          {config.title}
-        </h2>
-        <p style={{ color: theme.textMuted, fontSize: '1rem' }}>{config.subtitle}</p>
+        <h2 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.5rem', background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{c.title}</h2>
+        <p style={{ color: theme.textMuted, fontSize: '1rem' }}>{c.subtitle}</p>
       </div>
-
-      {/* Data Table */}
-      <div style={{
-        background: theme.card,
-        borderRadius: '20px',
-        padding: '2rem',
-        border: `1px solid ${theme.border}`,
-        boxShadow: theme.shadow,
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}>
-          <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: theme.text }}>
-            {language === 'ar' ? 'Ø§Ù„Ø³Ø¬Ù„Ø§Øª' : 'Records'}
-          </h3>
-          <button style={{
-            background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-            color: isDarkMode ? Colors.bgDark : '#fff',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '0.75rem 1.5rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'all 0.3s',
-            fontFamily: 'inherit',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 20px ${theme.accent}30`; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            <Icon size={18} />
-            {language === 'ar' ? 'Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙŠØ¯' : 'Add New'}
-          </button>
+      <div style={{ background: theme.card, borderRadius: '20px', padding: '2rem', border: `1px solid ${theme.border}`, boxShadow: theme.shadow }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700, color: theme.text }}>{language === 'ar' ? 'السجلات' : 'Records'}</h3>
+          <button style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, color: isDarkMode ? Colors.bgDark : '#fff', border: 'none', borderRadius: '12px', padding: '0.75rem 1.5rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s', fontFamily: 'inherit' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; }}
+          ><Icon size={18} />{language === 'ar' ? 'إضافة جديد' : 'Add New'}</button>
         </div>
-
-        {config.data.map((item, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '1.25rem 1rem',
-              borderBottom: i < config.data.length - 1 ? `1px solid ${theme.border}` : 'none',
-              transition: 'all 0.2s',
-              borderRadius: '12px',
-              cursor: 'pointer',
-            }}
+        {c.data.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1rem', borderBottom: i < c.data.length - 1 ? `1px solid ${theme.border}` : 'none', transition: 'all 0.2s', borderRadius: '12px', cursor: 'pointer' }}
             onMouseEnter={e => { e.currentTarget.style.background = `${theme.accent}08`; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: `${theme.accent}15`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: theme.accent,
-                fontWeight: 700,
-                fontSize: '0.85rem',
-              }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: `${theme.accent}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.accent, fontWeight: 700, fontSize: '0.85rem' }}>
                 {item.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
               </div>
-              <div>
-                <p style={{ margin: 0, fontWeight: 600, color: theme.text }}>{item.name}</p>
-                <span style={{ fontSize: '0.85rem', color: theme.textMuted }}>{item.time}</span>
-              </div>
+              <div><p style={{ margin: 0, fontWeight: 600, color: theme.text }}>{item.name}</p><span style={{ fontSize: '0.85rem', color: theme.textMuted }}>{item.time}</span></div>
             </div>
-            <span style={{
-              background: `${item.statusColor}18`,
-              color: item.statusColor,
-              padding: '0.4rem 1rem',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-            }}>
-              {item.status}
-            </span>
+            <span style={{ background: `${item.sc}18`, color: item.sc, padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600 }}>{item.status}</span>
           </div>
         ))}
       </div>
