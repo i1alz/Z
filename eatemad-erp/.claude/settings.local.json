@@ -8,7 +8,8 @@
       "Bash(npm install react-icons)",
       "Bash(git log -5 --oneline --date=format:\"%Y-%m-%d %H:%M\" --pretty=format:\"%h | %ad | %s\")",
       "Bash(npm run dev)",
-      "Bash(start chrome http://localhost:5175)"
+      "Bash(start chrome http://localhost:5175)",
+      "Bash(start chrome http://localhost:5173)"
     ],
     "deny": [],
     "ask": []
