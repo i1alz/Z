@@ -11,6 +11,7 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import { getRolePermissions, getRoleTitle } from "../config/roleConfig";
+import { api } from "../config/supabase";
 
 const Colors = {
   gold: "#d4a574",
@@ -126,41 +127,78 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
-    const user = USERS_DATABASE[username];
-    if (!user || user.password !== password) {
-      setError(
-        t(language, "اسم المستخدم أو كلمة المرور غير صحيحة", "Invalid username or password")
-      );
-      setIsLoading(false);
-      return;
+    // First try Supabase Auth
+    const authResult = await api.signIn(username, password);
+    let userData;
+
+    if (authResult.success) {
+      const dbUser = authResult.data.user;
+      let fullName = username;
+      let titleEn = "User";
+      let department = "";
+      
+      // Try to get profile
+      const profileRes = await api.getProfile(dbUser.id, authResult.data.access_token);
+      if (profileRes.success && profileRes.data) {
+        fullName = profileRes.data.full_name || profileRes.data.name || dbUser.email;
+        titleEn = profileRes.data.title || profileRes.data.role || "User";
+        department = profileRes.data.department || "";
+      }
+
+      userData = {
+        id: dbUser.id,
+        username: username,
+        fullName: fullName,
+        englishName: fullName,
+        role: titleEn.toLowerCase().includes("admin") ? "admin" : "hr_manager",
+        title: titleEn,
+        department: department,
+        permissions: titleEn.toLowerCase().includes("admin") ? ["*"] : ["hr", "employees", "attendance", "leaves", "payroll", "reports"],
+        email: dbUser.email,
+        loginTime: new Date().toISOString(),
+      };
+      
+      localStorage.setItem("authToken", authResult.data.access_token);
+    } else {
+      // Fallback to local USERS_DATABASE if Supabase auth fails (e.g. no connection or user not in DB)
+      const localUser = USERS_DATABASE[username];
+      if (!localUser || localUser.password !== password) {
+        setError(
+          t(language, "اسم المستخدم أو كلمة المرور غير صحيحة", "Invalid username or password")
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      const resolvedPermissions =
+        Array.isArray(localUser.permissions) && localUser.permissions.length > 0
+          ? localUser.permissions
+          : getRolePermissions(localUser.role);
+          
+      const resolvedTitle =
+        language === "ar"
+          ? localUser.title || getRoleTitle(localUser.role, "ar")
+          : localUser.titleEn || getRoleTitle(localUser.role, "en");
+
+      userData = {
+        id: username,
+        username: localUser.username,
+        fullName: localUser.fullName,
+        englishName: localUser.englishName,
+        role: localUser.role,
+        title: resolvedTitle,
+        department: localUser.department,
+        permissions: resolvedPermissions,
+        email: localUser.email,
+        loginTime: new Date().toISOString(),
+      };
+      
+      localStorage.setItem("authToken", `token-${username}`);
     }
-
-    const resolvedPermissions =
-      Array.isArray(user.permissions) && user.permissions.length > 0
-        ? user.permissions
-        : getRolePermissions(user.role);
-    const resolvedTitle =
-      language === "ar"
-        ? user.title || getRoleTitle(user.role, "ar")
-        : user.titleEn || getRoleTitle(user.role, "en");
-
-    const userData = {
-      id: username,
-      username: user.username,
-      fullName: user.fullName,
-      englishName: user.englishName,
-      role: user.role,
-      title: resolvedTitle,
-      department: user.department,
-      permissions: resolvedPermissions,
-      email: user.email,
-      loginTime: new Date().toISOString(),
-    };
 
     if (rememberMe) localStorage.setItem("rememberedUsername", username);
     else localStorage.removeItem("rememberedUsername");
 
-    localStorage.setItem("authToken", `token-${username}`);
     localStorage.setItem("user", JSON.stringify(userData));
     onLogin(userData);
   };
