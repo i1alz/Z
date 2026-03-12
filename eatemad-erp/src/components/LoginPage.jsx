@@ -35,45 +35,45 @@ const USERS_DATABASE = {
   "zaid.alazzam": {
     username: "zaid.alazzam",
     password: "admin@2024",
-    fullName: "Ø²ÙŠØ¯ Ø§Ù„Ø¹Ø²Ø§Ù…",
+    fullName: "زيد العزام",
     englishName: "Zaid Al-Azzam",
     role: "admin",
-    title: "Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù…",
+    title: "مدير النظام",
     titleEn: "System Administrator",
-    department: "Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ø§Ù…Ø©",
+    department: "الإدارة العامة",
     permissions: ["*"],
     email: "zaid@eatemad.com",
   },
   "akram.qasim": {
     username: "akram.qasim",
     password: "hr@2024",
-    fullName: "Ø£ÙƒØ±Ù… Ù‚Ø§Ø³Ù…",
+    fullName: "أكرم قاسم",
     englishName: "Akram Qasim",
     role: "hr_manager",
-    title: "Ù…Ø¯ÙŠØ± Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©",
+    title: "مدير الموارد البشرية",
     titleEn: "HR Manager",
-    department: "Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©",
+    department: "الموارد البشرية",
     permissions: ["hr", "employees", "attendance", "leaves", "payroll", "recruitment", "performance", "reports"],
     email: "akram@eatemad.com",
   },
   "sarah.ahmad": {
     username: "sarah.ahmad",
     password: "hr@123",
-    fullName: "Ø³Ø§Ø±Ø© Ø£Ø­Ù…Ø¯",
+    fullName: "سارة أحمد",
     englishName: "Sarah Ahmad",
     role: "hr_specialist",
-    title: "Ø£Ø®ØµØ§Ø¦ÙŠ Ù…ÙˆØ§Ø±Ø¯ Ø¨Ø´Ø±ÙŠØ©",
+    title: "أخصائي موارد بشرية",
     titleEn: "HR Specialist",
-    department: "Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©",
+    department: "الموارد البشرية",
     permissions: ["hr", "employees", "attendance"],
     email: "sarah@eatemad.com",
   },
 };
 
 const loginStats = [
-  { icon: FiUsers, value: "248+", labelAr: "Ù…ÙˆØ¸Ù Ù†Ø´Ø·", labelEn: "Active Employees" },
-  { icon: FiTrendingUp, value: "92%", labelAr: "Ù…Ø¹Ø¯Ù„ Ø­Ø¶ÙˆØ±", labelEn: "Attendance Rate" },
-  { icon: FiShield, value: "100%", labelAr: "ØªØ­ÙƒÙ… Ø¨Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª", labelEn: "Role Security" },
+  { icon: FiUsers, value: "248+", labelAr: "موظف نشط", labelEn: "Active Employees" },
+  { icon: FiTrendingUp, value: "92%", labelAr: "معدل حضور", labelEn: "Attendance Rate" },
+  { icon: FiShield, value: "100%", labelAr: "تحكم بالصلاحيات", labelEn: "Role Security" },
 ];
 
 const t = (language, ar, en) => (language === "ar" ? ar : en);
@@ -106,7 +106,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
   }, [language]);
 
   const title = useMemo(
-    () => t(language, "Ù†Ø¸Ø§Ù… Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ§Ø±Ø¯ Ø§Ù„Ø¨Ø´Ø±ÙŠØ©", "Human Resources Management System"),
+    () => t(language, "نظام إدارة الموارد البشرية", "Human Resources Management System"),
     [language]
   );
 
@@ -114,7 +114,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
     () =>
       t(
         language,
-        "Ø³Ø¬Ù‘Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†ØŒ Ø§Ù„Ø­Ø¶ÙˆØ±ØŒ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§ØªØŒ ÙˆØ§Ù„Ø±ÙˆØ§ØªØ¨ Ù…Ù† Ù„ÙˆØ­Ø© ÙˆØ§Ø­Ø¯Ø©.",
+        "سجّل الدخول لإدارة الموظفين، الحضور، الإجازات، والرواتب من لوحة واحدة.",
         "Sign in to manage employees, attendance, leaves, and payroll from one dashboard."
       ),
     [language]
@@ -143,27 +143,32 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
     if (authResult.success) {
       const dbUser = authResult.data.user;
       let fullName = username;
-      let titleEn = "User";
+      let englishName = username;
+      let role = "hr_manager";
       let department = "";
 
       const profileRes = await api.getProfile(dbUser.id, authResult.data.access_token);
       if (profileRes.success && profileRes.data) {
         fullName = profileRes.data.full_name || profileRes.data.name || dbUser.email;
-        titleEn = profileRes.data.title || profileRes.data.role || "User";
+        englishName = profileRes.data.english_name || profileRes.data.name_en || fullName;
+        role = profileRes.data.role || role;
         department = profileRes.data.department || "";
       }
+
+      const isAdmin = role === "admin" || dbUser.email?.includes("admin");
+      const resolvedRole = isAdmin ? "admin" : role;
+      const resolvedTitle = getRoleTitle(resolvedRole, language);
+      const resolvedPermissions = isAdmin ? ["*"] : getRolePermissions(resolvedRole);
 
       userData = {
         id: dbUser.id,
         username: loginInput,
         fullName,
-        englishName: fullName,
-        role: titleEn.toLowerCase().includes("admin") ? "admin" : "hr_manager",
-        title: titleEn,
+        englishName,
+        role: resolvedRole,
+        title: resolvedTitle,
         department,
-        permissions: titleEn.toLowerCase().includes("admin")
-          ? ["*"]
-          : ["hr", "employees", "attendance", "leaves", "payroll", "reports"],
+        permissions: resolvedPermissions,
         email: dbUser.email,
         loginTime: new Date().toISOString(),
       };
@@ -250,7 +255,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         }}
       >
         <FiGlobe size={16} />
-        {language === "ar" ? "English" : "Ø¹Ø±Ø¨ÙŠ"}
+        {language === "ar" ? "English" : "عربي"}
       </button>
 
       {!isTablet && (
@@ -298,7 +303,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
                 AL EATEMAD
               </h2>
               <p style={{ margin: 0, color: Colors.textMuted, fontSize: "0.85rem" }}>
-                {t(language, "Ø­Ù„ÙˆÙ„ Ù…ÙˆØ§Ø±Ø¯ Ø¨Ø´Ø±ÙŠØ© Ù…ØªÙƒØ§Ù…Ù„Ø©", "Integrated HR Solutions")}
+                {t(language, "حلول موارد بشرية متكاملة", "Integrated HR Solutions")}
               </p>
             </div>
           </div>
@@ -365,10 +370,10 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
           />
           <div>
             <h3 style={{ margin: 0, color: Colors.textDark, fontSize: isMobile ? "1.05rem" : "1.2rem", fontWeight: 800 }}>
-              {t(language, "ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„", "Sign In")}
+              {t(language, "تسجيل الدخول", "Sign In")}
             </h3>
             <p style={{ margin: 0, color: Colors.textMuted, fontSize: "0.8rem" }}>
-              {t(language, "Ø§Ø¯Ø®Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­Ø³Ø§Ø¨", "Enter your credentials")}
+              {t(language, "ادخل بيانات الحساب", "Enter your credentials")}
             </p>
           </div>
         </div>
@@ -391,7 +396,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
 
         <form onSubmit={handleSubmit} style={{ display: "grid", gap: "0.8rem" }}>
           <label style={{ color: Colors.gold, fontSize: "0.85rem", fontWeight: 600 }}>
-            {t(language, "Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…", "Username")}
+            {t(language, "اسم المستخدم", "Username")}
           </label>
           <div style={{ position: "relative" }}>
             <FiUser
@@ -406,7 +411,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder={t(language, "Ù…Ø«Ø§Ù„: akram.qasim", "e.g. akram.qasim")}
+              placeholder={t(language, "مثال: akram.qasim", "e.g. akram.qasim")}
               required
               disabled={isLoading}
               style={{
@@ -423,7 +428,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
           </div>
 
           <label style={{ color: Colors.gold, fontSize: "0.85rem", fontWeight: 600 }}>
-            {t(language, "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±", "Password")}
+            {t(language, "كلمة المرور", "Password")}
           </label>
           <div style={{ position: "relative" }}>
             <FiLock
@@ -439,7 +444,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t(language, "Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±", "Enter password")}
+              placeholder={t(language, "أدخل كلمة المرور", "Enter password")}
               required
               disabled={isLoading}
               style={{
@@ -478,7 +483,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
               onChange={(e) => setRememberMe(e.target.checked)}
               style={{ accentColor: Colors.gold }}
             />
-            {t(language, "ØªØ°ÙƒØ±Ù†ÙŠ", "Remember me")}
+            {t(language, "تذكرني", "Remember me")}
           </label>
 
           <button
@@ -502,7 +507,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
             }}
           >
             {isLoading && <FiCheckCircle size={16} style={{ animation: "pulse 1s ease infinite" }} />}
-            {isLoading ? t(language, "Ø¬Ø§Ø±ÙŠ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„...", "Signing in...") : t(language, "Ø¯Ø®ÙˆÙ„", "Sign In")}
+            {isLoading ? t(language, "جاري تسجيل الدخول...", "Signing in...") : t(language, "دخول", "Sign In")}
           </button>
         </form>
 
@@ -516,7 +521,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
           }}
         >
           <p style={{ margin: "0 0 0.45rem", color: Colors.goldLight, fontSize: "0.8rem", fontWeight: 700 }}>
-            {t(language, "Ø­Ø³Ø§Ø¨Ø§Øª ØªØ¬Ø±ÙŠØ¨ÙŠØ©", "Demo Accounts")}
+            {t(language, "حسابات تجريبية", "Demo Accounts")}
           </p>
           <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.78rem", color: Colors.textMuted }}>
             <div>zaid.alazzam / admin@2024</div>
@@ -537,4 +542,3 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
 }
 
 export default LoginPage;
-
