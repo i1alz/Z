@@ -1,6 +1,6 @@
-const DEFAULT_SUPABASE_URL = "https://rgbzximweiafgdukppbf.supabase.co";
+const DEFAULT_SUPABASE_URL = "https://vobrpyuonesphcqkoxns.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnYnp4aW13ZWlhZmdkdWtwcGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDU5MDcsImV4cCI6MjA4ODYyMTkwN30.fMGcuP-E2mxG_LHCq4TLaI8087pi17oIMoQuNlNspUs";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYnJweXVvbmVzcGhjcWtveG5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNTMzNDAsImV4cCI6MjA4ODkyOTM0MH0.HvKBCHGCWJhzQz50ngtBXRJRvClWYsjmu7mLw6yH1Ac";
 
 const envUrl = String(import.meta.env?.VITE_SUPABASE_URL || "").trim();
 const envAnonKey = String(import.meta.env?.VITE_SUPABASE_ANON_KEY || "").trim();
