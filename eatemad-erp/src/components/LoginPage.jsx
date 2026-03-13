@@ -155,10 +155,9 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         department = profileRes.data.department || "";
       }
 
-      const isAdmin = role === "admin" || dbUser.email?.includes("admin");
-      const resolvedRole = isAdmin ? "admin" : role;
+      const resolvedRole = role;
       const resolvedTitle = getRoleTitle(resolvedRole, language);
-      const resolvedPermissions = isAdmin ? ["*"] : getRolePermissions(resolvedRole);
+      const resolvedPermissions = getRolePermissions(resolvedRole);
 
       userData = {
         id: dbUser.id,
