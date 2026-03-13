@@ -71,30 +71,9 @@ const USERS_DATABASE = {
 };
 
 const loginStats = [
-<<<<<<< HEAD
   { icon: FiUsers, value: "248+", labelAr: "موظف نشط", labelEn: "Active Employees" },
   { icon: FiTrendingUp, value: "92%", labelAr: "معدل حضور", labelEn: "Attendance Rate" },
   { icon: FiShield, value: "100%", labelAr: "تحكم بالصلاحيات", labelEn: "Role Security" },
-=======
-  {
-    icon: FiUsers,
-    value: "248+",
-    labelAr: "Ù…ÙˆØ¸Ù Ù†Ø´Ø·",
-    labelEn: "Active Employees",
-  },
-  {
-    icon: FiTrendingUp,
-    value: "92%",
-    labelAr: "Ù…Ø¹Ø¯Ù„ Ø­Ø¶ÙˆØ±",
-    labelEn: "Attendance Rate",
-  },
-  {
-    icon: FiShield,
-    value: "100%",
-    labelAr: "ØªØ­ÙƒÙ… Ø¨Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª",
-    labelEn: "Role Security",
-  },
->>>>>>> 0ae903c6 (chore: cleanup project, format code, update actions to node 24)
 ];
 
 const t = (language, ar, en) => (language === "ar" ? ar : en);
@@ -130,20 +109,15 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
 
   const title = useMemo(
     () => t(language, "نظام إدارة الموارد البشرية", "Human Resources Management System"),
-    [language]
+    [language],
   );
 
   const subtitle = useMemo(
     () =>
       t(
         language,
-<<<<<<< HEAD
         "سجّل الدخول لإدارة الموظفين، الحضور، الإجازات، والرواتب من لوحة واحدة.",
         "Sign in to manage employees, attendance, leaves, and payroll from one dashboard."
-=======
-        "Ø³Ø¬Ù‘Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†ØŒ Ø§Ù„Ø­Ø¶ÙˆØ±ØŒ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§ØªØŒ ÙˆØ§Ù„Ø±ÙˆØ§ØªØ¨ Ù…Ù† Ù„ÙˆØ­Ø© ÙˆØ§Ø­Ø¯Ø©.",
-        "Sign in to manage employees, attendance, leaves, and payroll from one dashboard.",
->>>>>>> 0ae903c6 (chore: cleanup project, format code, update actions to node 24)
       ),
     [language],
   );
