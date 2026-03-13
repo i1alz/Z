@@ -24,6 +24,11 @@ import {
   FiX,
   FiCheckCircle,
   FiUserPlus,
+  FiTrash2,
+  FiCheck,
+  FiAlertCircle,
+  FiPlus,
+  FiEdit3,
 } from "react-icons/fi";
 import HRDashboard from "./components/HRDashboard";
 import EmployeesModule from "./components/EmployeesModule";
@@ -181,18 +186,99 @@ function ERPSystemLuxury({
   const {
     loading: dataLoading,
     error: dataError,
+    operationError,
     dashboardData,
     moduleData,
     employees,
     mutatingEmployees,
+    mutating,
     refresh: refreshData,
     addEmployee,
     updateEmployee,
     deleteEmployee,
+    addModuleRecord,
+    updateModuleRecord,
+    deleteModuleRecord,
   } = useHRData({
     language,
     user: currentUser,
   });
+
+  const [toast, setToast] = useState(null);
+  const showToast = (message, type = "success") => setToast({ message, type });
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const id = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  const guardedModuleCreate = async (module, payload) => {
+    if (!userHasPermission(currentUser.permissions, module)) {
+      showToast(
+        language === "ar"
+          ? "ليس لديك صلاحية لهذه العملية"
+          : "You do not have permission for this action",
+        "error",
+      );
+      return { success: false };
+    }
+    const result = await addModuleRecord(module, payload);
+    showToast(
+      result.success
+        ? language === "ar"
+          ? "تمت العملية بنجاح"
+          : "Operation completed successfully"
+        : result.error ||
+            (language === "ar" ? "فشلت العملية" : "Operation failed"),
+      result.success ? "success" : "error",
+    );
+    return result;
+  };
+
+  const guardedModuleUpdate = async (module, id, payload) => {
+    if (!userHasPermission(currentUser.permissions, module)) {
+      showToast(
+        language === "ar"
+          ? "ليس لديك صلاحية لهذه العملية"
+          : "You do not have permission for this action",
+        "error",
+      );
+      return { success: false };
+    }
+    const result = await updateModuleRecord(module, id, payload);
+    showToast(
+      result.success
+        ? language === "ar"
+          ? "تم التعديل بنجاح"
+          : "Updated successfully"
+        : result.error || (language === "ar" ? "فشل التعديل" : "Update failed"),
+      result.success ? "success" : "error",
+    );
+    return result;
+  };
+
+  const guardedModuleDelete = async (module, id) => {
+    if (!userHasPermission(currentUser.permissions, module)) {
+      showToast(
+        language === "ar"
+          ? "ليس لديك صلاحية لهذه العملية"
+          : "You do not have permission for this action",
+        "error",
+      );
+      return { success: false };
+    }
+    const result = await deleteModuleRecord(module, id);
+    showToast(
+      result.success
+        ? language === "ar"
+          ? "تم الحذف بنجاح"
+          : "Deleted successfully"
+        : result.error || (language === "ar" ? "فشل الحذف" : "Delete failed"),
+      result.success ? "success" : "error",
+    );
+    return result;
+  };
 
   const renderModule = () => {
     if (activeModule === "dashboard") {
@@ -230,15 +316,87 @@ function ERPSystemLuxury({
         />
       );
     }
-    return (
-      <HRSubModule
-        module={activeModule}
-        theme={theme}
-        language={language}
-        isCompact={isTablet}
-        moduleData={moduleData?.[activeModule]}
-      />
-    );
+    if (activeModule === "attendance") {
+      return (
+        <AttendanceModule
+          theme={theme}
+          language={language}
+          isCompact={isTablet}
+          moduleData={moduleData?.attendance}
+          canManage={userHasPermission(currentUser.permissions, "attendance")}
+          loading={mutating.attendance}
+          operationError={operationError.attendance}
+          onAdd={(payload) => guardedModuleCreate("attendance", payload)}
+          onUpdate={(id, payload) => guardedModuleUpdate("attendance", id, payload)}
+          onDelete={(id) => guardedModuleDelete("attendance", id)}
+        />
+      );
+    }
+    if (activeModule === "leaves") {
+      return (
+        <LeavesModule
+          theme={theme}
+          language={language}
+          isCompact={isTablet}
+          moduleData={moduleData?.leaves}
+          canManage={userHasPermission(currentUser.permissions, "leaves")}
+          loading={mutating.leaves}
+          operationError={operationError.leaves}
+          onAdd={(payload) => guardedModuleCreate("leaves", payload)}
+          onUpdate={(id, payload) => guardedModuleUpdate("leaves", id, payload)}
+          onDelete={(id) => guardedModuleDelete("leaves", id)}
+        />
+      );
+    }
+    if (activeModule === "payroll") {
+      return (
+        <PayrollModule
+          theme={theme}
+          language={language}
+          isCompact={isTablet}
+          moduleData={moduleData?.payroll}
+          canManage={userHasPermission(currentUser.permissions, "payroll")}
+          loading={mutating.payroll}
+          operationError={operationError.payroll}
+          onAdd={(payload) => guardedModuleCreate("payroll", payload)}
+          onUpdate={(id, payload) => guardedModuleUpdate("payroll", id, payload)}
+          onDelete={(id) => guardedModuleDelete("payroll", id)}
+        />
+      );
+    }
+    if (activeModule === "recruitment") {
+      return (
+        <RecruitmentModule
+          theme={theme}
+          language={language}
+          isCompact={isTablet}
+          moduleData={moduleData?.recruitment}
+          canManage={userHasPermission(currentUser.permissions, "recruitment")}
+          loading={mutating.recruitment}
+          operationError={operationError.recruitment}
+          onAdd={(payload) => guardedModuleCreate("recruitment", payload)}
+          onUpdate={(id, payload) => guardedModuleUpdate("recruitment", id, payload)}
+          onDelete={(id) => guardedModuleDelete("recruitment", id)}
+        />
+      );
+    }
+    if (activeModule === "performance") {
+      return (
+        <PerformanceModule
+          theme={theme}
+          language={language}
+          isCompact={isTablet}
+          moduleData={moduleData?.performance}
+          canManage={userHasPermission(currentUser.permissions, "performance")}
+          loading={mutating.performance}
+          operationError={operationError.performance}
+          onAdd={(payload) => guardedModuleCreate("performance", payload)}
+          onUpdate={(id, payload) => guardedModuleUpdate("performance", id, payload)}
+          onDelete={(id) => guardedModuleDelete("performance", id)}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -697,6 +855,13 @@ function ERPSystemLuxury({
             {renderModule()}
           </main>
         </div>
+        {toast && (
+          <ToastMessage
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
         <style>{`
           @keyframes spin {
             to { transform: rotate(360deg); }
@@ -707,270 +872,158 @@ function ERPSystemLuxury({
   );
 }
 
-function HRSubModule({ module, theme, language, isCompact, moduleData }) {
+function ToastMessage({ message, type, onClose }) {
+  const isSuccess = type === "success";
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: "1.5rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 9999,
+        background: isSuccess ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
+        border: `1px solid ${isSuccess ? "rgba(34,197,94,0.45)" : "rgba(239,68,68,0.45)"}`,
+        color: isSuccess ? "#86efac" : "#fca5a5",
+        borderRadius: 12,
+        padding: "0.75rem 1rem",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.6rem",
+      }}
+    >
+      {isSuccess ? <FiCheck size={17} /> : <FiAlertCircle size={17} />}
+      <span>{message}</span>
+      <button onClick={onClose} style={{ border: "none", background: "none", color: "inherit", cursor: "pointer" }}>
+        <FiX size={15} />
+      </button>
+    </div>
+  );
+}
+
+function GenericHRModule({
+  module,
+  theme,
+  language,
+  isCompact,
+  moduleData,
+  canManage,
+  loading,
+  operationError,
+  onAdd,
+  onUpdate,
+  onDelete,
+  fields,
+}) {
   const [filter, setFilter] = useState("");
-  const [draft, setDraft] = useState({ name: "", status: "", meta: "" });
-  const [extraRows, setExtraRows] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({});
   const t = (ar, en) => (language === "ar" ? ar : en);
-  const config = {
-    employees: {
-      icon: FiUsers,
-      title: t("الموظفون", "Employees"),
-      sub: t("إدارة بيانات الموظفين", "Manage employee records"),
-    },
-    attendance: {
-      icon: FiCheckCircle,
-      title: t("الحضور والانصراف", "Attendance"),
-      sub: t("تتبع حضور الموظفين", "Track attendance"),
-    },
-    leaves: {
-      icon: FiCalendar,
-      title: t("إدارة الإجازات", "Leave Management"),
-      sub: t("طلبات الإجازات", "Leave requests"),
-    },
-    payroll: {
-      icon: FiCreditCard,
-      title: t("إدارة الرواتب", "Payroll"),
-      sub: t("تشغيل الرواتب", "Process payroll"),
-    },
-    recruitment: {
-      icon: FiUserPlus,
-      title: t("التوظيف", "Recruitment"),
-      sub: t("الوظائف والمقابلات", "Jobs and interviews"),
-    },
-    performance: {
-      icon: FiBarChart2,
-      title: t("تقييم الأداء", "Performance"),
-      sub: t("متابعة الأداء", "Performance tracking"),
-    },
-  };
-  const c = moduleData || config[module] || config.employees;
-  const Icon = c.icon || config[module]?.icon || FiGrid;
-  const fallbackRows = [
-    {
-      name: t("أحمد الفارسي", "Ahmed Al-Farsi"),
-      status: t("نشط", "Active"),
-      meta: "ID-1024",
-    },
-    {
-      name: t("ريم الحربي", "Reem Al-Harbi"),
-      status: t("معلق", "Pending"),
-      meta: "ID-1088",
-    },
-    {
-      name: t("عمر آل سعود", "Omar Al-Saud"),
-      status: t("نشط", "Active"),
-      meta: "ID-1112",
-    },
-  ];
-  const baseRows = c.records && c.records.length ? c.records : fallbackRows;
-  const mergedRows = [...extraRows, ...baseRows];
-  const rows = mergedRows.filter((row) =>
-    `${row.name} ${row.status} ${row.meta}`
-      .toLowerCase()
-      .includes(filter.toLowerCase()),
+  const rows = (moduleData?.records || []).filter((row) =>
+    `${row.name} ${row.status} ${row.meta}`.toLowerCase().includes(filter.toLowerCase()),
   );
 
-  const addRow = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
-    if (!draft.name.trim()) return;
-    setExtraRows((prev) => [
-      {
-        id: `manual-${module}-${Date.now()}`,
-        name: draft.name.trim(),
-        status: draft.status.trim() || t("جديد", "New"),
-        meta: draft.meta.trim() || "--",
-        color: theme.accent,
-      },
-      ...prev,
-    ]);
-    setDraft({ name: "", status: "", meta: "" });
+    if (!canManage) return;
+    const payload = fields.reduce((acc, field) => ({ ...acc, [field.key]: form[field.key] || "" }), {});
+    const result = editingId ? await onUpdate(editingId, payload) : await onAdd(payload);
+    if (result?.success) {
+      setForm({});
+      setEditingId(null);
+      setShowForm(false);
+    }
   };
 
   return (
     <div>
-      <h2
-        style={{
-          margin: "0 0 0.35rem",
-          fontSize: isCompact ? "1.7rem" : "2rem",
-          fontWeight: 800,
-          color: theme.accent,
-        }}
-      >
-        {c.title}
+      <h2 style={{ margin: "0 0 0.35rem", fontSize: isCompact ? "1.7rem" : "2rem", fontWeight: 800, color: theme.accent }}>
+        {moduleData?.title}
       </h2>
-      <p style={{ margin: "0 0 1.2rem", color: theme.textMuted }}>
-        {c.sub || c.subtitle}
-      </p>
-      <div
-        style={{
-          background: theme.surface,
-          border: `1px solid ${theme.border}`,
-          borderRadius: 14,
-          padding: isCompact ? "1rem" : "1.3rem",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "0.7rem",
-            gap: "0.6rem",
-            flexWrap: "wrap",
-          }}
-        >
+      <p style={{ margin: "0 0 1.2rem", color: theme.textMuted }}>{moduleData?.subtitle}</p>
+      {operationError && <div style={{ marginBottom: "0.7rem", color: "#fca5a5" }}>{operationError}</div>}
+      <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, padding: isCompact ? "1rem" : "1.3rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.7rem", gap: "0.6rem", flexWrap: "wrap" }}>
           <strong>{t("السجلات", "Records")}</strong>
-          <form
-            onSubmit={addRow}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              flexWrap: "wrap",
-              justifyContent: language === "ar" ? "flex-start" : "flex-end",
-            }}
-          >
-            <input
-              value={draft.name}
-              onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
-              placeholder={t("الاسم", "Name")}
-              style={{
-                borderRadius: 8,
-                border: `1px solid ${theme.border}`,
-                background: "transparent",
-                color: theme.text,
-                padding: "0.45rem 0.6rem",
-                fontSize: "0.78rem",
-              }}
-            />
-            <input
-              value={draft.status}
-              onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value }))}
-              placeholder={t("الحالة", "Status")}
-              style={{
-                borderRadius: 8,
-                border: `1px solid ${theme.border}`,
-                background: "transparent",
-                color: theme.text,
-                padding: "0.45rem 0.6rem",
-                fontSize: "0.78rem",
-              }}
-            />
-            <input
-              value={draft.meta}
-              onChange={(e) => setDraft((p) => ({ ...p, meta: e.target.value }))}
-              placeholder={t("ملاحظة", "Meta")}
-              style={{
-                borderRadius: 8,
-                border: `1px solid ${theme.border}`,
-                background: "transparent",
-                color: theme.text,
-                padding: "0.45rem 0.6rem",
-                fontSize: "0.78rem",
-              }}
-            />
+          {canManage && (
             <button
-              type="submit"
-              style={{
-                border: "none",
-                borderRadius: 8,
-                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`,
-                color: "#111",
-                padding: "0.45rem 0.75rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                cursor: "pointer",
-                fontWeight: 700,
+              type="button"
+              onClick={() => {
+                setEditingId(null);
+                setForm({});
+                setShowForm((v) => !v);
               }}
+              style={{ border: "none", borderRadius: 8, background: `linear-gradient(135deg, ${theme.accent}, ${theme.accentLight})`, color: "#111", padding: "0.45rem 0.75rem", display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer", fontWeight: 700 }}
             >
-              <Icon size={15} /> {t("إضافة جديد", "Add New")}
+              <FiPlus size={15} /> {t("إضافة جديد", "Add New")}
+            </button>
+          )}
+        </div>
+        {showForm && canManage && (
+          <form onSubmit={submit} style={{ display: "grid", gridTemplateColumns: isCompact ? "1fr" : "repeat(3, 1fr)", gap: "0.5rem", marginBottom: "0.7rem" }}>
+            {fields.map((field) => (
+              <input
+                key={field.key}
+                value={form[field.key] || ""}
+                onChange={(e) => setForm((p) => ({ ...p, [field.key]: e.target.value }))}
+                placeholder={language === "ar" ? field.labelAr : field.labelEn}
+                required={Boolean(field.required)}
+                style={{ borderRadius: 8, border: `1px solid ${theme.border}`, background: "transparent", color: theme.text, padding: "0.45rem 0.6rem", fontSize: "0.78rem" }}
+              />
+            ))}
+            <button type="submit" disabled={loading} style={{ border: "none", borderRadius: 8, padding: "0.45rem", cursor: "pointer" }}>
+              {loading ? t("جارٍ الحفظ...", "Saving...") : t("حفظ", "Save")}
             </button>
           </form>
-        </div>
+        )}
         <div style={{ marginBottom: "0.65rem" }}>
-          <input
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder={t("ابحث في السجلات...", "Search records...")}
-            style={{
-              width: "100%",
-              borderRadius: 10,
-              border: `1px solid ${theme.border}`,
-              background: "transparent",
-              color: theme.text,
-              padding: "0.55rem 0.7rem",
-              outline: "none",
-              fontFamily: "inherit",
-              fontSize: "0.85rem",
-            }}
-          />
+          <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("ابحث في السجلات...", "Search records...")} style={{ width: "100%", borderRadius: 10, border: `1px solid ${theme.border}`, background: "transparent", color: theme.text, padding: "0.55rem 0.7rem", outline: "none", fontFamily: "inherit", fontSize: "0.85rem" }} />
         </div>
         {rows.map((row) => (
-          <div
-            key={row.id || row.meta}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderBottom: `1px solid ${theme.border}`,
-              padding: "0.8rem 0.4rem",
-              gap: "0.7rem",
-            }}
-          >
-            <div
-              style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: `${theme.accent}20`,
-                  color: theme.accent,
-                  display: "grid",
-                  placeItems: "center",
-                  fontWeight: 700,
-                  fontSize: "0.78rem",
-                }}
-              >
-                {getInitials(row.name)}
-              </div>
-              <div>
-                <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
-                <small style={{ color: theme.textMuted }}>{row.meta}</small>
-              </div>
+          <div key={row.id || row.meta} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem" }}>
+            <div>
+              <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
+              <small style={{ color: theme.textMuted }}>{row.meta}</small>
             </div>
-            <span
-              style={{
-                padding: "0.25rem 0.7rem",
-                borderRadius: 14,
-                background: `${row.color || theme.accent}22`,
-                color: row.color || theme.accent,
-                fontSize: "0.78rem",
-                fontWeight: 700,
-              }}
-            >
-              {row.status}
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+              <span style={{ padding: "0.25rem 0.7rem", borderRadius: 14, background: `${row.color || theme.accent}22`, color: row.color || theme.accent, fontSize: "0.78rem", fontWeight: 700 }}>{row.status}</span>
+              {canManage && (
+                <>
+                  <button type="button" onClick={() => { setEditingId(row.id); setForm({ name: row.name, status: row.status, meta: row.meta }); setShowForm(true); }} style={{ border: "none", background: "none", color: theme.accent, cursor: "pointer" }}>
+                    <FiEdit3 size={15} />
+                  </button>
+                  <button type="button" onClick={() => onDelete(row.id)} style={{ border: "none", background: "none", color: "#ef4444", cursor: "pointer" }}>
+                    <FiTrash2 size={15} />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         ))}
-        {rows.length === 0 && (
-          <div
-            style={{
-              padding: "1rem 0.4rem",
-              color: theme.textMuted,
-              textAlign: "center",
-              fontSize: "0.85rem",
-            }}
-          >
-            {t("لا توجد نتائج مطابقة.", "No matching results.")}
-          </div>
-        )}
       </div>
     </div>
   );
+}
+
+function AttendanceModule(props) {
+  return <GenericHRModule {...props} module="attendance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "time_in", labelAr: "وقت الحضور", labelEn: "Time In" }]} />;
+}
+
+function LeavesModule(props) {
+  return <GenericHRModule {...props} module="leaves" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "start_date", labelAr: "تاريخ البداية", labelEn: "Start Date" }, { key: "end_date", labelAr: "تاريخ النهاية", labelEn: "End Date" }]} />;
+}
+
+function PayrollModule(props) {
+  return <GenericHRModule {...props} module="payroll" fields={[{ key: "name", labelAr: "القسم/الموظف", labelEn: "Department/Employee", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "amount", labelAr: "المبلغ", labelEn: "Amount" }, { key: "period", labelAr: "الفترة", labelEn: "Period" }]} />;
+}
+
+function RecruitmentModule(props) {
+  return <GenericHRModule {...props} module="recruitment" fields={[{ key: "title", labelAr: "المسمى الوظيفي", labelEn: "Job Title", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "applicants_count", labelAr: "عدد المتقدمين", labelEn: "Applicants" }]} />;
+}
+
+function PerformanceModule(props) {
+  return <GenericHRModule {...props} module="performance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "score", labelAr: "النتيجة", labelEn: "Score", required: true }, { key: "rating", labelAr: "التقييم", labelEn: "Rating" }]} />;
 }
 
 export default ERPSystemLuxury;

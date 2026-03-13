@@ -110,6 +110,62 @@ function buildSelectQuery({ select = "*", orderBy, limit, filters } = {}) {
 }
 
 export const api = {
+  async createTableRow(table, payload, token) {
+    const result = await request(`/rest/v1/${table}`, {
+      method: "POST",
+      token,
+      body: payload,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error, data: null };
+    }
+
+    return {
+      success: true,
+      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
+    };
+  },
+
+  async updateTableRow(table, id, updates, token) {
+    if (!id) return { success: false, error: `Missing ${table} row id` };
+
+    const filter = encodeURIComponent(String(id));
+    const result = await request(`/rest/v1/${table}?id=eq.${filter}&select=*`, {
+      method: "PATCH",
+      token,
+      body: updates,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error, data: null };
+    }
+
+    return {
+      success: true,
+      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
+    };
+  },
+
+  async deleteTableRow(table, id, token) {
+    if (!id) return { success: false, error: `Missing ${table} row id` };
+
+    const filter = encodeURIComponent(String(id));
+    const result = await request(`/rest/v1/${table}?id=eq.${filter}`, {
+      method: "DELETE",
+      token,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    return { success: true };
+  },
+
   async signIn(email, password) {
     const result = await request(`/auth/v1/token?grant_type=password`, {
       method: "POST",
@@ -184,62 +240,61 @@ export const api = {
   },
 
   async createEmployee(employeeData, token) {
-    const result = await request(`/rest/v1/employees`, {
-      method: "POST",
-      token,
-      body: employeeData,
-      prefer: "return=representation",
-    });
-
-    if (!result.success) {
-      return { success: false, error: result.error, data: null };
-    }
-
-    return {
-      success: true,
-      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
-    };
+    return this.createTableRow("employees", employeeData, token);
   },
 
   async updateEmployee(id, updates, token) {
-    if (!id) return { success: false, error: "Missing employee id" };
-
-    const filter = encodeURIComponent(String(id));
-    const result = await request(
-      `/rest/v1/employees?id=eq.${filter}&select=*`,
-      {
-        method: "PATCH",
-        token,
-        body: updates,
-        prefer: "return=representation",
-      },
-    );
-
-    if (!result.success) {
-      return { success: false, error: result.error, data: null };
-    }
-
-    return {
-      success: true,
-      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
-    };
+    return this.updateTableRow("employees", id, updates, token);
   },
 
   async deleteEmployee(id, token) {
-    if (!id) return { success: false, error: "Missing employee id" };
+    return this.deleteTableRow("employees", id, token);
+  },
 
-    const filter = encodeURIComponent(String(id));
-    const result = await request(`/rest/v1/employees?id=eq.${filter}`, {
-      method: "DELETE",
-      token,
-      prefer: "return=representation",
-    });
-
-    if (!result.success) {
-      return { success: false, error: result.error };
-    }
-
-    return { success: true };
+  async createAttendanceRecord(payload, token) {
+    return this.createTableRow("attendance", payload, token);
+  },
+  async updateAttendanceRecord(id, payload, token) {
+    return this.updateTableRow("attendance", id, payload, token);
+  },
+  async deleteAttendanceRecord(id, token) {
+    return this.deleteTableRow("attendance", id, token);
+  },
+  async createLeaveRequest(payload, token) {
+    return this.createTableRow("leave_requests", payload, token);
+  },
+  async updateLeaveRequest(id, payload, token) {
+    return this.updateTableRow("leave_requests", id, payload, token);
+  },
+  async deleteLeaveRequest(id, token) {
+    return this.deleteTableRow("leave_requests", id, token);
+  },
+  async createPayrollRecord(payload, token) {
+    return this.createTableRow("payroll", payload, token);
+  },
+  async updatePayrollRecord(id, payload, token) {
+    return this.updateTableRow("payroll", id, payload, token);
+  },
+  async deletePayrollRecord(id, token) {
+    return this.deleteTableRow("payroll", id, token);
+  },
+  async createRecruitmentRecord(payload, token) {
+    return this.createTableRow("recruitment", payload, token);
+  },
+  async updateRecruitmentRecord(id, payload, token) {
+    return this.updateTableRow("recruitment", id, payload, token);
+  },
+  async deleteRecruitmentRecord(id, token) {
+    return this.deleteTableRow("recruitment", id, token);
+  },
+  async createPerformanceRecord(payload, token) {
+    return this.createTableRow("performance_reviews", payload, token);
+  },
+  async updatePerformanceRecord(id, payload, token) {
+    return this.updateTableRow("performance_reviews", id, payload, token);
+  },
+  async deletePerformanceRecord(id, token) {
+    return this.deleteTableRow("performance_reviews", id, token);
   },
 
   async getDashboardStats(token) {
