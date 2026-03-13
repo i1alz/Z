@@ -48,4 +48,11 @@ export const MODULE_CONFIG = [
     labels: { ar: "تقييم الأداء", en: "Performance" },
     gradient: "linear-gradient(135deg, #ef4444, #dc2626)",
   },
+  {
+    id: "users",
+    permission: "users",
+    iconKey: "userPlus",
+    labels: { ar: "إدارة المستخدمين", en: "Users" },
+    gradient: "linear-gradient(135deg, #06b6d4, #0891b2)",
+  },
 ];

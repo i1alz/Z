@@ -5,7 +5,7 @@ export const ROLE_CONFIG = {
       ar: "مدير النظام",
       en: "System Administrator",
     },
-    defaultPermissions: ["*"],
+    defaultPermissions: ["*", "users"],
   },
   hr_manager: {
     key: "hr_manager",

@@ -1,4 +1,4 @@
-﻿const DEFAULT_SUPABASE_URL = "https://rgbzximweiafgdukppbf.supabase.co";
+const DEFAULT_SUPABASE_URL = "https://rgbzximweiafgdukppbf.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnYnp4aW13ZWlhZmdkdWtwcGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDU5MDcsImV4cCI6MjA4ODYyMTkwN30.fMGcuP-E2mxG_LHCq4TLaI8087pi17oIMoQuNlNspUs";
 
@@ -299,6 +299,61 @@ export const api = {
       orderBy: "review_date.desc,created_at.desc",
       limit: 50,
     });
+  },
+
+  // ── User Management (Admin) ──────────────────────────────────────────
+  async inviteUser(email, { role = "hr_specialist", fullName = "", department = "" } = {}, token) {
+    // Invite user by email – Supabase sends a magic link
+    const result = await request(`/auth/v1/invite`, {
+      method: "POST",
+      token,
+      body: {
+        email,
+        data: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async createUserWithPassword(email, password, { role = "hr_specialist", fullName = "", department = "" } = {}, token) {
+    // Sign up a new user directly (requires email confirmation disabled in Supabase or auto-confirm)
+    const result = await request(`/auth/v1/admin/users`, {
+      method: "POST",
+      token,
+      body: {
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async listAuthUsers(token) {
+    const result = await request(`/auth/v1/admin/users?page=1&per_page=200`, { token });
+    if (!result.success) return { success: false, error: result.error, data: [] };
+    const users = result.data?.users || result.data || [];
+    return { success: true, data: Array.isArray(users) ? users : [] };
+  },
+
+  async updateUserRole(userId, { role, fullName, department } = {}, token) {
+    const result = await request(`/auth/v1/admin/users/${userId}`, {
+      method: "PUT",
+      token,
+      body: {
+        user_metadata: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async deleteAuthUser(userId, token) {
+    const result = await request(`/auth/v1/admin/users/${userId}`, {
+      method: "DELETE",
+      token,
+    });
+    return result;
   },
 };
 

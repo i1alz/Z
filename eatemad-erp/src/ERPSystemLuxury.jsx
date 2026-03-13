@@ -27,6 +27,7 @@ import {
 } from "react-icons/fi";
 import HRDashboard from "./components/HRDashboard";
 import EmployeesModule from "./components/EmployeesModule";
+import UsersModule from "./components/UsersModule";
 import { MODULE_CONFIG } from "./config/moduleConfig";
 import { userHasPermission } from "./config/roleConfig";
 import { useHRData } from "./hooks/useHRData";
@@ -61,6 +62,7 @@ const iconMap = {
   creditCard: FiCreditCard,
   activity: FiActivity,
   barChart: FiBarChart2,
+  userPlus: FiUserPlus,
 };
 
 const ThemeContext = createContext();
@@ -216,6 +218,15 @@ function ERPSystemLuxury({
           onAddEmployee={addEmployee}
           onUpdateEmployee={updateEmployee}
           onDeleteEmployee={deleteEmployee}
+        />
+      );
+    }
+    if (activeModule === "users") {
+      return (
+        <UsersModule
+          theme={theme}
+          language={language}
+          currentUser={currentUser}
         />
       );
     }
