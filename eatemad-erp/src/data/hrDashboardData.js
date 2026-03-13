@@ -42,7 +42,11 @@ function buildUpcomingLeaves(language, leaves = []) {
         ? `${start.getDate()} - ${end.getDate()} ${start.toLocaleString("en-US", { month: "short" })}`
         : leave.period || "--";
     return {
-      name: leave.employee_name || leave.full_name || leave.name || t(language, "موظف", "Employee"),
+      name:
+        leave.employee_name ||
+        leave.full_name ||
+        leave.name ||
+        t(language, "موظف", "Employee"),
       period,
     };
   });
@@ -73,21 +77,28 @@ export function buildHRDashboardData({
   permissions = [],
   source = {},
 } = {}) {
-  const canAccess = (permission) => permissions.includes("*") || permissions.includes(permission);
+  const canAccess = (permission) =>
+    permissions.includes("*") || permissions.includes(permission);
   const employees = Array.isArray(source.employees) ? source.employees : [];
-  const attendanceRows = Array.isArray(source.attendance) ? source.attendance : [];
+  const attendanceRows = Array.isArray(source.attendance)
+    ? source.attendance
+    : [];
   const leaves = Array.isArray(source.leaves) ? source.leaves : [];
 
   const recentEmployees = buildRecentEmployees(language, employees);
   const upcomingLeaves = buildUpcomingLeaves(language, leaves);
   const attendance = buildAttendanceSummary(attendanceRows);
-  const totalEmployees = employees.length || source?.stats?.activeEmployees || 248;
-  const newHires = employees.filter((emp) => isRecentDate(emp.created_at || emp.join_date, 30)).length || 12;
+  const totalEmployees =
+    employees.length || source?.stats?.activeEmployees || 248;
+  const newHires =
+    employees.filter((emp) => isRecentDate(emp.created_at || emp.join_date, 30))
+      .length || 12;
 
-  const pendingLeaveRequests = leaves.filter((leave) => {
-    const status = String(leave.status || "").toLowerCase();
-    return status === "pending" || status === "submitted";
-  }).length || 5;
+  const pendingLeaveRequests =
+    leaves.filter((leave) => {
+      const status = String(leave.status || "").toLowerCase();
+      return status === "pending" || status === "submitted";
+    }).length || 5;
 
   const quickActions = [
     {
@@ -155,8 +166,14 @@ export function buildHRDashboardData({
       upcomingLeaves.length > 0
         ? upcomingLeaves
         : [
-            { name: t(language, "مها الزهراني", "Maha Al-Zahrani"), period: "23 - 26 Apr" },
-            { name: t(language, "فيصل القحطاني", "Faisal Al-Qahtani"), period: "23 - 25 Apr" },
+            {
+              name: t(language, "مها الزهراني", "Maha Al-Zahrani"),
+              period: "23 - 26 Apr",
+            },
+            {
+              name: t(language, "فيصل القحطاني", "Faisal Al-Qahtani"),
+              period: "23 - 25 Apr",
+            },
           ],
     quickActions,
     attendancePeriods: {

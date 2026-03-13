@@ -7,7 +7,8 @@ const envAnonKey = String(import.meta.env?.VITE_SUPABASE_ANON_KEY || "").trim();
 const hasCustomConfig = Boolean(envUrl || envAnonKey);
 
 export const supabaseUrl = envUrl || DEFAULT_SUPABASE_URL;
-export const supabaseAnonKey = envAnonKey || (hasCustomConfig ? "" : DEFAULT_SUPABASE_ANON_KEY);
+export const supabaseAnonKey =
+  envAnonKey || (hasCustomConfig ? "" : DEFAULT_SUPABASE_ANON_KEY);
 
 const isUsableJwt = (token) =>
   typeof token === "string" &&
@@ -37,16 +38,22 @@ async function parseResponsePayload(response) {
 function formatErrorMessage(payload, fallback = "Request failed") {
   if (!payload) return fallback;
   if (typeof payload === "string") return payload;
-  return payload.message || payload.error_description || payload.error || fallback;
+  return (
+    payload.message || payload.error_description || payload.error || fallback
+  );
 }
 
-async function request(path, { method = "GET", token, body, prefer, includeJson = true } = {}) {
+async function request(
+  path,
+  { method = "GET", token, body, prefer, includeJson = true } = {},
+) {
   if (!isSupabaseConfigured) {
     return {
       success: false,
       status: 0,
       data: null,
-      error: "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
+      error:
+        "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
     };
   }
 
@@ -57,7 +64,9 @@ async function request(path, { method = "GET", token, body, prefer, includeJson 
     const response = await fetch(`${supabaseUrl}${path}`, {
       method,
       headers,
-      ...(body !== undefined ? { body: includeJson ? JSON.stringify(body) : body } : {}),
+      ...(body !== undefined
+        ? { body: includeJson ? JSON.stringify(body) : body }
+        : {}),
     });
 
     const payload = await parseResponsePayload(response);
@@ -135,9 +144,13 @@ export const api = {
   },
 
   async getProfile(userId, token) {
-    if (!userId) return { success: false, error: "Missing user id", data: null };
+    if (!userId)
+      return { success: false, error: "Missing user id", data: null };
 
-    const query = new URLSearchParams({ select: "*", id: `eq.${userId}` }).toString();
+    const query = new URLSearchParams({
+      select: "*",
+      id: `eq.${userId}`,
+    }).toString();
     const result = await request(`/rest/v1/profiles?${query}`, { token });
 
     if (!result.success) {
@@ -192,12 +205,15 @@ export const api = {
     if (!id) return { success: false, error: "Missing employee id" };
 
     const filter = encodeURIComponent(String(id));
-    const result = await request(`/rest/v1/employees?id=eq.${filter}&select=*`, {
-      method: "PATCH",
-      token,
-      body: updates,
-      prefer: "return=representation",
-    });
+    const result = await request(
+      `/rest/v1/employees?id=eq.${filter}&select=*`,
+      {
+        method: "PATCH",
+        token,
+        body: updates,
+        prefer: "return=representation",
+      },
+    );
 
     if (!result.success) {
       return { success: false, error: result.error, data: null };
@@ -229,7 +245,9 @@ export const api = {
   async getDashboardStats(token) {
     try {
       const employeesRes = await this.getEmployees(token);
-      const totalEmployees = employeesRes.success ? employeesRes.data.length : 0;
+      const totalEmployees = employeesRes.success
+        ? employeesRes.data.length
+        : 0;
 
       return {
         success: true,
@@ -301,4 +319,3 @@ export const getCurrentUser = () => {
 };
 
 export const getAuthToken = () => localStorage.getItem("authToken");
-

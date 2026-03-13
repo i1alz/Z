@@ -33,14 +33,39 @@ const fallbackEmployees = [
 ];
 
 const fallbackAttendance = [
-  { employee_name: "Ahmed Al-Farsi", status: "present", time_in: "08:00", date: "2026-03-10" },
-  { employee_name: "Reem Al-Harbi", status: "present", time_in: "08:15", date: "2026-03-10" },
-  { employee_name: "Omar Al-Saud", status: "late", time_in: "09:30", date: "2026-03-10" },
+  {
+    employee_name: "Ahmed Al-Farsi",
+    status: "present",
+    time_in: "08:00",
+    date: "2026-03-10",
+  },
+  {
+    employee_name: "Reem Al-Harbi",
+    status: "present",
+    time_in: "08:15",
+    date: "2026-03-10",
+  },
+  {
+    employee_name: "Omar Al-Saud",
+    status: "late",
+    time_in: "09:30",
+    date: "2026-03-10",
+  },
 ];
 
 const fallbackLeaves = [
-  { employee_name: "Maha Al-Zahrani", status: "pending", start_date: "2026-04-23", end_date: "2026-04-26" },
-  { employee_name: "Faisal Al-Qahtani", status: "approved", start_date: "2026-04-23", end_date: "2026-04-25" },
+  {
+    employee_name: "Maha Al-Zahrani",
+    status: "pending",
+    start_date: "2026-04-23",
+    end_date: "2026-04-26",
+  },
+  {
+    employee_name: "Faisal Al-Qahtani",
+    status: "approved",
+    start_date: "2026-04-23",
+    end_date: "2026-04-25",
+  },
 ];
 
 const fallbackPayroll = [
@@ -76,8 +101,14 @@ function normalizeStatus(status = "") {
 function normalizeEmployee(employee = {}) {
   return {
     ...employee,
-    id: employee.id ?? employee.employee_id ?? employee.uuid ?? employee.code ?? null,
-    full_name: employee.full_name || employee.name || employee.employee_name || "",
+    id:
+      employee.id ??
+      employee.employee_id ??
+      employee.uuid ??
+      employee.code ??
+      null,
+    full_name:
+      employee.full_name || employee.name || employee.employee_name || "",
     name: employee.name || employee.full_name || employee.employee_name || "",
     position: employee.position || employee.job_title || "",
     department: employee.department || employee.branch_name || "",
@@ -89,7 +120,9 @@ function normalizeEmployee(employee = {}) {
     nationality: employee.nationality || "",
     email: employee.email || "",
     phone: employee.phone || employee.mobile || "",
-    salary: Number(employee.salary || employee.total_salary || employee.basic_salary || 0),
+    salary: Number(
+      employee.salary || employee.total_salary || employee.basic_salary || 0,
+    ),
     join_date: employee.join_date || employee.start_date || "",
     start_date: employee.start_date || employee.join_date || "",
     basic_salary: Number(employee.basic_salary || 0),
@@ -107,7 +140,8 @@ function normalizeEmployee(employee = {}) {
     passport_held_by: employee.passport_held_by || "",
     residence_expiry: employee.residence_expiry || "",
     work_card_expiry: employee.work_card_expiry || "",
-    created_at: employee.created_at || employee.inserted_at || employee.join_date || "",
+    created_at:
+      employee.created_at || employee.inserted_at || employee.join_date || "",
   };
 }
 
@@ -115,7 +149,9 @@ function uniquePayloadVariants(variants) {
   const used = new Set();
   return variants.filter((item) => {
     const cleaned = Object.fromEntries(
-      Object.entries(item).filter(([, value]) => value !== "" && value !== null && value !== undefined)
+      Object.entries(item).filter(
+        ([, value]) => value !== "" && value !== null && value !== undefined,
+      ),
     );
     const key = JSON.stringify(cleaned);
     if (!key || key === "{}" || used.has(key)) return false;
@@ -135,7 +171,8 @@ function buildEmployeePayloadVariants(employeeInput) {
       nationality: normalized.nationality || undefined,
       phone: normalized.phone || undefined,
       branch_name: normalized.branch_name || normalized.department || undefined,
-      residence_status: normalized.residence_status || normalized.status || undefined,
+      residence_status:
+        normalized.residence_status || normalized.status || undefined,
       start_date: normalized.start_date || normalized.join_date || undefined,
       basic_salary: normalized.basic_salary || undefined,
       allowances: normalized.allowances || undefined,
@@ -237,7 +274,11 @@ function mapModuleRecords(language, module, records = []) {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
       const color =
-        status === "present" ? "#22c55e" : status === "late" ? "#f59e0b" : "#ef4444";
+        status === "present"
+          ? "#22c55e"
+          : status === "late"
+            ? "#f59e0b"
+            : "#ef4444";
       const translatedStatus =
         status === "present"
           ? t(language, "حاضر", "Present")
@@ -248,7 +289,11 @@ function mapModuleRecords(language, module, records = []) {
               : item.status || "--";
       return {
         id: item.id || `att-${index}`,
-        name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
+        name:
+          item.employee_name ||
+          item.full_name ||
+          item.name ||
+          t(language, "موظف", "Employee"),
         status: translatedStatus,
         meta: item.time_in || item.date || "--",
         color,
@@ -259,7 +304,12 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "leaves") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color = status === "approved" ? "#22c55e" : status === "rejected" ? "#ef4444" : "#f59e0b";
+      const color =
+        status === "approved"
+          ? "#22c55e"
+          : status === "rejected"
+            ? "#ef4444"
+            : "#f59e0b";
       const translatedStatus =
         status === "approved"
           ? t(language, "موافق عليه", "Approved")
@@ -268,7 +318,11 @@ function mapModuleRecords(language, module, records = []) {
             : t(language, "معلق", "Pending");
       return {
         id: item.id || `lev-${index}`,
-        name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
+        name:
+          item.employee_name ||
+          item.full_name ||
+          item.name ||
+          t(language, "موظف", "Employee"),
         status: translatedStatus,
         meta: formatRange(item.start_date, item.end_date),
         color,
@@ -279,17 +333,29 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "payroll") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color = status === "paid" ? "#22c55e" : status === "processing" ? "#f59e0b" : "#ef4444";
+      const color =
+        status === "paid"
+          ? "#22c55e"
+          : status === "processing"
+            ? "#f59e0b"
+            : "#ef4444";
       return {
         id: item.id || `pay-${index}`,
-        name: item.department_name || item.name || item.employee_name || t(language, "قسم", "Department"),
+        name:
+          item.department_name ||
+          item.name ||
+          item.employee_name ||
+          t(language, "قسم", "Department"),
         status:
           status === "paid"
             ? t(language, "تم الدفع", "Paid")
             : status === "processing"
               ? t(language, "قيد المعالجة", "Processing")
               : item.status || "--",
-        meta: typeof item.amount === "number" ? `${item.amount.toLocaleString()} AED` : item.period || "--",
+        meta:
+          typeof item.amount === "number"
+            ? `${item.amount.toLocaleString()} AED`
+            : item.period || "--",
         color,
       };
     });
@@ -298,14 +364,19 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "recruitment") {
     return records.slice(0, 40).map((item, index) => ({
       id: item.id || `rec-${index}`,
-      name: item.title || item.position || t(language, "وظيفة شاغرة", "Open Position"),
+      name:
+        item.title ||
+        item.position ||
+        t(language, "وظيفة شاغرة", "Open Position"),
       status:
         normalizeStatus(item.status) === "open"
           ? t(language, "مفتوح", "Open")
           : normalizeStatus(item.status) === "interview"
             ? t(language, "مقابلات", "Interviews")
             : item.status || "--",
-      meta: item.applicants_count ? `${item.applicants_count} applicants` : "--",
+      meta: item.applicants_count
+        ? `${item.applicants_count} applicants`
+        : "--",
       color: "#3b82f6",
     }));
   }
@@ -313,7 +384,11 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "performance") {
     return records.slice(0, 40).map((item, index) => ({
       id: item.id || `per-${index}`,
-      name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
+      name:
+        item.employee_name ||
+        item.full_name ||
+        item.name ||
+        t(language, "موظف", "Employee"),
       status:
         item.score >= 90
           ? t(language, "ممتاز", "Excellent")
@@ -332,32 +407,56 @@ function buildModuleData(language, raw) {
   return {
     employees: {
       title: t(language, "الموظفون", "Employees"),
-      subtitle: t(language, "إدارة بيانات الموظفين الأساسية", "Manage employee records"),
+      subtitle: t(
+        language,
+        "إدارة بيانات الموظفين الأساسية",
+        "Manage employee records",
+      ),
       records: mapModuleRecords(language, "employees", raw.employees),
     },
     attendance: {
       title: t(language, "الحضور والانصراف", "Attendance"),
-      subtitle: t(language, "تتبع حضور وانصراف الموظفين", "Track attendance records"),
+      subtitle: t(
+        language,
+        "تتبع حضور وانصراف الموظفين",
+        "Track attendance records",
+      ),
       records: mapModuleRecords(language, "attendance", raw.attendance),
     },
     leaves: {
       title: t(language, "إدارة الإجازات", "Leave Management"),
-      subtitle: t(language, "عرض وإدارة طلبات الإجازات", "Manage leave requests"),
+      subtitle: t(
+        language,
+        "عرض وإدارة طلبات الإجازات",
+        "Manage leave requests",
+      ),
       records: mapModuleRecords(language, "leaves", raw.leaves),
     },
     payroll: {
       title: t(language, "إدارة الرواتب", "Payroll"),
-      subtitle: t(language, "تشغيل الرواتب وإدارة الدورات", "Process payroll cycles"),
+      subtitle: t(
+        language,
+        "تشغيل الرواتب وإدارة الدورات",
+        "Process payroll cycles",
+      ),
       records: mapModuleRecords(language, "payroll", raw.payroll),
     },
     recruitment: {
       title: t(language, "التوظيف", "Recruitment"),
-      subtitle: t(language, "إدارة الوظائف والمقابلات", "Hiring pipeline and interviews"),
+      subtitle: t(
+        language,
+        "إدارة الوظائف والمقابلات",
+        "Hiring pipeline and interviews",
+      ),
       records: mapModuleRecords(language, "recruitment", raw.recruitment),
     },
     performance: {
       title: t(language, "تقييم الأداء", "Performance"),
-      subtitle: t(language, "متابعة تقييمات الموظفين", "Track employee reviews"),
+      subtitle: t(
+        language,
+        "متابعة تقييمات الموظفين",
+        "Track employee reviews",
+      ),
       records: mapModuleRecords(language, "performance", raw.performance),
     },
   };
@@ -382,38 +481,66 @@ export function useHRData({ language = "ar", user } = {}) {
     setError("");
     const token = getAuthToken();
 
-    const [employeesRes, attendanceRes, leavesRes, payrollRes, recruitmentRes, performanceRes, statsRes] =
-      await Promise.all([
-        api.getEmployees(token),
-        api.getAttendanceRecords(token),
-        api.getLeaveRequests(token),
-        api.getPayrollRecords(token),
-        api.getRecruitmentRecords(token),
-        api.getPerformanceRecords(token),
-        api.getDashboardStats(token),
-      ]);
+    const [
+      employeesRes,
+      attendanceRes,
+      leavesRes,
+      payrollRes,
+      recruitmentRes,
+      performanceRes,
+      statsRes,
+    ] = await Promise.all([
+      api.getEmployees(token),
+      api.getAttendanceRecords(token),
+      api.getLeaveRequests(token),
+      api.getPayrollRecords(token),
+      api.getRecruitmentRecords(token),
+      api.getPerformanceRecords(token),
+      api.getDashboardStats(token),
+    ]);
 
-    const employees = employeesRes?.success && employeesRes.data.length ? employeesRes.data : fallbackEmployees;
-    const attendance = attendanceRes?.success && attendanceRes.data.length ? attendanceRes.data : fallbackAttendance;
-    const leaves = leavesRes?.success && leavesRes.data.length ? leavesRes.data : fallbackLeaves;
-    const payroll = payrollRes?.success && payrollRes.data.length ? payrollRes.data : fallbackPayroll;
+    const employees =
+      employeesRes?.success && employeesRes.data.length
+        ? employeesRes.data
+        : fallbackEmployees;
+    const attendance =
+      attendanceRes?.success && attendanceRes.data.length
+        ? attendanceRes.data
+        : fallbackAttendance;
+    const leaves =
+      leavesRes?.success && leavesRes.data.length
+        ? leavesRes.data
+        : fallbackLeaves;
+    const payroll =
+      payrollRes?.success && payrollRes.data.length
+        ? payrollRes.data
+        : fallbackPayroll;
     const recruitment =
-      recruitmentRes?.success && recruitmentRes.data.length ? recruitmentRes.data : fallbackRecruitment;
+      recruitmentRes?.success && recruitmentRes.data.length
+        ? recruitmentRes.data
+        : fallbackRecruitment;
     const performance =
-      performanceRes?.success && performanceRes.data.length ? performanceRes.data : fallbackPerformance;
+      performanceRes?.success && performanceRes.data.length
+        ? performanceRes.data
+        : fallbackPerformance;
     const stats = statsRes?.success ? statsRes.data || {} : {};
 
-    const hasApiFailure = [employeesRes, attendanceRes, leavesRes, payrollRes, recruitmentRes, performanceRes].some(
-      (res) => res && !res.success
-    );
+    const hasApiFailure = [
+      employeesRes,
+      attendanceRes,
+      leavesRes,
+      payrollRes,
+      recruitmentRes,
+      performanceRes,
+    ].some((res) => res && !res.success);
 
     if (hasApiFailure) {
       setError(
         t(
           language,
           "تم تحميل بعض البيانات من النسخة الاحتياطية بسبب تعذر الوصول الكامل لقاعدة البيانات.",
-          "Some records were loaded from fallback data due to partial database connectivity."
-        )
+          "Some records were loaded from fallback data due to partial database connectivity.",
+        ),
       );
     }
 
@@ -448,7 +575,10 @@ export function useHRData({ language = "ar", user } = {}) {
 
       if (!result.success) {
         setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر إضافة الموظف", "Unable to add employee"));
+        setError(
+          result.error ||
+            t(language, "تعذر إضافة الموظف", "Unable to add employee"),
+        );
         return { success: false, error: result.error };
       }
 
@@ -456,7 +586,7 @@ export function useHRData({ language = "ar", user } = {}) {
       setMutatingEmployees(false);
       return { success: true, data: result.data };
     },
-    [language, refresh]
+    [language, refresh],
   );
 
   const updateEmployee = useCallback(
@@ -475,7 +605,10 @@ export function useHRData({ language = "ar", user } = {}) {
 
       if (!result.success) {
         setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر تعديل الموظف", "Unable to update employee"));
+        setError(
+          result.error ||
+            t(language, "تعذر تعديل الموظف", "Unable to update employee"),
+        );
         return { success: false, error: result.error };
       }
 
@@ -483,7 +616,7 @@ export function useHRData({ language = "ar", user } = {}) {
       setMutatingEmployees(false);
       return { success: true, data: result.data };
     },
-    [language, refresh]
+    [language, refresh],
   );
 
   const deleteEmployee = useCallback(
@@ -495,7 +628,10 @@ export function useHRData({ language = "ar", user } = {}) {
 
       if (!result.success) {
         setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر حذف الموظف", "Unable to delete employee"));
+        setError(
+          result.error ||
+            t(language, "تعذر حذف الموظف", "Unable to delete employee"),
+        );
         return { success: false, error: result.error };
       }
 
@@ -503,7 +639,7 @@ export function useHRData({ language = "ar", user } = {}) {
       setMutatingEmployees(false);
       return { success: true };
     },
-    [language, refresh]
+    [language, refresh],
   );
 
   const dashboardData = useMemo(
@@ -513,14 +649,20 @@ export function useHRData({ language = "ar", user } = {}) {
         permissions: user?.permissions || [],
         source: rawData,
       }),
-    [language, rawData, user?.permissions]
+    [language, rawData, user?.permissions],
   );
 
-  const moduleData = useMemo(() => buildModuleData(language, rawData), [language, rawData]);
+  const moduleData = useMemo(
+    () => buildModuleData(language, rawData),
+    [language, rawData],
+  );
 
   const employees = useMemo(
-    () => (Array.isArray(rawData.employees) ? rawData.employees.map((item) => normalizeEmployee(item)) : []),
-    [rawData.employees]
+    () =>
+      Array.isArray(rawData.employees)
+        ? rawData.employees.map((item) => normalizeEmployee(item))
+        : [],
+    [rawData.employees],
   );
 
   return {

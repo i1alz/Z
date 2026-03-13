@@ -71,9 +71,30 @@ const USERS_DATABASE = {
 };
 
 const loginStats = [
+<<<<<<< HEAD
   { icon: FiUsers, value: "248+", labelAr: "موظف نشط", labelEn: "Active Employees" },
   { icon: FiTrendingUp, value: "92%", labelAr: "معدل حضور", labelEn: "Attendance Rate" },
   { icon: FiShield, value: "100%", labelAr: "تحكم بالصلاحيات", labelEn: "Role Security" },
+=======
+  {
+    icon: FiUsers,
+    value: "248+",
+    labelAr: "Ù…ÙˆØ¸Ù Ù†Ø´Ø·",
+    labelEn: "Active Employees",
+  },
+  {
+    icon: FiTrendingUp,
+    value: "92%",
+    labelAr: "Ù…Ø¹Ø¯Ù„ Ø­Ø¶ÙˆØ±",
+    labelEn: "Attendance Rate",
+  },
+  {
+    icon: FiShield,
+    value: "100%",
+    labelAr: "ØªØ­ÙƒÙ… Ø¨Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª",
+    labelEn: "Role Security",
+  },
+>>>>>>> 0ae903c6 (chore: cleanup project, format code, update actions to node 24)
 ];
 
 const t = (language, ar, en) => (language === "ar" ? ar : en);
@@ -85,7 +106,9 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [viewport, setViewport] = useState(typeof window !== "undefined" ? window.innerWidth : 1440);
+  const [viewport, setViewport] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1440,
+  );
 
   const isTablet = viewport <= 1024;
   const isMobile = viewport <= 768;
@@ -114,10 +137,15 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
     () =>
       t(
         language,
+<<<<<<< HEAD
         "سجّل الدخول لإدارة الموظفين، الحضور، الإجازات، والرواتب من لوحة واحدة.",
         "Sign in to manage employees, attendance, leaves, and payroll from one dashboard."
+=======
+        "Ø³Ø¬Ù‘Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ†ØŒ Ø§Ù„Ø­Ø¶ÙˆØ±ØŒ Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§ØªØŒ ÙˆØ§Ù„Ø±ÙˆØ§ØªØ¨ Ù…Ù† Ù„ÙˆØ­Ø© ÙˆØ§Ø­Ø¯Ø©.",
+        "Sign in to manage employees, attendance, leaves, and payroll from one dashboard.",
+>>>>>>> 0ae903c6 (chore: cleanup project, format code, update actions to node 24)
       ),
-    [language]
+    [language],
   );
 
   const handleSubmit = async (event) => {
@@ -131,11 +159,12 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
     const localUser = Object.values(USERS_DATABASE).find(
       (item) =>
         item.username?.toLowerCase() === loginInput.toLowerCase() ||
-        item.email?.toLowerCase() === loginInput.toLowerCase()
+        item.email?.toLowerCase() === loginInput.toLowerCase(),
     );
 
-    const authIdentifier =
-      loginInput.includes("@") ? loginInput : localUser?.email || loginInput;
+    const authIdentifier = loginInput.includes("@")
+      ? loginInput
+      : localUser?.email || loginInput;
 
     const authResult = await api.signIn(authIdentifier, password);
     let userData;
@@ -147,7 +176,10 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
       let role = "hr_manager";
       let department = "";
 
-      const profileRes = await api.getProfile(dbUser.id, authResult.data.access_token);
+      const profileRes = await api.getProfile(
+        dbUser.id,
+        authResult.data.access_token,
+      );
       if (profileRes.success && profileRes.data) {
         fullName = profileRes.data.full_name || profileRes.data.name || dbUser.email;
         englishName = profileRes.data.english_name || profileRes.data.name_en || fullName;
@@ -176,9 +208,19 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
       localStorage.setItem("authToken", authResult.data.access_token);
     } else {
       if (!localUser || localUser.password !== password) {
-        const errorMessage = authResult?.error?.includes("Supabase is not configured")
-          ? t(language, "إعدادات Supabase غير مكتملة", "Supabase configuration is missing")
-          : t(language, "اسم المستخدم أو كلمة المرور غير صحيحة", "Invalid username or password");
+        const errorMessage = authResult?.error?.includes(
+          "Supabase is not configured",
+        )
+          ? t(
+              language,
+              "إعدادات Supabase غير مكتملة",
+              "Supabase configuration is missing",
+            )
+          : t(
+              language,
+              "اسم المستخدم أو كلمة المرور غير صحيحة",
+              "Invalid username or password",
+            );
 
         setError(errorMessage);
         setIsLoading(false);
@@ -240,7 +282,9 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         style={{
           position: "fixed",
           top: isMobile ? "0.9rem" : "1.5rem",
-          [language === "ar" ? "left" : "right"]: isMobile ? "0.9rem" : "1.5rem",
+          [language === "ar" ? "left" : "right"]: isMobile
+            ? "0.9rem"
+            : "1.5rem",
           background: "rgba(34,25,18,0.9)",
           border: `1px solid ${Colors.borderAccent}`,
           borderRadius: "10px",
@@ -277,14 +321,22 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
               width: 380,
               height: 380,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(212,165,116,0.18), transparent 65%)",
+              background:
+                "radial-gradient(circle, rgba(212,165,116,0.18), transparent 65%)",
               top: -140,
               right: language === "ar" ? "auto" : -120,
               left: language === "ar" ? -120 : "auto",
               pointerEvents: "none",
             }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: "0.9rem", marginBottom: "1.3rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.9rem",
+              marginBottom: "1.3rem",
+            }}
+          >
             <img
               src="/eatemad-logo.png"
               alt="Al Eatemad Logo"
@@ -299,7 +351,14 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
               }}
             />
             <div>
-              <h2 style={{ margin: 0, color: Colors.textDark, fontSize: "1.4rem", fontWeight: 800 }}>
+              <h2
+                style={{
+                  margin: 0,
+                  color: Colors.textDark,
+                  fontSize: "1.4rem",
+                  fontWeight: 800,
+                }}
+              >
                 AL EATEMAD
               </h2>
               <p style={{ margin: 0, color: Colors.textMuted, fontSize: "0.85rem" }}>
@@ -308,14 +367,34 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
             </div>
           </div>
 
-          <h1 style={{ margin: "0 0 0.7rem", color: Colors.goldLight, fontSize: "2rem", lineHeight: 1.3 }}>
+          <h1
+            style={{
+              margin: "0 0 0.7rem",
+              color: Colors.goldLight,
+              fontSize: "2rem",
+              lineHeight: 1.3,
+            }}
+          >
             {title}
           </h1>
-          <p style={{ margin: "0 0 1.4rem", color: Colors.textMuted, maxWidth: 520, lineHeight: 1.8 }}>
+          <p
+            style={{
+              margin: "0 0 1.4rem",
+              color: Colors.textMuted,
+              maxWidth: 520,
+              lineHeight: 1.8,
+            }}
+          >
             {subtitle}
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.8rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "0.8rem",
+            }}
+          >
             {loginStats.map((item) => {
               const Icon = item.icon;
               return (
@@ -329,10 +408,23 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
                   }}
                 >
                   <Icon size={18} color={Colors.gold} />
-                  <p style={{ margin: "0.5rem 0 0", color: Colors.textDark, fontSize: "1.15rem", fontWeight: 800 }}>
+                  <p
+                    style={{
+                      margin: "0.5rem 0 0",
+                      color: Colors.textDark,
+                      fontSize: "1.15rem",
+                      fontWeight: 800,
+                    }}
+                  >
                     {item.value}
                   </p>
-                  <p style={{ margin: "0.15rem 0 0", color: Colors.textMuted, fontSize: "0.75rem" }}>
+                  <p
+                    style={{
+                      margin: "0.15rem 0 0",
+                      color: Colors.textMuted,
+                      fontSize: "0.75rem",
+                    }}
+                  >
                     {language === "ar" ? item.labelAr : item.labelEn}
                   </p>
                 </div>
@@ -346,7 +438,8 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         style={{
           borderRadius: "24px",
           border: `1px solid ${Colors.borderDark}`,
-          background: "linear-gradient(160deg, rgba(34,25,18,0.98), rgba(18,13,10,0.98))",
+          background:
+            "linear-gradient(160deg, rgba(34,25,18,0.98), rgba(18,13,10,0.98))",
           boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
           padding: isMobile ? "1.15rem" : "2rem",
           alignSelf: "center",
@@ -354,7 +447,14 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
           width: "100%",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.8rem",
+            marginBottom: "1rem",
+          }}
+        >
           <img
             src="/eatemad-logo.png"
             alt="Al Eatemad Logo"
@@ -476,7 +576,15 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
             </button>
           </div>
 
-          <label style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: Colors.textMuted, fontSize: "0.85rem" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              color: Colors.textMuted,
+              fontSize: "0.85rem",
+            }}
+          >
             <input
               type="checkbox"
               checked={rememberMe}
@@ -523,7 +631,14 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
           <p style={{ margin: "0 0 0.45rem", color: Colors.goldLight, fontSize: "0.8rem", fontWeight: 700 }}>
             {t(language, "حسابات تجريبية", "Demo Accounts")}
           </p>
-          <div style={{ display: "grid", gap: "0.35rem", fontSize: "0.78rem", color: Colors.textMuted }}>
+          <div
+            style={{
+              display: "grid",
+              gap: "0.35rem",
+              fontSize: "0.78rem",
+              color: Colors.textMuted,
+            }}
+          >
             <div>zaid.alazzam / admin@2024</div>
             <div>akram.qasim / hr@2024</div>
             <div>sarah.ahmad / hr@123</div>
