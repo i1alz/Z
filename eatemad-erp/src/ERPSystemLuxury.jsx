@@ -447,6 +447,7 @@ function ERPSystemLuxury({
               <FiMenu size={22} />
             </button>
             <div
+              className="logo-glow"
               style={{
                 width: 48,
                 height: 48,
@@ -539,6 +540,7 @@ function ERPSystemLuxury({
               </div>
             )}
             <button
+              className="header-btn"
               onClick={() =>
                 onLanguageChange?.(language === "ar" ? "en" : "ar")
               }
@@ -555,6 +557,7 @@ function ERPSystemLuxury({
               {language === "ar" ? "EN" : "عربي"}
             </button>
             <button
+              className="header-btn"
               onClick={() => onThemeChange?.(!isDarkMode)}
               style={{
                 width: 40,
@@ -571,6 +574,7 @@ function ERPSystemLuxury({
               {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
             </button>
             <button
+              className="header-btn"
               onClick={refreshData}
               style={{
                 width: 40,
@@ -744,6 +748,7 @@ function ERPSystemLuxury({
                 return (
                   <button
                     key={m.id}
+                    className={`sidebar-nav-item${active ? " active" : ""}`}
                     onClick={() => {
                       setActiveModule(m.id);
                       if (isMobile) setMobileSidebarOpen(false);
@@ -807,6 +812,7 @@ function ERPSystemLuxury({
                 </button>
                 <button
                   onClick={() => onLogout?.()}
+                  className="sidebar-logout"
                   style={{
                     width: "100%",
                     padding: "0.85rem",
@@ -862,11 +868,6 @@ function ERPSystemLuxury({
             onClose={() => setToast(null)}
           />
         )}
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     </ThemeContext.Provider>
   );
@@ -876,6 +877,7 @@ function ToastMessage({ message, type, onClose }) {
   const isSuccess = type === "success";
   return (
     <div
+      className="toast-enter"
       style={{
         position: "fixed",
         bottom: "1.5rem",
@@ -890,11 +892,17 @@ function ToastMessage({ message, type, onClose }) {
         display: "flex",
         alignItems: "center",
         gap: "0.6rem",
+        backdropFilter: "blur(8px)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+        minWidth: 220,
+        maxWidth: 420,
+        fontWeight: 600,
+        fontSize: "0.9rem",
       }}
     >
       {isSuccess ? <FiCheck size={17} /> : <FiAlertCircle size={17} />}
-      <span>{message}</span>
-      <button onClick={onClose} style={{ border: "none", background: "none", color: "inherit", cursor: "pointer" }}>
+      <span style={{ flex: 1 }}>{message}</span>
+      <button onClick={onClose} style={{ border: "none", background: "none", color: "inherit", cursor: "pointer", padding: "0 0.2rem" }}>
         <FiX size={15} />
       </button>
     </div>
@@ -981,7 +989,7 @@ function GenericHRModule({
           <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("ابحث في السجلات...", "Search records...")} style={{ width: "100%", borderRadius: 10, border: `1px solid ${theme.border}`, background: "transparent", color: theme.text, padding: "0.55rem 0.7rem", outline: "none", fontFamily: "inherit", fontSize: "0.85rem" }} />
         </div>
         {rows.map((row) => (
-          <div key={row.id || row.meta} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem" }}>
+          <div key={row.id || row.meta} className="module-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem", borderRadius: "6px" }}>
             <div>
               <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
               <small style={{ color: theme.textMuted }}>{row.meta}</small>
