@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoginPage from "./components/LoginPage";
 import ERPSystemLuxury from "./ERPSystemLuxury";
-import { isAuthenticated, getCurrentUser, api } from "./config/supabase";
+import { isAuthenticated, api } from "./config/supabase";
 import { getRolePermissions, getRoleTitle } from "./config/roleConfig";
 
 const normalizeUser = (rawUser, language = "ar") => {
@@ -235,7 +235,7 @@ function AppMain() {
     const savedTheme = localStorage.getItem("theme") || "dark";
     setLanguage(savedLang);
     setIsDarkMode(savedTheme === "dark");
-    checkAuth(savedLang);
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -245,14 +245,21 @@ function AppMain() {
     }
   }, [user]);
 
-  const checkAuth = (lang = "ar") => {
+  const checkAuth = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // Force the login page as the first screen on every fresh app open.
     if (isAuthenticated()) {
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        setUser(normalizeUser(currentUser, lang));
-        // No welcome banner on refresh — only on fresh login
+      if (token && !token.startsWith("local-")) {
+        await api.signOut(token);
+      } else {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
       }
     }
+
+    setUser(null);
+    setShowWelcome(false);
     setIsLoading(false);
   };
 
