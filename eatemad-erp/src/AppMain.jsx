@@ -3,6 +3,7 @@ import LoginPage from "./components/LoginPage";
 import ERPSystemLuxury from "./ERPSystemLuxury";
 import { isAuthenticated, getCurrentUser, api } from "./config/supabase";
 import { getRolePermissions, getRoleTitle } from "./config/roleConfig";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 const normalizeUser = (rawUser, language = "ar") => {
   if (!rawUser) return null;
@@ -335,29 +336,25 @@ function AppMain() {
 
   if (!user) {
     return (
-      <LoginPage
-        onLogin={handleLogin}
-        language={language}
-        setLanguage={handleLanguageChange}
-        isDarkMode={isDarkMode}
-      />
+      <Router>
+        <Routes>
+          <Route
+            path="/login"
+            element={<LoginPage onLogin={setUser} language={language} setLanguage={setLanguage} />}
+          />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
     );
   }
 
   return (
-    <>
-      {showWelcome && (
-        <WelcomeOverlay user={user} language={language} onDone={() => setShowWelcome(false)} />
-      )}
-      <ERPSystemLuxury
-        user={user}
-        language={language}
-        isDarkMode={isDarkMode}
-        onLogout={handleLogout}
-        onLanguageChange={handleLanguageChange}
-        onThemeChange={handleThemeChange}
-      />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/dashboard" element={<ERPSystemLuxury user={user} language={language} />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
