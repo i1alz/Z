@@ -257,10 +257,11 @@ function AppMain() {
       return;
     }
 
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(normalizeUser(currentUser, lang));
-    }
+    // No active token means we should always land on the login screen.
+    // Clear any persisted user payload to avoid stale/manual localStorage bypass.
+    localStorage.removeItem("user");
+    setUser(null);
+    setShowWelcome(false);
 
     setIsLoading(false);
   };
