@@ -990,7 +990,16 @@ function GenericHRModule({
               <span style={{ padding: "0.25rem 0.7rem", borderRadius: 14, background: `${row.color || theme.accent}22`, color: row.color || theme.accent, fontSize: "0.78rem", fontWeight: 700 }}>{row.status}</span>
               {canManage && (
                 <>
-                  <button type="button" onClick={() => { setEditingId(row.id); setForm({ name: row.name, status: row.status, meta: row.meta }); setShowForm(true); }} style={{ border: "none", background: "none", color: theme.accent, cursor: "pointer" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextForm = row.editValues || fields.reduce((acc, field) => ({ ...acc, [field.key]: row[field.key] || "" }), {});
+                      setEditingId(row.id);
+                      setForm(nextForm);
+                      setShowForm(true);
+                    }}
+                    style={{ border: "none", background: "none", color: theme.accent, cursor: "pointer" }}
+                  >
                     <FiEdit3 size={15} />
                   </button>
                   <button type="button" onClick={() => onDelete(row.id)} style={{ border: "none", background: "none", color: "#ef4444", cursor: "pointer" }}>

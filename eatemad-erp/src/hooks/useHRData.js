@@ -298,6 +298,12 @@ function mapModuleRecords(language, module, records = []) {
         status: translatedStatus,
         meta: item.time_in || item.date || "--",
         color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "present",
+          time_in: item.time_in || "",
+          date: item.date || "",
+        },
       };
     });
   }
@@ -327,6 +333,12 @@ function mapModuleRecords(language, module, records = []) {
         status: translatedStatus,
         meta: formatRange(item.start_date, item.end_date),
         color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "pending",
+          start_date: item.start_date || "",
+          end_date: item.end_date || "",
+        },
       };
     });
   }
@@ -358,6 +370,12 @@ function mapModuleRecords(language, module, records = []) {
             ? `${item.amount.toLocaleString()} AED`
             : item.period || "--",
         color,
+        editValues: {
+          name: item.department_name || item.name || item.employee_name || "",
+          status: item.status || "processing",
+          amount: item.amount ?? "",
+          period: item.period || "",
+        },
       };
     });
   }
@@ -379,6 +397,11 @@ function mapModuleRecords(language, module, records = []) {
         ? `${item.applicants_count} applicants`
         : "--",
       color: "#3b82f6",
+      editValues: {
+        title: item.title || item.position || "",
+        status: item.status || "open",
+        applicants_count: item.applicants_count ?? "",
+      },
     }));
   }
 
@@ -398,6 +421,12 @@ function mapModuleRecords(language, module, records = []) {
             : t(language, "جيد", "Good"),
       meta: item.score ? `${item.score}%` : item.rating || "--",
       color: "#8b5cf6",
+      editValues: {
+        name: item.employee_name || item.full_name || item.name || "",
+        score: item.score ?? "",
+        rating: item.rating || "",
+        review_date: item.review_date || "",
+      },
     }));
   }
 
@@ -474,31 +503,49 @@ const MODULE_PERMISSION = {
   performance: "performance",
 };
 
-function buildModulePayload(module, input = {}) {
+function buildModulePayload(module, input = {}, mode = "create") {
+  const isUpdate = mode === "update";
   if (module === "attendance") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       status: input.status || "present",
       time_in: input.time_in || input.meta || null,
-      date: input.date || new Date().toISOString().slice(0, 10),
+      date: input.date,
     };
+    if (!isUpdate && !payload.date) {
+      payload.date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.date) delete payload.date;
+    return payload;
   }
   if (module === "leaves") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       status: input.status || "pending",
-      start_date: input.start_date || new Date().toISOString().slice(0, 10),
-      end_date: input.end_date || input.start_date || new Date().toISOString().slice(0, 10),
+      start_date: input.start_date,
+      end_date: input.end_date || input.start_date,
     };
+    if (!isUpdate) {
+      const defaultDate = new Date().toISOString().slice(0, 10);
+      payload.start_date = payload.start_date || defaultDate;
+      payload.end_date = payload.end_date || payload.start_date || defaultDate;
+    } else {
+      if (!input.start_date) delete payload.start_date;
+      if (!input.end_date && !input.start_date) delete payload.end_date;
+    }
+    return payload;
   }
   if (module === "payroll") {
-    return {
+    const payload = {
       name: input.name || "",
       department_name: input.department_name || input.name || "",
       status: input.status || "processing",
       amount: Number(input.amount || 0) || null,
-      period: input.period || new Date().toISOString().slice(0, 7),
+      period: input.period,
     };
+    if (!isUpdate && !payload.period) payload.period = new Date().toISOString().slice(0, 7);
+    if (isUpdate && !input.period) delete payload.period;
+    return payload;
   }
   if (module === "recruitment") {
     return {
@@ -508,12 +555,17 @@ function buildModulePayload(module, input = {}) {
     };
   }
   if (module === "performance") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       score: Number(input.score || 0) || 0,
       rating: input.rating || input.status || "good",
-      review_date: input.review_date || new Date().toISOString().slice(0, 10),
+      review_date: input.review_date,
     };
+    if (!isUpdate && !payload.review_date) {
+      payload.review_date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.review_date) delete payload.review_date;
+    return payload;
   }
   return input;
 }
@@ -678,14 +730,14 @@ export function useHRData({ language = "ar", user } = {}) {
   const addModuleRecord = useCallback(async (module, input) => {
     return runModuleMutation(module, async () => {
       const token = getAuthToken();
-      return moduleApi[module].create(buildModulePayload(module, input), token);
+      return moduleApi[module].create(buildModulePayload(module, input, "create"), token);
     });
   }, [runModuleMutation]);
 
   const updateModuleRecord = useCallback(async (module, id, input) => {
     return runModuleMutation(module, async () => {
       const token = getAuthToken();
-      return moduleApi[module].update(id, buildModulePayload(module, input), token);
+      return moduleApi[module].update(id, buildModulePayload(module, input, "update"), token);
     });
   }, [runModuleMutation]);
 
