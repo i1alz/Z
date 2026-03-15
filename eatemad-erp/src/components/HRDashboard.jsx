@@ -40,10 +40,26 @@ function AttendanceDonut({ present, absent, onLeave, language }) {
   const leaveArc = (onLeave / total) * circ;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "2rem", flexWrap: "wrap" }}>
-      <div style={{ position: "relative", width: 180, height: 180, flexShrink: 0 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "2rem",
+        flexWrap: "wrap",
+      }}
+    >
+      <div
+        style={{ position: "relative", width: 180, height: 180, flexShrink: 0 }}
+      >
         <svg width="180" height="180" style={{ transform: "rotate(-90deg)" }}>
-          <circle cx="90" cy="90" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="22" />
+          <circle
+            cx="90"
+            cy="90"
+            r={r}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="22"
+          />
           <circle
             cx="90"
             cy="90"
@@ -87,20 +103,59 @@ function AttendanceDonut({ present, absent, onLeave, language }) {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#d4a574", lineHeight: 1 }}>{pct}%</div>
-          <div style={{ fontSize: "0.68rem", color: "rgba(212,165,116,0.8)", marginTop: "0.25rem", fontWeight: 600 }}>
+          <div
+            style={{
+              fontSize: "1.8rem",
+              fontWeight: 900,
+              color: "#d4a574",
+              lineHeight: 1,
+            }}
+          >
+            {pct}%
+          </div>
+          <div
+            style={{
+              fontSize: "0.68rem",
+              color: "rgba(212,165,116,0.8)",
+              marginTop: "0.25rem",
+              fontWeight: 600,
+            }}
+          >
             {language === "ar" ? "نسبة الحضور" : "Attendance Rate"}
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem", flex: 1, minWidth: 180 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.9rem",
+          flex: 1,
+          minWidth: 180,
+        }}
+      >
         {[
-          { label: language === "ar" ? "حاضر" : "Present", value: present, color: "#d4a574" },
-          { label: language === "ar" ? "غائب" : "Absent", value: absent, color: "#3a2520" },
-          { label: language === "ar" ? "إجازة" : "On Leave", value: onLeave, color: "#9b0d16" },
+          {
+            label: language === "ar" ? "حاضر" : "Present",
+            value: present,
+            color: "#d4a574",
+          },
+          {
+            label: language === "ar" ? "غائب" : "Absent",
+            value: absent,
+            color: "#3a2520",
+          },
+          {
+            label: language === "ar" ? "إجازة" : "On Leave",
+            value: onLeave,
+            color: "#9b0d16",
+          },
         ].map((item) => (
-          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <div
+            key={item.label}
+            style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          >
             <div
               style={{
                 width: 14,
@@ -111,10 +166,21 @@ function AttendanceDonut({ present, absent, onLeave, language }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ color: "rgba(245,230,211,0.85)", fontSize: "0.95rem", fontWeight: 500, flex: 1 }}>
+            <span
+              style={{
+                color: "rgba(245,230,211,0.85)",
+                fontSize: "0.95rem",
+                fontWeight: 500,
+                flex: 1,
+              }}
+            >
               {item.label}
             </span>
-            <span style={{ color: "#d4a574", fontSize: "1.1rem", fontWeight: 800 }}>{item.value}</span>
+            <span
+              style={{ color: "#d4a574", fontSize: "1.1rem", fontWeight: 800 }}
+            >
+              {item.value}
+            </span>
           </div>
         ))}
       </div>
@@ -129,7 +195,12 @@ function getNameByLanguage(language, currentUser) {
   if (language === "ar") {
     return currentUser.fullName || currentUser.name || "أكرم قاسم";
   }
-  return currentUser.englishName || currentUser.fullName || currentUser.name || "Akram Qasim";
+  return (
+    currentUser.englishName ||
+    currentUser.fullName ||
+    currentUser.name ||
+    "Akram Qasim"
+  );
 }
 
 function getInitials(name = "") {
@@ -148,13 +219,14 @@ export default function HRDashboard({
   currentUser,
   permissions = [],
   dashboardData,
+  onNavigate,
 }) {
   const [animIn, setAnimIn] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1440
+    typeof window !== "undefined" ? window.innerWidth : 1440,
   );
   const [attendancePeriod, setAttendancePeriod] = useState(
-    language === "ar" ? "هذا الشهر" : "This Month"
+    language === "ar" ? "هذا الشهر" : "This Month",
   );
 
   useEffect(() => {
@@ -168,7 +240,10 @@ export default function HRDashboard({
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const data = useMemo(() => ({ ...fallbackData, ...dashboardData }), [dashboardData]);
+  const data = useMemo(
+    () => ({ ...fallbackData, ...dashboardData }),
+    [dashboardData],
+  );
 
   useEffect(() => {
     if (data?.attendancePeriods?.current) {
@@ -190,11 +265,15 @@ export default function HRDashboard({
   };
 
   const userName = getNameByLanguage(language, currentUser);
-  const userTitle = currentUser?.title || (language === "ar" ? "مدير الموارد البشرية" : "HR Manager");
+  const userTitle =
+    currentUser?.title ||
+    (language === "ar" ? "مدير الموارد البشرية" : "HR Manager");
   const hasFullAccess = permissions.includes("*");
 
   const quickActions = (data.quickActions || [])
-    .filter((action) => hasFullAccess || permissions.includes(action.permission))
+    .filter(
+      (action) => hasFullAccess || permissions.includes(action.permission),
+    )
     .map((action) => ({
       ...action,
       Icon: ACTION_ICONS[action.iconKey] || FiUsers,
@@ -217,19 +296,33 @@ export default function HRDashboard({
         gap: "1.25rem",
       }}
     >
-      <div style={{ display: "grid", gridTemplateColumns: topGridColumns, gap: "1rem", alignItems: "stretch" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: topGridColumns,
+          gap: "1rem",
+          alignItems: "stretch",
+        }}
+      >
         <div
           style={{
             ...card,
             padding: isPhone ? "1.2rem" : "1.8rem",
             position: "relative",
-            background: "linear-gradient(135deg, #2a1f18 0%, #3a2520 50%, #2a1f18 100%)",
+            background:
+              "linear-gradient(135deg, #2a1f18 0%, #3a2520 50%, #2a1f18 100%)",
           }}
         >
           <h2
             style={{
               margin: 0,
-              fontSize: isPhone ? "1.4rem" : isMobile ? "1.7rem" : isLaptop ? "2rem" : "2.4rem",
+              fontSize: isPhone
+                ? "1.4rem"
+                : isMobile
+                  ? "1.7rem"
+                  : isLaptop
+                    ? "2rem"
+                    : "2.4rem",
               fontWeight: 900,
               color: "#f5e6d3",
               lineHeight: 1.2,
@@ -237,8 +330,17 @@ export default function HRDashboard({
           >
             {language === "ar" ? `مرحباً، ${userName}` : `Welcome, ${userName}`}
           </h2>
-          <p style={{ margin: "0.6rem 0 0", color: "rgba(212,165,116,0.85)", fontSize: "1rem", fontWeight: 500 }}>
-            {language === "ar" ? "أدر فريقك بكفاءة" : "Manage your team efficiently"}
+          <p
+            style={{
+              margin: "0.6rem 0 0",
+              color: "rgba(212,165,116,0.85)",
+              fontSize: "1rem",
+              fontWeight: 500,
+            }}
+          >
+            {language === "ar"
+              ? "أدر فريقك بكفاءة"
+              : "Manage your team efficiently"}
           </p>
           <div
             style={{
@@ -267,17 +369,52 @@ export default function HRDashboard({
             background: "linear-gradient(145deg, #2a1f18 0%, #221813 100%)",
           }}
         >
-          <p style={{ margin: 0, color: "rgba(212,165,116,0.7)", fontSize: "0.85rem", fontWeight: 600 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "rgba(212,165,116,0.7)",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+            }}
+          >
             {language === "ar" ? "إجمالي الموظفين" : "Total Employees"}
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginTop: "0.6rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.65rem",
+              marginTop: "0.6rem",
+            }}
+          >
             <FiUsers size={20} color="#d4a574" />
-            <span style={{ fontSize: "2.2rem", fontWeight: 900, color: "#f5e6d3", lineHeight: 1 }}>
+            <span
+              style={{
+                fontSize: "2.2rem",
+                fontWeight: 900,
+                color: "#f5e6d3",
+                lineHeight: 1,
+              }}
+            >
               {data.stats.totalEmployees}
             </span>
           </div>
-          <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginTop: "0.8rem" }}>
-            <div style={{ height: "100%", width: "75%", background: "linear-gradient(90deg, #7d0a12, #d4a574)" }} />
+          <div
+            style={{
+              width: "100%",
+              height: 4,
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: 2,
+              marginTop: "0.8rem",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "75%",
+                background: "linear-gradient(90deg, #7d0a12, #d4a574)",
+              }}
+            />
           </div>
         </div>
 
@@ -292,33 +429,94 @@ export default function HRDashboard({
             background: "linear-gradient(145deg, #2a1f18 0%, #221813 100%)",
           }}
         >
-          <p style={{ margin: 0, color: "rgba(212,165,116,0.7)", fontSize: "0.85rem", fontWeight: 600 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "rgba(212,165,116,0.7)",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+            }}
+          >
             {language === "ar" ? "موظفون جدد" : "New Hires"}
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginTop: "0.6rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.65rem",
+              marginTop: "0.6rem",
+            }}
+          >
             <FiUserPlus size={20} color="#d4a574" />
-            <span style={{ fontSize: "2.2rem", fontWeight: 900, color: "#f5e6d3", lineHeight: 1 }}>
+            <span
+              style={{
+                fontSize: "2.2rem",
+                fontWeight: 900,
+                color: "#f5e6d3",
+                lineHeight: 1,
+              }}
+            >
               {data.stats.newHires}
             </span>
           </div>
-          <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 2, marginTop: "0.8rem" }}>
-            <div style={{ height: "100%", width: "30%", background: "linear-gradient(90deg, #d4a574, #f5d9b8)" }} />
+          <div
+            style={{
+              width: "100%",
+              height: 4,
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: 2,
+              marginTop: "0.8rem",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: "30%",
+                background: "linear-gradient(90deg, #d4a574, #f5d9b8)",
+              }}
+            />
           </div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: isTablet ? "1fr" : "1fr 1fr", gap: "1rem" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isTablet ? "1fr" : "1fr 1fr",
+          gap: "1rem",
+        }}
+      >
         <div style={{ ...card, padding: isPhone ? "1rem" : "1.6rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#f5e6d3" }}>
-              {language === "ar" ? "نظرة عامة على الحضور" : "Attendance Overview"}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "1.1rem",
+                fontWeight: 800,
+                color: "#f5e6d3",
+              }}
+            >
+              {language === "ar"
+                ? "نظرة عامة على الحضور"
+                : "Attendance Overview"}
             </h3>
             <button
               onClick={() =>
                 setAttendancePeriod((prev) =>
                   prev === (language === "ar" ? "هذا الشهر" : "This Month")
-                    ? (language === "ar" ? "هذا الأسبوع" : "This Week")
-                    : (language === "ar" ? "هذا الشهر" : "This Month")
+                    ? language === "ar"
+                      ? "هذا الأسبوع"
+                      : "This Week"
+                    : language === "ar"
+                      ? "هذا الشهر"
+                      : "This Month",
                 )
               }
               style={{
@@ -339,13 +537,27 @@ export default function HRDashboard({
         </div>
 
         <div style={{ ...card, padding: isPhone ? "1rem" : "1.6rem" }}>
-          <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 800, color: "#f5e6d3" }}>
+          <h3
+            style={{
+              margin: "0 0 1rem",
+              fontSize: "1.1rem",
+              fontWeight: 800,
+              color: "#f5e6d3",
+            }}
+          >
             {language === "ar" ? "إجراءات سريعة" : "Quick Actions"}
           </h3>
-          <div style={{ display: "grid", gridTemplateColumns: isPhone ? "1fr" : "1fr 1fr", gap: "0.85rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isPhone ? "1fr" : "1fr 1fr",
+              gap: "0.85rem",
+            }}
+          >
             {quickActions.map((action) => (
               <div
                 key={`${action.permission}-${action.title}`}
+                className="quick-action-card"
                 style={{
                   background: "linear-gradient(145deg, #3a1a1a, #2a1210)",
                   border: "1px solid rgba(155,13,22,0.35)",
@@ -357,7 +569,9 @@ export default function HRDashboard({
                   justifyContent: "center",
                   gap: "0.5rem",
                   textAlign: "center",
+                  cursor: "pointer",
                 }}
+                onClick={() => onNavigate && onNavigate(action.permission)}
               >
                 <div
                   style={{
@@ -372,22 +586,60 @@ export default function HRDashboard({
                 >
                   <action.Icon size={20} color="#f5e6d3" />
                 </div>
-                <p style={{ margin: 0, color: "#f5e6d3", fontWeight: 700, fontSize: "0.9rem" }}>{action.title}</p>
-                <p style={{ margin: 0, color: "rgba(212,165,116,0.65)", fontSize: "0.74rem" }}>{action.subtitle}</p>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "#f5e6d3",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {action.title}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "rgba(212,165,116,0.65)",
+                    fontSize: "0.74rem",
+                  }}
+                >
+                  {action.subtitle}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: isTablet ? "1fr" : "1.6fr 1fr", gap: "1rem" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isTablet ? "1fr" : "1.6fr 1fr",
+          gap: "1rem",
+        }}
+      >
         <div style={{ ...card, padding: isPhone ? "1rem" : "1.6rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-            <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#f5e6d3" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "1.1rem",
+                fontWeight: 800,
+                color: "#f5e6d3",
+              }}
+            >
               {language === "ar" ? "الموظفون الجدد" : "Recent Employees"}
             </h3>
             {!isMobile && (
               <button
+                className="view-all-btn"
                 style={{
                   background: "transparent",
                   border: "1px solid rgba(212,165,116,0.3)",
@@ -401,6 +653,7 @@ export default function HRDashboard({
                   gap: "0.35rem",
                   cursor: "pointer",
                 }}
+                onClick={() => onNavigate && onNavigate("employees")}
               >
                 <FiEye size={14} />
                 {language === "ar" ? "عرض الكل" : "View All"}
@@ -409,7 +662,13 @@ export default function HRDashboard({
           </div>
 
           {isMobile ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+            >
               {data.recentEmployees.map((emp) => (
                 <div
                   key={`${emp.name}-${emp.date}`}
@@ -420,7 +679,14 @@ export default function HRDashboard({
                     background: "rgba(212,165,116,0.05)",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.45rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      marginBottom: "0.45rem",
+                    }}
+                  >
                     <div
                       style={{
                         width: 34,
@@ -438,12 +704,28 @@ export default function HRDashboard({
                     >
                       {getInitials(emp.name)}
                     </div>
-                    <strong style={{ color: "#f5e6d3", fontSize: "0.9rem" }}>{emp.name}</strong>
+                    <strong style={{ color: "#f5e6d3", fontSize: "0.9rem" }}>
+                      {emp.name}
+                    </strong>
                   </div>
-                  <p style={{ margin: "0 0 0.2rem", color: "rgba(245,230,211,0.75)", fontSize: "0.8rem" }}>
+                  <p
+                    style={{
+                      margin: "0 0 0.2rem",
+                      color: "rgba(245,230,211,0.75)",
+                      fontSize: "0.8rem",
+                    }}
+                  >
                     {emp.position} • {emp.department}
                   </p>
-                  <span style={{ color: "#d4a574", fontSize: "0.75rem", fontWeight: 700 }}>{emp.date}</span>
+                  <span
+                    style={{
+                      color: "#d4a574",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {emp.date}
+                  </span>
                 </div>
               ))}
             </div>
@@ -465,7 +747,14 @@ export default function HRDashboard({
                   language === "ar" ? "القسم" : "Department",
                   language === "ar" ? "التاريخ" : "Date",
                 ].map((header) => (
-                  <span key={header} style={{ color: "rgba(212,165,116,0.7)", fontSize: "0.78rem", fontWeight: 700 }}>
+                  <span
+                    key={header}
+                    style={{
+                      color: "rgba(212,165,116,0.7)",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                    }}
+                  >
                     {header}
                   </span>
                 ))}
@@ -474,15 +763,23 @@ export default function HRDashboard({
               {data.recentEmployees.map((emp) => (
                 <div
                   key={`${emp.name}-${emp.date}`}
+                  className="employee-row"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "2fr 1.5fr 1.5fr 1fr",
                     padding: "0.85rem",
                     borderBottom: "1px solid rgba(212,165,116,0.08)",
                     alignItems: "center",
+                    borderRadius: "6px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.65rem",
+                    }}
+                  >
                     <div
                       style={{
                         width: 36,
@@ -500,11 +797,41 @@ export default function HRDashboard({
                     >
                       {getInitials(emp.name)}
                     </div>
-                    <span style={{ color: "#f5e6d3", fontWeight: 600, fontSize: "0.88rem" }}>{emp.name}</span>
+                    <span
+                      style={{
+                        color: "#f5e6d3",
+                        fontWeight: 600,
+                        fontSize: "0.88rem",
+                      }}
+                    >
+                      {emp.name}
+                    </span>
                   </div>
-                  <span style={{ color: "rgba(245,230,211,0.72)", fontSize: "0.84rem" }}>{emp.position}</span>
-                  <span style={{ color: "rgba(245,230,211,0.72)", fontSize: "0.84rem" }}>{emp.department}</span>
-                  <span style={{ color: "#d4a574", fontSize: "0.78rem", fontWeight: 700 }}>{emp.date}</span>
+                  <span
+                    style={{
+                      color: "rgba(245,230,211,0.72)",
+                      fontSize: "0.84rem",
+                    }}
+                  >
+                    {emp.position}
+                  </span>
+                  <span
+                    style={{
+                      color: "rgba(245,230,211,0.72)",
+                      fontSize: "0.84rem",
+                    }}
+                  >
+                    {emp.department}
+                  </span>
+                  <span
+                    style={{
+                      color: "#d4a574",
+                      fontSize: "0.78rem",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {emp.date}
+                  </span>
                 </div>
               ))}
             </>
@@ -512,34 +839,74 @@ export default function HRDashboard({
         </div>
 
         <div style={{ ...card, padding: isPhone ? "1rem" : "1.6rem" }}>
-          <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", fontWeight: 800, color: "#f5e6d3" }}>
+          <h3
+            style={{
+              margin: "0 0 1rem",
+              fontSize: "1.1rem",
+              fontWeight: 800,
+              color: "#f5e6d3",
+            }}
+          >
             {language === "ar" ? "الإجازات القادمة" : "Upcoming Leaves"}
           </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+          >
             {data.upcomingLeaves.map((leave) => (
               <div
                 key={`${leave.name}-${leave.period}`}
+                className="leave-item"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "0.8rem 1rem",
-                  background: "linear-gradient(135deg, rgba(125,10,18,0.2), rgba(42,31,24,0.5))",
+                  background:
+                    "linear-gradient(135deg, rgba(125,10,18,0.2), rgba(42,31,24,0.5))",
                   borderRadius: "12px",
                   border: "1px solid rgba(155,13,22,0.25)",
                   borderLeft: "3px solid #9b0d16",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.65rem",
+                  }}
+                >
                   <FiCalendar size={16} color="#d4a574" />
-                  <span style={{ color: "#f5e6d3", fontWeight: 600, fontSize: "0.86rem" }}>{leave.name}</span>
+                  <span
+                    style={{
+                      color: "#f5e6d3",
+                      fontWeight: 600,
+                      fontSize: "0.86rem",
+                    }}
+                  >
+                    {leave.name}
+                  </span>
                 </div>
-                <span style={{ color: "rgba(212,165,116,0.9)", fontSize: "0.79rem", fontWeight: 700 }}>{leave.period}</span>
+                <span
+                  style={{
+                    color: "rgba(212,165,116,0.9)",
+                    fontSize: "0.79rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  {leave.period}
+                </span>
               </div>
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.7rem", marginTop: "1rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.7rem",
+              marginTop: "1rem",
+            }}
+          >
             <div
               style={{
                 background: "rgba(212,165,116,0.06)",
@@ -549,8 +916,23 @@ export default function HRDashboard({
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "1.6rem", fontWeight: 900, color: "#d4a574" }}>{data.stats.leaveDaysRemaining}</div>
-              <div style={{ fontSize: "0.72rem", color: "rgba(212,165,116,0.65)", marginTop: "0.15rem", fontWeight: 500 }}>
+              <div
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 900,
+                  color: "#d4a574",
+                }}
+              >
+                {data.stats.leaveDaysRemaining}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: "rgba(212,165,116,0.65)",
+                  marginTop: "0.15rem",
+                  fontWeight: 500,
+                }}
+              >
                 {language === "ar" ? "أيام الإجازة المتبقية" : "Days Remaining"}
               </div>
             </div>
@@ -563,21 +945,29 @@ export default function HRDashboard({
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: "1.6rem", fontWeight: 900, color: "#9b0d16" }}>{data.stats.pendingLeaveRequests}</div>
-              <div style={{ fontSize: "0.72rem", color: "rgba(212,165,116,0.65)", marginTop: "0.15rem", fontWeight: 500 }}>
+              <div
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 900,
+                  color: "#9b0d16",
+                }}
+              >
+                {data.stats.pendingLeaveRequests}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.72rem",
+                  color: "rgba(212,165,116,0.65)",
+                  marginTop: "0.15rem",
+                  fontWeight: 500,
+                }}
+              >
                 {language === "ar" ? "طلبات معلقة" : "Pending Requests"}
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

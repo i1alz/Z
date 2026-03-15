@@ -22,4 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-nul 
+nul
+
+# AI assistant local settings
+.claude/
+
+# Internal report files
+.vade-report
+
+# Temporary text copies of source files (e.g. LoginPage.txt)
+*Page.txt
+*Module.txt

@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, getAuthToken } from "../config/supabase";
+import { userHasPermission } from "../config/roleConfig";
 import { buildHRDashboardData } from "../data/hrDashboardData";
 
 const fallbackEmployees = [
@@ -33,14 +34,39 @@ const fallbackEmployees = [
 ];
 
 const fallbackAttendance = [
-  { employee_name: "Ahmed Al-Farsi", status: "present", time_in: "08:00", date: "2026-03-10" },
-  { employee_name: "Reem Al-Harbi", status: "present", time_in: "08:15", date: "2026-03-10" },
-  { employee_name: "Omar Al-Saud", status: "late", time_in: "09:30", date: "2026-03-10" },
+  {
+    employee_name: "Ahmed Al-Farsi",
+    status: "present",
+    time_in: "08:00",
+    date: "2026-03-10",
+  },
+  {
+    employee_name: "Reem Al-Harbi",
+    status: "present",
+    time_in: "08:15",
+    date: "2026-03-10",
+  },
+  {
+    employee_name: "Omar Al-Saud",
+    status: "late",
+    time_in: "09:30",
+    date: "2026-03-10",
+  },
 ];
 
 const fallbackLeaves = [
-  { employee_name: "Maha Al-Zahrani", status: "pending", start_date: "2026-04-23", end_date: "2026-04-26" },
-  { employee_name: "Faisal Al-Qahtani", status: "approved", start_date: "2026-04-23", end_date: "2026-04-25" },
+  {
+    employee_name: "Maha Al-Zahrani",
+    status: "pending",
+    start_date: "2026-04-23",
+    end_date: "2026-04-26",
+  },
+  {
+    employee_name: "Faisal Al-Qahtani",
+    status: "approved",
+    start_date: "2026-04-23",
+    end_date: "2026-04-25",
+  },
 ];
 
 const fallbackPayroll = [
@@ -76,8 +102,14 @@ function normalizeStatus(status = "") {
 function normalizeEmployee(employee = {}) {
   return {
     ...employee,
-    id: employee.id ?? employee.employee_id ?? employee.uuid ?? employee.code ?? null,
-    full_name: employee.full_name || employee.name || employee.employee_name || "",
+    id:
+      employee.id ??
+      employee.employee_id ??
+      employee.uuid ??
+      employee.code ??
+      null,
+    full_name:
+      employee.full_name || employee.name || employee.employee_name || "",
     name: employee.name || employee.full_name || employee.employee_name || "",
     position: employee.position || employee.job_title || "",
     department: employee.department || employee.branch_name || "",
@@ -89,7 +121,9 @@ function normalizeEmployee(employee = {}) {
     nationality: employee.nationality || "",
     email: employee.email || "",
     phone: employee.phone || employee.mobile || "",
-    salary: Number(employee.salary || employee.total_salary || employee.basic_salary || 0),
+    salary: Number(
+      employee.salary || employee.total_salary || employee.basic_salary || 0,
+    ),
     join_date: employee.join_date || employee.start_date || "",
     start_date: employee.start_date || employee.join_date || "",
     basic_salary: Number(employee.basic_salary || 0),
@@ -107,7 +141,8 @@ function normalizeEmployee(employee = {}) {
     passport_held_by: employee.passport_held_by || "",
     residence_expiry: employee.residence_expiry || "",
     work_card_expiry: employee.work_card_expiry || "",
-    created_at: employee.created_at || employee.inserted_at || employee.join_date || "",
+    created_at:
+      employee.created_at || employee.inserted_at || employee.join_date || "",
   };
 }
 
@@ -115,7 +150,9 @@ function uniquePayloadVariants(variants) {
   const used = new Set();
   return variants.filter((item) => {
     const cleaned = Object.fromEntries(
-      Object.entries(item).filter(([, value]) => value !== "" && value !== null && value !== undefined)
+      Object.entries(item).filter(
+        ([, value]) => value !== "" && value !== null && value !== undefined,
+      ),
     );
     const key = JSON.stringify(cleaned);
     if (!key || key === "{}" || used.has(key)) return false;
@@ -135,7 +172,8 @@ function buildEmployeePayloadVariants(employeeInput) {
       nationality: normalized.nationality || undefined,
       phone: normalized.phone || undefined,
       branch_name: normalized.branch_name || normalized.department || undefined,
-      residence_status: normalized.residence_status || normalized.status || undefined,
+      residence_status:
+        normalized.residence_status || normalized.status || undefined,
       start_date: normalized.start_date || normalized.join_date || undefined,
       basic_salary: normalized.basic_salary || undefined,
       allowances: normalized.allowances || undefined,
@@ -211,6 +249,28 @@ async function attemptEmployeeMutation({ mode, token, id, payloadVariants }) {
   return { success: false, error: lastError };
 }
 
+const ATTENDANCE_STATUS = {
+  present: { color: "#22c55e", ar: "حاضر", en: "Present" },
+  late: { color: "#f59e0b", ar: "متأخر", en: "Late" },
+  absent: { color: "#ef4444", ar: "غائب", en: "Absent" },
+};
+
+const LEAVE_STATUS = {
+  approved: { color: "#22c55e", ar: "موافق عليه", en: "Approved" },
+  rejected: { color: "#ef4444", ar: "مرفوض", en: "Rejected" },
+  pending: { color: "#f59e0b", ar: "معلق", en: "Pending" },
+};
+
+const PAYROLL_STATUS = {
+  paid: { color: "#22c55e", ar: "تم الدفع", en: "Paid" },
+  processing: { color: "#f59e0b", ar: "قيد المعالجة", en: "Processing" },
+};
+
+const RECRUITMENT_STATUS = {
+  open: { ar: "مفتوح", en: "Open" },
+  interview: { ar: "مقابلات", en: "Interviews" },
+};
+
 function mapModuleRecords(language, module, records = []) {
   if (!Array.isArray(records)) return [];
 
@@ -236,22 +296,23 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "attendance") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "present" ? "#22c55e" : status === "late" ? "#f59e0b" : "#ef4444";
-      const translatedStatus =
-        status === "present"
-          ? t(language, "حاضر", "Present")
-          : status === "late"
-            ? t(language, "متأخر", "Late")
-            : status === "absent"
-              ? t(language, "غائب", "Absent")
-              : item.status || "--";
+      const statusInfo = ATTENDANCE_STATUS[status] || { color: "#ef4444", ar: "غائب", en: "Absent" };
       return {
         id: item.id || `att-${index}`,
-        name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        name:
+          item.employee_name ||
+          item.full_name ||
+          item.name ||
+          t(language, "موظف", "Employee"),
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: item.time_in || item.date || "--",
-        color,
+        color: statusInfo.color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "present",
+          time_in: item.time_in || "",
+          date: item.date || "",
+        },
       };
     });
   }
@@ -259,19 +320,23 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "leaves") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color = status === "approved" ? "#22c55e" : status === "rejected" ? "#ef4444" : "#f59e0b";
-      const translatedStatus =
-        status === "approved"
-          ? t(language, "موافق عليه", "Approved")
-          : status === "rejected"
-            ? t(language, "مرفوض", "Rejected")
-            : t(language, "معلق", "Pending");
+      const statusInfo = LEAVE_STATUS[status] || LEAVE_STATUS.pending;
       return {
         id: item.id || `lev-${index}`,
-        name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        name:
+          item.employee_name ||
+          item.full_name ||
+          item.name ||
+          t(language, "موظف", "Employee"),
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: formatRange(item.start_date, item.end_date),
-        color,
+        color: statusInfo.color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "pending",
+          start_date: item.start_date || "",
+          end_date: item.end_date || "",
+        },
       };
     });
   }
@@ -279,41 +344,64 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "payroll") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color = status === "paid" ? "#22c55e" : status === "processing" ? "#f59e0b" : "#ef4444";
+      const statusInfo = PAYROLL_STATUS[status] || { color: "#ef4444", ar: item.status || "--", en: item.status || "--" };
       return {
         id: item.id || `pay-${index}`,
-        name: item.department_name || item.name || item.employee_name || t(language, "قسم", "Department"),
-        status:
-          status === "paid"
-            ? t(language, "تم الدفع", "Paid")
-            : status === "processing"
-              ? t(language, "قيد المعالجة", "Processing")
-              : item.status || "--",
-        meta: typeof item.amount === "number" ? `${item.amount.toLocaleString()} AED` : item.period || "--",
-        color,
+        name:
+          item.department_name ||
+          item.name ||
+          item.employee_name ||
+          t(language, "قسم", "Department"),
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
+        meta:
+          typeof item.amount === "number"
+            ? `${item.amount.toLocaleString()} AED`
+            : item.period || "--",
+        color: statusInfo.color,
+        editValues: {
+          name: item.department_name || item.name || item.employee_name || "",
+          status: item.status || "processing",
+          amount: item.amount ?? "",
+          period: item.period || "",
+        },
       };
     });
   }
 
   if (module === "recruitment") {
-    return records.slice(0, 40).map((item, index) => ({
-      id: item.id || `rec-${index}`,
-      name: item.title || item.position || t(language, "وظيفة شاغرة", "Open Position"),
-      status:
-        normalizeStatus(item.status) === "open"
-          ? t(language, "مفتوح", "Open")
-          : normalizeStatus(item.status) === "interview"
-            ? t(language, "مقابلات", "Interviews")
-            : item.status || "--",
-      meta: item.applicants_count ? `${item.applicants_count} applicants` : "--",
-      color: "#3b82f6",
-    }));
+    return records.slice(0, 40).map((item, index) => {
+      const status = normalizeStatus(item.status);
+      const statusInfo = RECRUITMENT_STATUS[status];
+      return {
+        id: item.id || `rec-${index}`,
+        name:
+          item.title ||
+          item.position ||
+          t(language, "وظيفة شاغرة", "Open Position"),
+        status: statusInfo
+          ? language === "ar" ? statusInfo.ar : statusInfo.en
+          : item.status || "--",
+        meta: item.applicants_count
+          ? `${item.applicants_count} applicants`
+          : "--",
+        color: "#3b82f6",
+        editValues: {
+          title: item.title || item.position || "",
+          status: item.status || "open",
+          applicants_count: item.applicants_count ?? "",
+        },
+      };
+    });
   }
 
   if (module === "performance") {
     return records.slice(0, 40).map((item, index) => ({
       id: item.id || `per-${index}`,
-      name: item.employee_name || item.full_name || item.name || t(language, "موظف", "Employee"),
+      name:
+        item.employee_name ||
+        item.full_name ||
+        item.name ||
+        t(language, "موظف", "Employee"),
       status:
         item.score >= 90
           ? t(language, "ممتاز", "Excellent")
@@ -322,6 +410,12 @@ function mapModuleRecords(language, module, records = []) {
             : t(language, "جيد", "Good"),
       meta: item.score ? `${item.score}%` : item.rating || "--",
       color: "#8b5cf6",
+      editValues: {
+        name: item.employee_name || item.full_name || item.name || "",
+        score: item.score ?? "",
+        rating: item.rating || "",
+        review_date: item.review_date || "",
+      },
     }));
   }
 
@@ -332,41 +426,158 @@ function buildModuleData(language, raw) {
   return {
     employees: {
       title: t(language, "الموظفون", "Employees"),
-      subtitle: t(language, "إدارة بيانات الموظفين الأساسية", "Manage employee records"),
+      subtitle: t(
+        language,
+        "إدارة بيانات الموظفين الأساسية",
+        "Manage employee records",
+      ),
       records: mapModuleRecords(language, "employees", raw.employees),
     },
     attendance: {
       title: t(language, "الحضور والانصراف", "Attendance"),
-      subtitle: t(language, "تتبع حضور وانصراف الموظفين", "Track attendance records"),
+      subtitle: t(
+        language,
+        "تتبع حضور وانصراف الموظفين",
+        "Track attendance records",
+      ),
       records: mapModuleRecords(language, "attendance", raw.attendance),
     },
     leaves: {
       title: t(language, "إدارة الإجازات", "Leave Management"),
-      subtitle: t(language, "عرض وإدارة طلبات الإجازات", "Manage leave requests"),
+      subtitle: t(
+        language,
+        "عرض وإدارة طلبات الإجازات",
+        "Manage leave requests",
+      ),
       records: mapModuleRecords(language, "leaves", raw.leaves),
     },
     payroll: {
       title: t(language, "إدارة الرواتب", "Payroll"),
-      subtitle: t(language, "تشغيل الرواتب وإدارة الدورات", "Process payroll cycles"),
+      subtitle: t(
+        language,
+        "تشغيل الرواتب وإدارة الدورات",
+        "Process payroll cycles",
+      ),
       records: mapModuleRecords(language, "payroll", raw.payroll),
     },
     recruitment: {
       title: t(language, "التوظيف", "Recruitment"),
-      subtitle: t(language, "إدارة الوظائف والمقابلات", "Hiring pipeline and interviews"),
+      subtitle: t(
+        language,
+        "إدارة الوظائف والمقابلات",
+        "Hiring pipeline and interviews",
+      ),
       records: mapModuleRecords(language, "recruitment", raw.recruitment),
     },
     performance: {
       title: t(language, "تقييم الأداء", "Performance"),
-      subtitle: t(language, "متابعة تقييمات الموظفين", "Track employee reviews"),
+      subtitle: t(
+        language,
+        "متابعة تقييمات الموظفين",
+        "Track employee reviews",
+      ),
       records: mapModuleRecords(language, "performance", raw.performance),
     },
   };
 }
 
+
+
+const MODULE_PERMISSION = {
+  employees: "employees",
+  attendance: "attendance",
+  leaves: "leaves",
+  payroll: "payroll",
+  recruitment: "recruitment",
+  performance: "performance",
+};
+
+function buildModulePayload(module, input = {}, mode = "create") {
+  const isUpdate = mode === "update";
+  if (module === "attendance") {
+    const payload = {
+      employee_name: input.name || input.employee_name || "",
+      status: input.status || "present",
+      time_in: input.time_in || input.meta || null,
+      date: input.date,
+    };
+    if (!isUpdate && !payload.date) {
+      payload.date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.date) delete payload.date;
+    return payload;
+  }
+  if (module === "leaves") {
+    const payload = {
+      employee_name: input.name || input.employee_name || "",
+      status: input.status || "pending",
+      start_date: input.start_date,
+      end_date: input.end_date || input.start_date,
+    };
+    if (!isUpdate) {
+      const defaultDate = new Date().toISOString().slice(0, 10);
+      payload.start_date = payload.start_date || defaultDate;
+      payload.end_date = payload.end_date || payload.start_date || defaultDate;
+    } else {
+      if (!input.start_date) delete payload.start_date;
+      if (!input.end_date && !input.start_date) delete payload.end_date;
+    }
+    return payload;
+  }
+  if (module === "payroll") {
+    const payload = {
+      name: input.name || "",
+      department_name: input.department_name || input.name || "",
+      status: input.status || "processing",
+      amount: Number(input.amount || 0) || null,
+      period: input.period,
+    };
+    if (!isUpdate && !payload.period) payload.period = new Date().toISOString().slice(0, 7);
+    if (isUpdate && !input.period) delete payload.period;
+    return payload;
+  }
+  if (module === "recruitment") {
+    return {
+      title: input.title || input.name || "",
+      status: input.status || "open",
+      applicants_count: Number(input.applicants_count || 0) || 0,
+    };
+  }
+  if (module === "performance") {
+    const payload = {
+      employee_name: input.name || input.employee_name || "",
+      score: Number(input.score || 0) || 0,
+      rating: input.rating || input.status || "good",
+      review_date: input.review_date,
+    };
+    if (!isUpdate && !payload.review_date) {
+      payload.review_date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.review_date) delete payload.review_date;
+    return payload;
+  }
+  return input;
+}
+
 export function useHRData({ language = "ar", user } = {}) {
   const [loading, setLoading] = useState(true);
-  const [mutatingEmployees, setMutatingEmployees] = useState(false);
   const [error, setError] = useState("");
+  const [mutating, setMutating] = useState({
+    employees: false,
+    attendance: false,
+    leaves: false,
+    payroll: false,
+    recruitment: false,
+    performance: false,
+  });
+  const [operationError, setOperationError] = useState({
+    employees: "",
+    attendance: "",
+    leaves: "",
+    payroll: "",
+    recruitment: "",
+    performance: "",
+  });
   const [rawData, setRawData] = useState({
     employees: fallbackEmployees,
     attendance: fallbackAttendance,
@@ -376,6 +587,12 @@ export function useHRData({ language = "ar", user } = {}) {
     performance: fallbackPerformance,
     stats: {},
   });
+
+  const ensurePermission = useCallback((module) => {
+    const permission = MODULE_PERMISSION[module];
+    if (userHasPermission(user?.permissions || [], permission)) return null;
+    return t(language, "ليس لديك صلاحية لهذه العملية", "You do not have permission for this action");
+  }, [language, user?.permissions]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -397,14 +614,12 @@ export function useHRData({ language = "ar", user } = {}) {
     const attendance = attendanceRes?.success && attendanceRes.data.length ? attendanceRes.data : fallbackAttendance;
     const leaves = leavesRes?.success && leavesRes.data.length ? leavesRes.data : fallbackLeaves;
     const payroll = payrollRes?.success && payrollRes.data.length ? payrollRes.data : fallbackPayroll;
-    const recruitment =
-      recruitmentRes?.success && recruitmentRes.data.length ? recruitmentRes.data : fallbackRecruitment;
-    const performance =
-      performanceRes?.success && performanceRes.data.length ? performanceRes.data : fallbackPerformance;
+    const recruitment = recruitmentRes?.success && recruitmentRes.data.length ? recruitmentRes.data : fallbackRecruitment;
+    const performance = performanceRes?.success && performanceRes.data.length ? performanceRes.data : fallbackPerformance;
     const stats = statsRes?.success ? statsRes.data || {} : {};
 
     const hasApiFailure = [employeesRes, attendanceRes, leavesRes, payrollRes, recruitmentRes, performanceRes].some(
-      (res) => res && !res.success
+      (res) => res && !res.success,
     );
 
     if (hasApiFailure) {
@@ -412,20 +627,12 @@ export function useHRData({ language = "ar", user } = {}) {
         t(
           language,
           "تم تحميل بعض البيانات من النسخة الاحتياطية بسبب تعذر الوصول الكامل لقاعدة البيانات.",
-          "Some records were loaded from fallback data due to partial database connectivity."
-        )
+          "Some records were loaded from fallback data due to partial database connectivity.",
+        ),
       );
     }
 
-    setRawData({
-      employees,
-      attendance,
-      leaves,
-      payroll,
-      recruitment,
-      performance,
-      stats,
-    });
+    setRawData({ employees, attendance, leaves, payroll, recruitment, performance, stats });
     setLoading(false);
   }, [language]);
 
@@ -433,106 +640,130 @@ export function useHRData({ language = "ar", user } = {}) {
     refresh();
   }, [refresh, language, user?.id]);
 
-  const addEmployee = useCallback(
-    async (employeeInput) => {
-      setMutatingEmployees(true);
-      setError("");
+  const runModuleMutation = useCallback(async (module, operation) => {
+    const permissionError = ensurePermission(module);
+    if (permissionError) {
+      setOperationError((prev) => ({ ...prev, [module]: permissionError }));
+      return { success: false, error: permissionError };
+    }
+
+    setMutating((prev) => ({ ...prev, [module]: true }));
+    setOperationError((prev) => ({ ...prev, [module]: "" }));
+    setError("");
+
+    const result = await operation();
+
+    if (!result?.success) {
+      const message = result?.error || t(language, "تعذر إتمام العملية", "Unable to complete operation");
+      setOperationError((prev) => ({ ...prev, [module]: message }));
+      setMutating((prev) => ({ ...prev, [module]: false }));
+      return { success: false, error: message };
+    }
+
+    await refresh();
+    setMutating((prev) => ({ ...prev, [module]: false }));
+    return { success: true, data: result.data || null };
+  }, [ensurePermission, language, refresh]);
+
+  const addEmployee = useCallback(async (employeeInput) => {
+    return runModuleMutation("employees", async () => {
       const token = getAuthToken();
       const variants = buildEmployeePayloadVariants(employeeInput);
+      return attemptEmployeeMutation({ mode: "create", token, payloadVariants: variants });
+    });
+  }, [runModuleMutation]);
 
-      const result = await attemptEmployeeMutation({
-        mode: "create",
-        token,
-        payloadVariants: variants,
-      });
-
-      if (!result.success) {
-        setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر إضافة الموظف", "Unable to add employee"));
-        return { success: false, error: result.error };
-      }
-
-      await refresh();
-      setMutatingEmployees(false);
-      return { success: true, data: result.data };
-    },
-    [language, refresh]
-  );
-
-  const updateEmployee = useCallback(
-    async (id, employeeInput) => {
-      setMutatingEmployees(true);
-      setError("");
+  const updateEmployee = useCallback(async (id, employeeInput) => {
+    return runModuleMutation("employees", async () => {
       const token = getAuthToken();
       const variants = buildEmployeePayloadVariants(employeeInput);
+      return attemptEmployeeMutation({ mode: "update", token, id, payloadVariants: variants });
+    });
+  }, [runModuleMutation]);
 
-      const result = await attemptEmployeeMutation({
-        mode: "update",
-        token,
-        id,
-        payloadVariants: variants,
-      });
-
-      if (!result.success) {
-        setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر تعديل الموظف", "Unable to update employee"));
-        return { success: false, error: result.error };
-      }
-
-      await refresh();
-      setMutatingEmployees(false);
-      return { success: true, data: result.data };
-    },
-    [language, refresh]
-  );
-
-  const deleteEmployee = useCallback(
-    async (id) => {
-      setMutatingEmployees(true);
-      setError("");
+  const deleteEmployee = useCallback(async (id) => {
+    return runModuleMutation("employees", async () => {
       const token = getAuthToken();
-      const result = await api.deleteEmployee(id, token);
+      return api.deleteEmployee(id, token);
+    });
+  }, [runModuleMutation]);
 
-      if (!result.success) {
-        setMutatingEmployees(false);
-        setError(result.error || t(language, "تعذر حذف الموظف", "Unable to delete employee"));
-        return { success: false, error: result.error };
-      }
-
-      await refresh();
-      setMutatingEmployees(false);
-      return { success: true };
+  const moduleApi = {
+    attendance: {
+      create: api.createAttendanceRecord.bind(api),
+      update: api.updateAttendanceRecord.bind(api),
+      remove: api.deleteAttendanceRecord.bind(api),
     },
-    [language, refresh]
-  );
+    leaves: {
+      create: api.createLeaveRequest.bind(api),
+      update: api.updateLeaveRequest.bind(api),
+      remove: api.deleteLeaveRequest.bind(api),
+    },
+    payroll: {
+      create: api.createPayrollRecord.bind(api),
+      update: api.updatePayrollRecord.bind(api),
+      remove: api.deletePayrollRecord.bind(api),
+    },
+    recruitment: {
+      create: api.createRecruitmentRecord.bind(api),
+      update: api.updateRecruitmentRecord.bind(api),
+      remove: api.deleteRecruitmentRecord.bind(api),
+    },
+    performance: {
+      create: api.createPerformanceRecord.bind(api),
+      update: api.updatePerformanceRecord.bind(api),
+      remove: api.deletePerformanceRecord.bind(api),
+    },
+  };
 
-  const dashboardData = useMemo(
-    () =>
-      buildHRDashboardData({
-        language,
-        permissions: user?.permissions || [],
-        source: rawData,
-      }),
-    [language, rawData, user?.permissions]
+  const addModuleRecord = useCallback(async (module, input) => {
+    return runModuleMutation(module, async () => {
+      const token = getAuthToken();
+      return moduleApi[module].create(buildModulePayload(module, input, "create"), token);
+    });
+  }, [runModuleMutation]);
+
+  const updateModuleRecord = useCallback(async (module, id, input) => {
+    return runModuleMutation(module, async () => {
+      const token = getAuthToken();
+      return moduleApi[module].update(id, buildModulePayload(module, input, "update"), token);
+    });
+  }, [runModuleMutation]);
+
+  const deleteModuleRecord = useCallback(async (module, id) => {
+    return runModuleMutation(module, async () => {
+      const token = getAuthToken();
+      return moduleApi[module].remove(id, token);
+    });
+  }, [runModuleMutation]);
+
+  const dashboardData = useMemo(() =>
+    buildHRDashboardData({ language, permissions: user?.permissions || [], source: rawData }),
+    [language, rawData, user?.permissions],
   );
 
   const moduleData = useMemo(() => buildModuleData(language, rawData), [language, rawData]);
 
   const employees = useMemo(
     () => (Array.isArray(rawData.employees) ? rawData.employees.map((item) => normalizeEmployee(item)) : []),
-    [rawData.employees]
+    [rawData.employees],
   );
 
   return {
     loading,
     error,
+    operationError,
     dashboardData,
     moduleData,
     employees,
-    mutatingEmployees,
+    mutatingEmployees: mutating.employees,
+    mutating,
     refresh,
     addEmployee,
     updateEmployee,
     deleteEmployee,
+    addModuleRecord,
+    updateModuleRecord,
+    deleteModuleRecord,
   };
 }

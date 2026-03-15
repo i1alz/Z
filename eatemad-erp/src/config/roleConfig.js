@@ -5,7 +5,7 @@ export const ROLE_CONFIG = {
       ar: "مدير النظام",
       en: "System Administrator",
     },
-    defaultPermissions: ["*"],
+    defaultPermissions: ["*", "users"],
   },
   hr_manager: {
     key: "hr_manager",
@@ -40,7 +40,10 @@ export function getRolePermissions(role) {
 
 export function getRoleTitle(role, language = "ar") {
   const langKey = language === "ar" ? "ar" : "en";
-  return ROLE_CONFIG[role]?.titles?.[langKey] || (language === "ar" ? "مستخدم النظام" : "System User");
+  return (
+    ROLE_CONFIG[role]?.titles?.[langKey] ||
+    (language === "ar" ? "مستخدم النظام" : "System User")
+  );
 }
 
 export function userHasPermission(userPermissions = [], requiredPermission) {
@@ -52,5 +55,8 @@ export function userHasPermission(userPermissions = [], requiredPermission) {
     return false;
   }
 
-  return userPermissions.includes("*") || userPermissions.includes(requiredPermission);
+  return (
+    userPermissions.includes("*") ||
+    userPermissions.includes(requiredPermission)
+  );
 }

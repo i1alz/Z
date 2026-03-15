@@ -1,13 +1,14 @@
-﻿const DEFAULT_SUPABASE_URL = "https://rgbzximweiafgdukppbf.supabase.co";
+const DEFAULT_SUPABASE_URL = "https://vobrpyuonesphcqkoxns.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnYnp4aW13ZWlhZmdkdWtwcGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDU5MDcsImV4cCI6MjA4ODYyMTkwN30.fMGcuP-E2mxG_LHCq4TLaI8087pi17oIMoQuNlNspUs";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYnJweXVvbmVzcGhjcWtveG5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzNTMzNDAsImV4cCI6MjA4ODkyOTM0MH0.HvKBCHGCWJhzQz50ngtBXRJRvClWYsjmu7mLw6yH1Ac";
 
 const envUrl = String(import.meta.env?.VITE_SUPABASE_URL || "").trim();
 const envAnonKey = String(import.meta.env?.VITE_SUPABASE_ANON_KEY || "").trim();
 const hasCustomConfig = Boolean(envUrl || envAnonKey);
 
 export const supabaseUrl = envUrl || DEFAULT_SUPABASE_URL;
-export const supabaseAnonKey = envAnonKey || (hasCustomConfig ? "" : DEFAULT_SUPABASE_ANON_KEY);
+export const supabaseAnonKey =
+  envAnonKey || (hasCustomConfig ? "" : DEFAULT_SUPABASE_ANON_KEY);
 
 const isUsableJwt = (token) =>
   typeof token === "string" &&
@@ -37,16 +38,22 @@ async function parseResponsePayload(response) {
 function formatErrorMessage(payload, fallback = "Request failed") {
   if (!payload) return fallback;
   if (typeof payload === "string") return payload;
-  return payload.message || payload.error_description || payload.error || fallback;
+  return (
+    payload.message || payload.error_description || payload.error || fallback
+  );
 }
 
-async function request(path, { method = "GET", token, body, prefer, includeJson = true } = {}) {
+async function request(
+  path,
+  { method = "GET", token, body, prefer, includeJson = true } = {},
+) {
   if (!isSupabaseConfigured) {
     return {
       success: false,
       status: 0,
       data: null,
-      error: "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
+      error:
+        "Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.",
     };
   }
 
@@ -57,7 +64,9 @@ async function request(path, { method = "GET", token, body, prefer, includeJson 
     const response = await fetch(`${supabaseUrl}${path}`, {
       method,
       headers,
-      ...(body !== undefined ? { body: includeJson ? JSON.stringify(body) : body } : {}),
+      ...(body !== undefined
+        ? { body: includeJson ? JSON.stringify(body) : body }
+        : {}),
     });
 
     const payload = await parseResponsePayload(response);
@@ -101,6 +110,62 @@ function buildSelectQuery({ select = "*", orderBy, limit, filters } = {}) {
 }
 
 export const api = {
+  async createTableRow(table, payload, token) {
+    const result = await request(`/rest/v1/${table}`, {
+      method: "POST",
+      token,
+      body: payload,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error, data: null };
+    }
+
+    return {
+      success: true,
+      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
+    };
+  },
+
+  async updateTableRow(table, id, updates, token) {
+    if (!id) return { success: false, error: `Missing ${table} row id` };
+
+    const filter = encodeURIComponent(String(id));
+    const result = await request(`/rest/v1/${table}?id=eq.${filter}&select=*`, {
+      method: "PATCH",
+      token,
+      body: updates,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error, data: null };
+    }
+
+    return {
+      success: true,
+      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
+    };
+  },
+
+  async deleteTableRow(table, id, token) {
+    if (!id) return { success: false, error: `Missing ${table} row id` };
+
+    const filter = encodeURIComponent(String(id));
+    const result = await request(`/rest/v1/${table}?id=eq.${filter}`, {
+      method: "DELETE",
+      token,
+      prefer: "return=representation",
+    });
+
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
+
+    return { success: true };
+  },
+
   async signIn(email, password) {
     const result = await request(`/auth/v1/token?grant_type=password`, {
       method: "POST",
@@ -135,9 +200,13 @@ export const api = {
   },
 
   async getProfile(userId, token) {
-    if (!userId) return { success: false, error: "Missing user id", data: null };
+    if (!userId)
+      return { success: false, error: "Missing user id", data: null };
 
-    const query = new URLSearchParams({ select: "*", id: `eq.${userId}` }).toString();
+    const query = new URLSearchParams({
+      select: "*",
+      id: `eq.${userId}`,
+    }).toString();
     const result = await request(`/rest/v1/profiles?${query}`, { token });
 
     if (!result.success) {
@@ -171,65 +240,88 @@ export const api = {
   },
 
   async createEmployee(employeeData, token) {
-    const result = await request(`/rest/v1/employees`, {
-      method: "POST",
-      token,
-      body: employeeData,
-      prefer: "return=representation",
-    });
-
-    if (!result.success) {
-      return { success: false, error: result.error, data: null };
-    }
-
-    return {
-      success: true,
-      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
-    };
+    return this.createTableRow("employees", employeeData, token);
   },
 
   async updateEmployee(id, updates, token) {
-    if (!id) return { success: false, error: "Missing employee id" };
-
-    const filter = encodeURIComponent(String(id));
-    const result = await request(`/rest/v1/employees?id=eq.${filter}&select=*`, {
-      method: "PATCH",
-      token,
-      body: updates,
-      prefer: "return=representation",
-    });
-
-    if (!result.success) {
-      return { success: false, error: result.error, data: null };
-    }
-
-    return {
-      success: true,
-      data: Array.isArray(result.data) ? result.data[0] || null : result.data,
-    };
+    return this.updateTableRow("employees", id, updates, token);
   },
 
   async deleteEmployee(id, token) {
-    if (!id) return { success: false, error: "Missing employee id" };
+    return this.deleteTableRow("employees", id, token);
+  },
 
-    const filter = encodeURIComponent(String(id));
-    const result = await request(`/rest/v1/employees?id=eq.${filter}`, {
-      method: "DELETE",
-      token,
-      prefer: "return=representation",
-    });
+  async createAttendanceRecord(payload, token) {
+    return this.createTableRow("attendance", payload, token);
+  },
+  async updateAttendanceRecord(id, payload, token) {
+    return this.updateTableRow("attendance", id, payload, token);
+  },
+  async deleteAttendanceRecord(id, token) {
+    return this.deleteTableRow("attendance", id, token);
+  },
+  async createLeaveRequest(payload, token) {
+    return this.createTableRow("leave_requests", payload, token);
+  },
+  async updateLeaveRequest(id, payload, token) {
+    return this.updateTableRow("leave_requests", id, payload, token);
+  },
+  async deleteLeaveRequest(id, token) {
+    return this.deleteTableRow("leave_requests", id, token);
+  },
+  async createPayrollRecord(payload, token) {
+    return this.createTableRow("payroll", payload, token);
+  },
+  async updatePayrollRecord(id, payload, token) {
+    return this.updateTableRow("payroll", id, payload, token);
+  },
+  async deletePayrollRecord(id, token) {
+    return this.deleteTableRow("payroll", id, token);
+  },
+  async createRecruitmentRecord(payload, token) {
+    return this.createTableRow("recruitment", payload, token);
+  },
+  async updateRecruitmentRecord(id, payload, token) {
+    return this.updateTableRow("recruitment", id, payload, token);
+  },
+  async deleteRecruitmentRecord(id, token) {
+    return this.deleteTableRow("recruitment", id, token);
+  },
+  async createPerformanceRecord(payload, token) {
+    return this.createTableRow("performance_reviews", payload, token);
+  },
+  async updatePerformanceRecord(id, payload, token) {
+    return this.updateTableRow("performance_reviews", id, payload, token);
+  },
+  async deletePerformanceRecord(id, token) {
+    return this.deleteTableRow("performance_reviews", id, token);
+  },
 
-    if (!result.success) {
-      return { success: false, error: result.error };
+  async countTableRows(table, token) {
+    try {
+      if (!isSupabaseConfigured) return { success: false, count: 0 };
+      const headers = makeHeaders(token, false);
+      headers.Prefer = "count=exact";
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/${table}?select=id`,
+        { method: "HEAD", headers },
+      );
+      if (!response.ok) return { success: false, count: 0 };
+      const rangeHeader = response.headers.get("Content-Range");
+      if (rangeHeader) {
+        const match = rangeHeader.match(/\/(\d+)$/);
+        if (match) return { success: true, count: parseInt(match[1], 10) };
+      }
+      return { success: false, count: 0 };
+    } catch {
+      return { success: false, count: 0 };
     }
-
-    return { success: true };
   },
 
   async getDashboardStats(token) {
     try {
-      const employeesRes = await this.getEmployees(token);
-      const totalEmployees = employeesRes.success ? employeesRes.data.length : 0;
+      const countRes = await this.countTableRows("employees", token);
+      const totalEmployees = countRes.success ? countRes.count : 0;
 
       return {
         success: true,
@@ -282,6 +374,61 @@ export const api = {
       limit: 50,
     });
   },
+
+  // ── User Management (Admin) ──────────────────────────────────────────
+  async inviteUser(email, { role = "hr_specialist", fullName = "", department = "" } = {}, token) {
+    // Invite user by email – Supabase sends a magic link
+    const result = await request(`/auth/v1/invite`, {
+      method: "POST",
+      token,
+      body: {
+        email,
+        data: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async createUserWithPassword(email, password, { role = "hr_specialist", fullName = "", department = "" } = {}, token) {
+    // Sign up a new user directly (requires email confirmation disabled in Supabase or auto-confirm)
+    const result = await request(`/auth/v1/admin/users`, {
+      method: "POST",
+      token,
+      body: {
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async listAuthUsers(token) {
+    const result = await request(`/auth/v1/admin/users?page=1&per_page=200`, { token });
+    if (!result.success) return { success: false, error: result.error, data: [] };
+    const users = result.data?.users || result.data || [];
+    return { success: true, data: Array.isArray(users) ? users : [] };
+  },
+
+  async updateUserRole(userId, { role, fullName, department } = {}, token) {
+    const result = await request(`/auth/v1/admin/users/${userId}`, {
+      method: "PUT",
+      token,
+      body: {
+        user_metadata: { role, full_name: fullName, department },
+      },
+    });
+    return result;
+  },
+
+  async deleteAuthUser(userId, token) {
+    const result = await request(`/auth/v1/admin/users/${userId}`, {
+      method: "DELETE",
+      token,
+    });
+    return result;
+  },
 };
 
 export const isAuthenticated = () => {
@@ -301,4 +448,3 @@ export const getCurrentUser = () => {
 };
 
 export const getAuthToken = () => localStorage.getItem("authToken");
-
