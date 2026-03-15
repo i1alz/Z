@@ -245,16 +245,17 @@ function AppMain() {
     }
   }, [user]);
 
-  const checkAuth = (lang = "ar") => {
-    const hasActiveSession = isAuthenticated();
+  const checkAuth = async (lang = "ar") => {
+    const token = localStorage.getItem("authToken");
 
-    if (hasActiveSession) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      setUser(null);
-      setShowWelcome(false);
-      setIsLoading(false);
-      return;
+    // Force the login page as the first screen on every fresh app open.
+    if (isAuthenticated()) {
+      if (token && !token.startsWith("local-")) {
+        await api.signOut(token);
+      } else {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+      }
     }
 
     // No active token means we should always land on the login screen.
@@ -262,7 +263,6 @@ function AppMain() {
     localStorage.removeItem("user");
     setUser(null);
     setShowWelcome(false);
-
     setIsLoading(false);
   };
 
