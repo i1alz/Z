@@ -161,7 +161,6 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         department = profileRes.data.department || "";
       }
 
-      const resolvedRole = role;
       const isAdmin =
         role === "admin" ||
         dbUser.email?.includes("admin") ||
