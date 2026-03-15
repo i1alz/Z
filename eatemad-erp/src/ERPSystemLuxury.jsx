@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -205,7 +206,10 @@ function ERPSystemLuxury({
   });
 
   const [toast, setToast] = useState(null);
-  const showToast = (message, type = "success") => setToast({ message, type });
+  const showToast = useCallback(
+    (message, type = "success") => setToast({ message, type }),
+    [],
+  );
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -213,7 +217,7 @@ function ERPSystemLuxury({
     return () => clearTimeout(id);
   }, [toast]);
 
-  const guardedModuleCreate = async (module, payload) => {
+  const guardedModuleCreate = useCallback(async (module, payload) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -234,9 +238,9 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, addModuleRecord, showToast]);
 
-  const guardedModuleUpdate = async (module, id, payload) => {
+  const guardedModuleUpdate = useCallback(async (module, id, payload) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -256,9 +260,9 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, updateModuleRecord, showToast]);
 
-  const guardedModuleDelete = async (module, id) => {
+  const guardedModuleDelete = useCallback(async (module, id) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -278,7 +282,7 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, deleteModuleRecord, showToast]);
 
   const renderModule = () => {
     if (activeModule === "dashboard") {
@@ -447,6 +451,7 @@ function ERPSystemLuxury({
               <FiMenu size={22} />
             </button>
             <div
+              className="logo-glow"
               style={{
                 width: 48,
                 height: 48,
@@ -539,6 +544,7 @@ function ERPSystemLuxury({
               </div>
             )}
             <button
+              className="header-btn"
               onClick={() =>
                 onLanguageChange?.(language === "ar" ? "en" : "ar")
               }
@@ -555,6 +561,7 @@ function ERPSystemLuxury({
               {language === "ar" ? "EN" : "عربي"}
             </button>
             <button
+              className="header-btn"
               onClick={() => onThemeChange?.(!isDarkMode)}
               style={{
                 width: 40,
@@ -571,6 +578,7 @@ function ERPSystemLuxury({
               {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
             </button>
             <button
+              className="header-btn"
               onClick={refreshData}
               style={{
                 width: 40,
@@ -744,6 +752,7 @@ function ERPSystemLuxury({
                 return (
                   <button
                     key={m.id}
+                    className={`sidebar-nav-item${active ? " active" : ""}`}
                     onClick={() => {
                       setActiveModule(m.id);
                       if (isMobile) setMobileSidebarOpen(false);
@@ -807,6 +816,7 @@ function ERPSystemLuxury({
                 </button>
                 <button
                   onClick={() => onLogout?.()}
+                  className="sidebar-logout"
                   style={{
                     width: "100%",
                     padding: "0.85rem",
@@ -862,11 +872,6 @@ function ERPSystemLuxury({
             onClose={() => setToast(null)}
           />
         )}
-        <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     </ThemeContext.Provider>
   );
@@ -876,6 +881,7 @@ function ToastMessage({ message, type, onClose }) {
   const isSuccess = type === "success";
   return (
     <div
+      className="toast-enter"
       style={{
         position: "fixed",
         bottom: "1.5rem",
@@ -890,18 +896,24 @@ function ToastMessage({ message, type, onClose }) {
         display: "flex",
         alignItems: "center",
         gap: "0.6rem",
+        backdropFilter: "blur(8px)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+        minWidth: 220,
+        maxWidth: 420,
+        fontWeight: 600,
+        fontSize: "0.9rem",
       }}
     >
       {isSuccess ? <FiCheck size={17} /> : <FiAlertCircle size={17} />}
-      <span>{message}</span>
-      <button onClick={onClose} style={{ border: "none", background: "none", color: "inherit", cursor: "pointer" }}>
+      <span style={{ flex: 1 }}>{message}</span>
+      <button onClick={onClose} style={{ border: "none", background: "none", color: "inherit", cursor: "pointer", padding: "0 0.2rem" }}>
         <FiX size={15} />
       </button>
     </div>
   );
 }
 
-function GenericHRModule({
+const GenericHRModule = React.memo(function GenericHRModule({
   module,
   theme,
   language,
@@ -920,8 +932,14 @@ function GenericHRModule({
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({});
   const t = (ar, en) => (language === "ar" ? ar : en);
-  const rows = (moduleData?.records || []).filter((row) =>
-    `${row.name} ${row.status} ${row.meta}`.toLowerCase().includes(filter.toLowerCase()),
+  const rows = useMemo(
+    () =>
+      (moduleData?.records || []).filter((row) =>
+        `${row.name} ${row.status} ${row.meta}`
+          .toLowerCase()
+          .includes(filter.toLowerCase()),
+      ),
+    [moduleData?.records, filter],
   );
 
   const submit = async (event) => {
@@ -981,7 +999,7 @@ function GenericHRModule({
           <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("ابحث في السجلات...", "Search records...")} style={{ width: "100%", borderRadius: 10, border: `1px solid ${theme.border}`, background: "transparent", color: theme.text, padding: "0.55rem 0.7rem", outline: "none", fontFamily: "inherit", fontSize: "0.85rem" }} />
         </div>
         {rows.map((row) => (
-          <div key={row.id || row.meta} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem" }}>
+          <div key={row.id || row.meta} className="module-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${theme.border}`, padding: "0.8rem 0.4rem", gap: "0.7rem", borderRadius: "6px" }}>
             <div>
               <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
               <small style={{ color: theme.textMuted }}>{row.meta}</small>
@@ -990,7 +1008,16 @@ function GenericHRModule({
               <span style={{ padding: "0.25rem 0.7rem", borderRadius: 14, background: `${row.color || theme.accent}22`, color: row.color || theme.accent, fontSize: "0.78rem", fontWeight: 700 }}>{row.status}</span>
               {canManage && (
                 <>
-                  <button type="button" onClick={() => { setEditingId(row.id); setForm({ name: row.name, status: row.status, meta: row.meta }); setShowForm(true); }} style={{ border: "none", background: "none", color: theme.accent, cursor: "pointer" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextForm = row.editValues || fields.reduce((acc, field) => ({ ...acc, [field.key]: row[field.key] || "" }), {});
+                      setEditingId(row.id);
+                      setForm(nextForm);
+                      setShowForm(true);
+                    }}
+                    style={{ border: "none", background: "none", color: theme.accent, cursor: "pointer" }}
+                  >
                     <FiEdit3 size={15} />
                   </button>
                   <button type="button" onClick={() => onDelete(row.id)} style={{ border: "none", background: "none", color: "#ef4444", cursor: "pointer" }}>
@@ -1004,26 +1031,54 @@ function GenericHRModule({
       </div>
     </div>
   );
-}
+});
 
-function AttendanceModule(props) {
-  return <GenericHRModule {...props} module="attendance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "time_in", labelAr: "وقت الحضور", labelEn: "Time In" }]} />;
-}
+const ATTENDANCE_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "time_in", labelAr: "وقت الحضور", labelEn: "Time In" },
+];
+const LEAVES_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "start_date", labelAr: "تاريخ البداية", labelEn: "Start Date" },
+  { key: "end_date", labelAr: "تاريخ النهاية", labelEn: "End Date" },
+];
+const PAYROLL_FIELDS = [
+  { key: "name", labelAr: "القسم/الموظف", labelEn: "Department/Employee", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "amount", labelAr: "المبلغ", labelEn: "Amount" },
+  { key: "period", labelAr: "الفترة", labelEn: "Period" },
+];
+const RECRUITMENT_FIELDS = [
+  { key: "title", labelAr: "المسمى الوظيفي", labelEn: "Job Title", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "applicants_count", labelAr: "عدد المتقدمين", labelEn: "Applicants" },
+];
+const PERFORMANCE_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "score", labelAr: "النتيجة", labelEn: "Score", required: true },
+  { key: "rating", labelAr: "التقييم", labelEn: "Rating" },
+];
 
-function LeavesModule(props) {
-  return <GenericHRModule {...props} module="leaves" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "start_date", labelAr: "تاريخ البداية", labelEn: "Start Date" }, { key: "end_date", labelAr: "تاريخ النهاية", labelEn: "End Date" }]} />;
-}
+const AttendanceModule = React.memo(function AttendanceModule(props) {
+  return <GenericHRModule {...props} module="attendance" fields={ATTENDANCE_FIELDS} />;
+});
 
-function PayrollModule(props) {
-  return <GenericHRModule {...props} module="payroll" fields={[{ key: "name", labelAr: "القسم/الموظف", labelEn: "Department/Employee", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "amount", labelAr: "المبلغ", labelEn: "Amount" }, { key: "period", labelAr: "الفترة", labelEn: "Period" }]} />;
-}
+const LeavesModule = React.memo(function LeavesModule(props) {
+  return <GenericHRModule {...props} module="leaves" fields={LEAVES_FIELDS} />;
+});
 
-function RecruitmentModule(props) {
-  return <GenericHRModule {...props} module="recruitment" fields={[{ key: "title", labelAr: "المسمى الوظيفي", labelEn: "Job Title", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "applicants_count", labelAr: "عدد المتقدمين", labelEn: "Applicants" }]} />;
-}
+const PayrollModule = React.memo(function PayrollModule(props) {
+  return <GenericHRModule {...props} module="payroll" fields={PAYROLL_FIELDS} />;
+});
 
-function PerformanceModule(props) {
-  return <GenericHRModule {...props} module="performance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "score", labelAr: "النتيجة", labelEn: "Score", required: true }, { key: "rating", labelAr: "التقييم", labelEn: "Rating" }]} />;
-}
+const RecruitmentModule = React.memo(function RecruitmentModule(props) {
+  return <GenericHRModule {...props} module="recruitment" fields={RECRUITMENT_FIELDS} />;
+});
+
+const PerformanceModule = React.memo(function PerformanceModule(props) {
+  return <GenericHRModule {...props} module="performance" fields={PERFORMANCE_FIELDS} />;
+});
 
 export default ERPSystemLuxury;

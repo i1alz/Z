@@ -249,6 +249,28 @@ async function attemptEmployeeMutation({ mode, token, id, payloadVariants }) {
   return { success: false, error: lastError };
 }
 
+const ATTENDANCE_STATUS = {
+  present: { color: "#22c55e", ar: "حاضر", en: "Present" },
+  late: { color: "#f59e0b", ar: "متأخر", en: "Late" },
+  absent: { color: "#ef4444", ar: "غائب", en: "Absent" },
+};
+
+const LEAVE_STATUS = {
+  approved: { color: "#22c55e", ar: "موافق عليه", en: "Approved" },
+  rejected: { color: "#ef4444", ar: "مرفوض", en: "Rejected" },
+  pending: { color: "#f59e0b", ar: "معلق", en: "Pending" },
+};
+
+const PAYROLL_STATUS = {
+  paid: { color: "#22c55e", ar: "تم الدفع", en: "Paid" },
+  processing: { color: "#f59e0b", ar: "قيد المعالجة", en: "Processing" },
+};
+
+const RECRUITMENT_STATUS = {
+  open: { ar: "مفتوح", en: "Open" },
+  interview: { ar: "مقابلات", en: "Interviews" },
+};
+
 function mapModuleRecords(language, module, records = []) {
   if (!Array.isArray(records)) return [];
 
@@ -274,20 +296,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "attendance") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "present"
-          ? "#22c55e"
-          : status === "late"
-            ? "#f59e0b"
-            : "#ef4444";
-      const translatedStatus =
-        status === "present"
-          ? t(language, "حاضر", "Present")
-          : status === "late"
-            ? t(language, "متأخر", "Late")
-            : status === "absent"
-              ? t(language, "غائب", "Absent")
-              : item.status || "--";
+      const statusInfo = ATTENDANCE_STATUS[status] || { color: "#ef4444", ar: "غائب", en: "Absent" };
       return {
         id: item.id || `att-${index}`,
         name:
@@ -295,9 +304,15 @@ function mapModuleRecords(language, module, records = []) {
           item.full_name ||
           item.name ||
           t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: item.time_in || item.date || "--",
-        color,
+        color: statusInfo.color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "present",
+          time_in: item.time_in || "",
+          date: item.date || "",
+        },
       };
     });
   }
@@ -305,18 +320,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "leaves") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "approved"
-          ? "#22c55e"
-          : status === "rejected"
-            ? "#ef4444"
-            : "#f59e0b";
-      const translatedStatus =
-        status === "approved"
-          ? t(language, "موافق عليه", "Approved")
-          : status === "rejected"
-            ? t(language, "مرفوض", "Rejected")
-            : t(language, "معلق", "Pending");
+      const statusInfo = LEAVE_STATUS[status] || LEAVE_STATUS.pending;
       return {
         id: item.id || `lev-${index}`,
         name:
@@ -324,9 +328,15 @@ function mapModuleRecords(language, module, records = []) {
           item.full_name ||
           item.name ||
           t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: formatRange(item.start_date, item.end_date),
-        color,
+        color: statusInfo.color,
+        editValues: {
+          name: item.employee_name || item.full_name || item.name || "",
+          status: item.status || "pending",
+          start_date: item.start_date || "",
+          end_date: item.end_date || "",
+        },
       };
     });
   }
@@ -334,12 +344,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "payroll") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "paid"
-          ? "#22c55e"
-          : status === "processing"
-            ? "#f59e0b"
-            : "#ef4444";
+      const statusInfo = PAYROLL_STATUS[status] || { color: "#ef4444", ar: item.status || "--", en: item.status || "--" };
       return {
         id: item.id || `pay-${index}`,
         name:
@@ -347,39 +352,46 @@ function mapModuleRecords(language, module, records = []) {
           item.name ||
           item.employee_name ||
           t(language, "قسم", "Department"),
-        status:
-          status === "paid"
-            ? t(language, "تم الدفع", "Paid")
-            : status === "processing"
-              ? t(language, "قيد المعالجة", "Processing")
-              : item.status || "--",
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta:
           typeof item.amount === "number"
             ? `${item.amount.toLocaleString()} AED`
             : item.period || "--",
-        color,
+        color: statusInfo.color,
+        editValues: {
+          name: item.department_name || item.name || item.employee_name || "",
+          status: item.status || "processing",
+          amount: item.amount ?? "",
+          period: item.period || "",
+        },
       };
     });
   }
 
   if (module === "recruitment") {
-    return records.slice(0, 40).map((item, index) => ({
-      id: item.id || `rec-${index}`,
-      name:
-        item.title ||
-        item.position ||
-        t(language, "وظيفة شاغرة", "Open Position"),
-      status:
-        normalizeStatus(item.status) === "open"
-          ? t(language, "مفتوح", "Open")
-          : normalizeStatus(item.status) === "interview"
-            ? t(language, "مقابلات", "Interviews")
-            : item.status || "--",
-      meta: item.applicants_count
-        ? `${item.applicants_count} applicants`
-        : "--",
-      color: "#3b82f6",
-    }));
+    return records.slice(0, 40).map((item, index) => {
+      const status = normalizeStatus(item.status);
+      const statusInfo = RECRUITMENT_STATUS[status];
+      return {
+        id: item.id || `rec-${index}`,
+        name:
+          item.title ||
+          item.position ||
+          t(language, "وظيفة شاغرة", "Open Position"),
+        status: statusInfo
+          ? language === "ar" ? statusInfo.ar : statusInfo.en
+          : item.status || "--",
+        meta: item.applicants_count
+          ? `${item.applicants_count} applicants`
+          : "--",
+        color: "#3b82f6",
+        editValues: {
+          title: item.title || item.position || "",
+          status: item.status || "open",
+          applicants_count: item.applicants_count ?? "",
+        },
+      };
+    });
   }
 
   if (module === "performance") {
@@ -398,6 +410,12 @@ function mapModuleRecords(language, module, records = []) {
             : t(language, "جيد", "Good"),
       meta: item.score ? `${item.score}%` : item.rating || "--",
       color: "#8b5cf6",
+      editValues: {
+        name: item.employee_name || item.full_name || item.name || "",
+        score: item.score ?? "",
+        rating: item.rating || "",
+        review_date: item.review_date || "",
+      },
     }));
   }
 
@@ -474,31 +492,49 @@ const MODULE_PERMISSION = {
   performance: "performance",
 };
 
-function buildModulePayload(module, input = {}) {
+function buildModulePayload(module, input = {}, mode = "create") {
+  const isUpdate = mode === "update";
   if (module === "attendance") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       status: input.status || "present",
       time_in: input.time_in || input.meta || null,
-      date: input.date || new Date().toISOString().slice(0, 10),
+      date: input.date,
     };
+    if (!isUpdate && !payload.date) {
+      payload.date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.date) delete payload.date;
+    return payload;
   }
   if (module === "leaves") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       status: input.status || "pending",
-      start_date: input.start_date || new Date().toISOString().slice(0, 10),
-      end_date: input.end_date || input.start_date || new Date().toISOString().slice(0, 10),
+      start_date: input.start_date,
+      end_date: input.end_date || input.start_date,
     };
+    if (!isUpdate) {
+      const defaultDate = new Date().toISOString().slice(0, 10);
+      payload.start_date = payload.start_date || defaultDate;
+      payload.end_date = payload.end_date || payload.start_date || defaultDate;
+    } else {
+      if (!input.start_date) delete payload.start_date;
+      if (!input.end_date && !input.start_date) delete payload.end_date;
+    }
+    return payload;
   }
   if (module === "payroll") {
-    return {
+    const payload = {
       name: input.name || "",
       department_name: input.department_name || input.name || "",
       status: input.status || "processing",
       amount: Number(input.amount || 0) || null,
-      period: input.period || new Date().toISOString().slice(0, 7),
+      period: input.period,
     };
+    if (!isUpdate && !payload.period) payload.period = new Date().toISOString().slice(0, 7);
+    if (isUpdate && !input.period) delete payload.period;
+    return payload;
   }
   if (module === "recruitment") {
     return {
@@ -508,12 +544,17 @@ function buildModulePayload(module, input = {}) {
     };
   }
   if (module === "performance") {
-    return {
+    const payload = {
       employee_name: input.name || input.employee_name || "",
       score: Number(input.score || 0) || 0,
       rating: input.rating || input.status || "good",
-      review_date: input.review_date || new Date().toISOString().slice(0, 10),
+      review_date: input.review_date,
     };
+    if (!isUpdate && !payload.review_date) {
+      payload.review_date = new Date().toISOString().slice(0, 10);
+    }
+    if (isUpdate && !input.review_date) delete payload.review_date;
+    return payload;
   }
   return input;
 }
@@ -678,14 +719,14 @@ export function useHRData({ language = "ar", user } = {}) {
   const addModuleRecord = useCallback(async (module, input) => {
     return runModuleMutation(module, async () => {
       const token = getAuthToken();
-      return moduleApi[module].create(buildModulePayload(module, input), token);
+      return moduleApi[module].create(buildModulePayload(module, input, "create"), token);
     });
   }, [runModuleMutation]);
 
   const updateModuleRecord = useCallback(async (module, id, input) => {
     return runModuleMutation(module, async () => {
       const token = getAuthToken();
-      return moduleApi[module].update(id, buildModulePayload(module, input), token);
+      return moduleApi[module].update(id, buildModulePayload(module, input, "update"), token);
     });
   }, [runModuleMutation]);
 

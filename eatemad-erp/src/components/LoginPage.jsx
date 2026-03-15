@@ -161,6 +161,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         department = profileRes.data.department || "";
       }
 
+      const resolvedRole = role;
       const isAdmin =
         role === "admin" ||
         dbUser.email?.includes("admin") ||
@@ -168,7 +169,7 @@ function LoginPage({ onLogin, language = "ar", setLanguage }) {
         loginInput.toLowerCase() === "zaid.alazzam";
       const resolvedRole = isAdmin ? "admin" : role;
       const resolvedTitle = getRoleTitle(resolvedRole, language);
-      const resolvedPermissions = isAdmin ? ["*"] : getRolePermissions(resolvedRole);
+      const resolvedPermissions = getRolePermissions(resolvedRole);
 
       userData = {
         id: dbUser.id,

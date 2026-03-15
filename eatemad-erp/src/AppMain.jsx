@@ -260,6 +260,24 @@ function AppMain() {
 
     setUser(null);
     setShowWelcome(false);
+  const checkAuth = (lang = "ar") => {
+    const hasActiveSession = isAuthenticated();
+
+    if (hasActiveSession) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      setUser(null);
+      setShowWelcome(false);
+      setIsLoading(false);
+      return;
+    }
+
+    // No active token means we should always land on the login screen.
+    // Clear any persisted user payload to avoid stale/manual localStorage bypass.
+    localStorage.removeItem("user");
+    setUser(null);
+    setShowWelcome(false);
+
     setIsLoading(false);
   };
 
