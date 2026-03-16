@@ -1,9 +1,0 @@
-{
-  "buildCommand": "cd eatemad-erp && npm install && npm run build",
-  "outputDirectory": "eatemad-erp/dist",
-  "installCommand": "cd eatemad-erp && npm install",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
