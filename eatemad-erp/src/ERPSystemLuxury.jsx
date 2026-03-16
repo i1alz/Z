@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -205,7 +206,10 @@ function ERPSystemLuxury({
   });
 
   const [toast, setToast] = useState(null);
-  const showToast = (message, type = "success") => setToast({ message, type });
+  const showToast = useCallback(
+    (message, type = "success") => setToast({ message, type }),
+    [],
+  );
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -213,7 +217,7 @@ function ERPSystemLuxury({
     return () => clearTimeout(id);
   }, [toast]);
 
-  const guardedModuleCreate = async (module, payload) => {
+  const guardedModuleCreate = useCallback(async (module, payload) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -234,9 +238,9 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, addModuleRecord, showToast]);
 
-  const guardedModuleUpdate = async (module, id, payload) => {
+  const guardedModuleUpdate = useCallback(async (module, id, payload) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -256,9 +260,9 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, updateModuleRecord, showToast]);
 
-  const guardedModuleDelete = async (module, id) => {
+  const guardedModuleDelete = useCallback(async (module, id) => {
     if (!userHasPermission(currentUser.permissions, module)) {
       showToast(
         language === "ar"
@@ -278,7 +282,7 @@ function ERPSystemLuxury({
       result.success ? "success" : "error",
     );
     return result;
-  };
+  }, [currentUser.permissions, language, deleteModuleRecord, showToast]);
 
   const renderModule = () => {
     if (activeModule === "dashboard") {
@@ -909,7 +913,7 @@ function ToastMessage({ message, type, onClose }) {
   );
 }
 
-function GenericHRModule({
+const GenericHRModule = React.memo(function GenericHRModule({
   module,
   theme,
   language,
@@ -928,8 +932,14 @@ function GenericHRModule({
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({});
   const t = (ar, en) => (language === "ar" ? ar : en);
-  const rows = (moduleData?.records || []).filter((row) =>
-    `${row.name} ${row.status} ${row.meta}`.toLowerCase().includes(filter.toLowerCase()),
+  const rows = useMemo(
+    () =>
+      (moduleData?.records || []).filter((row) =>
+        `${row.name} ${row.status} ${row.meta}`
+          .toLowerCase()
+          .includes(filter.toLowerCase()),
+      ),
+    [moduleData?.records, filter],
   );
 
   const submit = async (event) => {
@@ -1021,26 +1031,54 @@ function GenericHRModule({
       </div>
     </div>
   );
-}
+});
 
-function AttendanceModule(props) {
-  return <GenericHRModule {...props} module="attendance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "time_in", labelAr: "وقت الحضور", labelEn: "Time In" }]} />;
-}
+const ATTENDANCE_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "time_in", labelAr: "وقت الحضور", labelEn: "Time In" },
+];
+const LEAVES_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "start_date", labelAr: "تاريخ البداية", labelEn: "Start Date" },
+  { key: "end_date", labelAr: "تاريخ النهاية", labelEn: "End Date" },
+];
+const PAYROLL_FIELDS = [
+  { key: "name", labelAr: "القسم/الموظف", labelEn: "Department/Employee", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "amount", labelAr: "المبلغ", labelEn: "Amount" },
+  { key: "period", labelAr: "الفترة", labelEn: "Period" },
+];
+const RECRUITMENT_FIELDS = [
+  { key: "title", labelAr: "المسمى الوظيفي", labelEn: "Job Title", required: true },
+  { key: "status", labelAr: "الحالة", labelEn: "Status", required: true },
+  { key: "applicants_count", labelAr: "عدد المتقدمين", labelEn: "Applicants" },
+];
+const PERFORMANCE_FIELDS = [
+  { key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true },
+  { key: "score", labelAr: "النتيجة", labelEn: "Score", required: true },
+  { key: "rating", labelAr: "التقييم", labelEn: "Rating" },
+];
 
-function LeavesModule(props) {
-  return <GenericHRModule {...props} module="leaves" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "start_date", labelAr: "تاريخ البداية", labelEn: "Start Date" }, { key: "end_date", labelAr: "تاريخ النهاية", labelEn: "End Date" }]} />;
-}
+const AttendanceModule = React.memo(function AttendanceModule(props) {
+  return <GenericHRModule {...props} module="attendance" fields={ATTENDANCE_FIELDS} />;
+});
 
-function PayrollModule(props) {
-  return <GenericHRModule {...props} module="payroll" fields={[{ key: "name", labelAr: "القسم/الموظف", labelEn: "Department/Employee", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "amount", labelAr: "المبلغ", labelEn: "Amount" }, { key: "period", labelAr: "الفترة", labelEn: "Period" }]} />;
-}
+const LeavesModule = React.memo(function LeavesModule(props) {
+  return <GenericHRModule {...props} module="leaves" fields={LEAVES_FIELDS} />;
+});
 
-function RecruitmentModule(props) {
-  return <GenericHRModule {...props} module="recruitment" fields={[{ key: "title", labelAr: "المسمى الوظيفي", labelEn: "Job Title", required: true }, { key: "status", labelAr: "الحالة", labelEn: "Status", required: true }, { key: "applicants_count", labelAr: "عدد المتقدمين", labelEn: "Applicants" }]} />;
-}
+const PayrollModule = React.memo(function PayrollModule(props) {
+  return <GenericHRModule {...props} module="payroll" fields={PAYROLL_FIELDS} />;
+});
 
-function PerformanceModule(props) {
-  return <GenericHRModule {...props} module="performance" fields={[{ key: "name", labelAr: "اسم الموظف", labelEn: "Employee Name", required: true }, { key: "score", labelAr: "النتيجة", labelEn: "Score", required: true }, { key: "rating", labelAr: "التقييم", labelEn: "Rating" }]} />;
-}
+const RecruitmentModule = React.memo(function RecruitmentModule(props) {
+  return <GenericHRModule {...props} module="recruitment" fields={RECRUITMENT_FIELDS} />;
+});
+
+const PerformanceModule = React.memo(function PerformanceModule(props) {
+  return <GenericHRModule {...props} module="performance" fields={PERFORMANCE_FIELDS} />;
+});
 
 export default ERPSystemLuxury;

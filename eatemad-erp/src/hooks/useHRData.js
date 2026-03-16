@@ -249,6 +249,28 @@ async function attemptEmployeeMutation({ mode, token, id, payloadVariants }) {
   return { success: false, error: lastError };
 }
 
+const ATTENDANCE_STATUS = {
+  present: { color: "#22c55e", ar: "حاضر", en: "Present" },
+  late: { color: "#f59e0b", ar: "متأخر", en: "Late" },
+  absent: { color: "#ef4444", ar: "غائب", en: "Absent" },
+};
+
+const LEAVE_STATUS = {
+  approved: { color: "#22c55e", ar: "موافق عليه", en: "Approved" },
+  rejected: { color: "#ef4444", ar: "مرفوض", en: "Rejected" },
+  pending: { color: "#f59e0b", ar: "معلق", en: "Pending" },
+};
+
+const PAYROLL_STATUS = {
+  paid: { color: "#22c55e", ar: "تم الدفع", en: "Paid" },
+  processing: { color: "#f59e0b", ar: "قيد المعالجة", en: "Processing" },
+};
+
+const RECRUITMENT_STATUS = {
+  open: { ar: "مفتوح", en: "Open" },
+  interview: { ar: "مقابلات", en: "Interviews" },
+};
+
 function mapModuleRecords(language, module, records = []) {
   if (!Array.isArray(records)) return [];
 
@@ -274,20 +296,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "attendance") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "present"
-          ? "#22c55e"
-          : status === "late"
-            ? "#f59e0b"
-            : "#ef4444";
-      const translatedStatus =
-        status === "present"
-          ? t(language, "حاضر", "Present")
-          : status === "late"
-            ? t(language, "متأخر", "Late")
-            : status === "absent"
-              ? t(language, "غائب", "Absent")
-              : item.status || "--";
+      const statusInfo = ATTENDANCE_STATUS[status] || { color: "#ef4444", ar: "غائب", en: "Absent" };
       return {
         id: item.id || `att-${index}`,
         name:
@@ -295,9 +304,9 @@ function mapModuleRecords(language, module, records = []) {
           item.full_name ||
           item.name ||
           t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: item.time_in || item.date || "--",
-        color,
+        color: statusInfo.color,
         editValues: {
           name: item.employee_name || item.full_name || item.name || "",
           status: item.status || "present",
@@ -311,18 +320,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "leaves") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "approved"
-          ? "#22c55e"
-          : status === "rejected"
-            ? "#ef4444"
-            : "#f59e0b";
-      const translatedStatus =
-        status === "approved"
-          ? t(language, "موافق عليه", "Approved")
-          : status === "rejected"
-            ? t(language, "مرفوض", "Rejected")
-            : t(language, "معلق", "Pending");
+      const statusInfo = LEAVE_STATUS[status] || LEAVE_STATUS.pending;
       return {
         id: item.id || `lev-${index}`,
         name:
@@ -330,9 +328,9 @@ function mapModuleRecords(language, module, records = []) {
           item.full_name ||
           item.name ||
           t(language, "موظف", "Employee"),
-        status: translatedStatus,
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta: formatRange(item.start_date, item.end_date),
-        color,
+        color: statusInfo.color,
         editValues: {
           name: item.employee_name || item.full_name || item.name || "",
           status: item.status || "pending",
@@ -346,12 +344,7 @@ function mapModuleRecords(language, module, records = []) {
   if (module === "payroll") {
     return records.slice(0, 40).map((item, index) => {
       const status = normalizeStatus(item.status);
-      const color =
-        status === "paid"
-          ? "#22c55e"
-          : status === "processing"
-            ? "#f59e0b"
-            : "#ef4444";
+      const statusInfo = PAYROLL_STATUS[status] || { color: "#ef4444", ar: item.status || "--", en: item.status || "--" };
       return {
         id: item.id || `pay-${index}`,
         name:
@@ -359,17 +352,12 @@ function mapModuleRecords(language, module, records = []) {
           item.name ||
           item.employee_name ||
           t(language, "قسم", "Department"),
-        status:
-          status === "paid"
-            ? t(language, "تم الدفع", "Paid")
-            : status === "processing"
-              ? t(language, "قيد المعالجة", "Processing")
-              : item.status || "--",
+        status: language === "ar" ? statusInfo.ar : statusInfo.en,
         meta:
           typeof item.amount === "number"
             ? `${item.amount.toLocaleString()} AED`
             : item.period || "--",
-        color,
+        color: statusInfo.color,
         editValues: {
           name: item.department_name || item.name || item.employee_name || "",
           status: item.status || "processing",
@@ -381,28 +369,29 @@ function mapModuleRecords(language, module, records = []) {
   }
 
   if (module === "recruitment") {
-    return records.slice(0, 40).map((item, index) => ({
-      id: item.id || `rec-${index}`,
-      name:
-        item.title ||
-        item.position ||
-        t(language, "وظيفة شاغرة", "Open Position"),
-      status:
-        normalizeStatus(item.status) === "open"
-          ? t(language, "مفتوح", "Open")
-          : normalizeStatus(item.status) === "interview"
-            ? t(language, "مقابلات", "Interviews")
-            : item.status || "--",
-      meta: item.applicants_count
-        ? `${item.applicants_count} applicants`
-        : "--",
-      color: "#3b82f6",
-      editValues: {
-        title: item.title || item.position || "",
-        status: item.status || "open",
-        applicants_count: item.applicants_count ?? "",
-      },
-    }));
+    return records.slice(0, 40).map((item, index) => {
+      const status = normalizeStatus(item.status);
+      const statusInfo = RECRUITMENT_STATUS[status];
+      return {
+        id: item.id || `rec-${index}`,
+        name:
+          item.title ||
+          item.position ||
+          t(language, "وظيفة شاغرة", "Open Position"),
+        status: statusInfo
+          ? language === "ar" ? statusInfo.ar : statusInfo.en
+          : item.status || "--",
+        meta: item.applicants_count
+          ? `${item.applicants_count} applicants`
+          : "--",
+        color: "#3b82f6",
+        editValues: {
+          title: item.title || item.position || "",
+          status: item.status || "open",
+          applicants_count: item.applicants_count ?? "",
+        },
+      };
+    });
   }
 
   if (module === "performance") {

@@ -297,12 +297,31 @@ export const api = {
     return this.deleteTableRow("performance_reviews", id, token);
   },
 
+  async countTableRows(table, token) {
+    try {
+      if (!isSupabaseConfigured) return { success: false, count: 0 };
+      const headers = makeHeaders(token, false);
+      headers.Prefer = "count=exact";
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/${table}?select=id`,
+        { method: "HEAD", headers },
+      );
+      if (!response.ok) return { success: false, count: 0 };
+      const rangeHeader = response.headers.get("Content-Range");
+      if (rangeHeader) {
+        const match = rangeHeader.match(/\/(\d+)$/);
+        if (match) return { success: true, count: parseInt(match[1], 10) };
+      }
+      return { success: false, count: 0 };
+    } catch {
+      return { success: false, count: 0 };
+    }
+  },
+
   async getDashboardStats(token) {
     try {
-      const employeesRes = await this.getEmployees(token);
-      const totalEmployees = employeesRes.success
-        ? employeesRes.data.length
-        : 0;
+      const countRes = await this.countTableRows("employees", token);
+      const totalEmployees = countRes.success ? countRes.count : 0;
 
       return {
         success: true,

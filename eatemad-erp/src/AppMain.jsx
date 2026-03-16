@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoginPage from "./components/LoginPage";
 import ERPSystemLuxury from "./ERPSystemLuxury";
-import { isAuthenticated, getCurrentUser, api } from "./config/supabase";
+import { isAuthenticated, api } from "./config/supabase";
 import { getRolePermissions, getRoleTitle } from "./config/roleConfig";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
@@ -236,7 +236,7 @@ function AppMain() {
     const savedTheme = localStorage.getItem("theme") || "dark";
     setLanguage(savedLang);
     setIsDarkMode(savedTheme === "dark");
-    checkAuth(savedLang);
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -246,16 +246,34 @@ function AppMain() {
     }
   }, [user]);
 
+  const checkAuth = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // Force the login page as the first screen on every fresh app open.
+    if (isAuthenticated()) {
+      if (token && !token.startsWith("local-")) {
+        await api.signOut(token);
+      } else {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+      }
+    }
+
+    setUser(null);
+    setShowWelcome(false);
   const checkAuth = (lang = "ar") => {
     const hasActiveSession = isAuthenticated();
+  const checkAuth = async (lang = "ar") => {
+    const token = localStorage.getItem("authToken");
 
-    if (hasActiveSession) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      setUser(null);
-      setShowWelcome(false);
-      setIsLoading(false);
-      return;
+    // Force the login page as the first screen on every fresh app open.
+    if (isAuthenticated()) {
+      if (token && !token.startsWith("local-")) {
+        await api.signOut(token);
+      } else {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
+      }
     }
 
     // No active token means we should always land on the login screen.
@@ -263,7 +281,6 @@ function AppMain() {
     localStorage.removeItem("user");
     setUser(null);
     setShowWelcome(false);
-
     setIsLoading(false);
   };
 

@@ -35,7 +35,13 @@ export const ROLE_CONFIG = {
 };
 
 export function getRolePermissions(role) {
-  return ROLE_CONFIG[role]?.defaultPermissions || ["hr"];
+  const permissions = ROLE_CONFIG[role]?.defaultPermissions || ["hr"];
+
+  if (role !== "admin") {
+    return permissions.filter((permission) => permission !== "*");
+  }
+
+  return permissions;
 }
 
 export function getRoleTitle(role, language = "ar") {

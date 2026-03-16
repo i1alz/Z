@@ -130,10 +130,14 @@ export default function EmployeesModule({
     [rows, filter],
   );
 
-  const activeCount = rows.filter((row) => row.statusKey === "active").length;
-  const departmentsCount = new Set(
-    rows.map((row) => row.department).filter(Boolean),
-  ).size;
+  const activeCount = useMemo(
+    () => rows.filter((row) => row.statusKey === "active").length,
+    [rows],
+  );
+  const departmentsCount = useMemo(
+    () => new Set(rows.map((row) => row.department).filter(Boolean)).size,
+    [rows],
+  );
 
   const labelStyle = {
     fontSize: "0.76rem",
