@@ -3,6 +3,7 @@ import LoginPage from "./components/LoginPage";
 import ERPSystemLuxury from "./ERPSystemLuxury";
 import { isAuthenticated, getCurrentUser, api } from "./config/supabase";
 import { getRolePermissions, getRoleTitle } from "./config/roleConfig";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 const normalizeUser = (rawUser, language = "ar") => {
   if (!rawUser) return null;
@@ -249,9 +250,14 @@ function AppMain() {
     const hasActiveSession = isAuthenticated();
 
     if (hasActiveSession) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      setUser(null);
+      const savedUser = getCurrentUser();
+      if (savedUser) {
+        const normalizedUser = normalizeUser(savedUser, lang);
+        setUser(normalizedUser);
+      } else {
+        // Token exists but no user data — clear invalid state
+        localStorage.removeItem("authToken");
+      }
       setShowWelcome(false);
       setIsLoading(false);
       return;
