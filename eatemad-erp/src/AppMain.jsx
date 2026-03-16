@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import LoginPage from "./components/LoginPage";
 import ERPSystemLuxury from "./ERPSystemLuxury";
-import { isAuthenticated, api } from "./config/supabase";
+import { isAuthenticated, getCurrentUser, api } from "./config/supabase";
 import { getRolePermissions, getRoleTitle } from "./config/roleConfig";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 const normalizeUser = (rawUser, language = "ar") => {
   if (!rawUser) return null;
@@ -236,7 +235,7 @@ function AppMain() {
     const savedTheme = localStorage.getItem("theme") || "dark";
     setLanguage(savedLang);
     setIsDarkMode(savedTheme === "dark");
-    checkAuth();
+    checkAuth(savedLang);
   }, []);
 
   useEffect(() => {
@@ -246,34 +245,16 @@ function AppMain() {
     }
   }, [user]);
 
-  const checkAuth = async () => {
-    const token = localStorage.getItem("authToken");
-
-    // Force the login page as the first screen on every fresh app open.
-    if (isAuthenticated()) {
-      if (token && !token.startsWith("local-")) {
-        await api.signOut(token);
-      } else {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
-      }
-    }
-
-    setUser(null);
-    setShowWelcome(false);
   const checkAuth = (lang = "ar") => {
     const hasActiveSession = isAuthenticated();
-  const checkAuth = async (lang = "ar") => {
-    const token = localStorage.getItem("authToken");
 
-    // Force the login page as the first screen on every fresh app open.
-    if (isAuthenticated()) {
-      if (token && !token.startsWith("local-")) {
-        await api.signOut(token);
-      } else {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
-      }
+    if (hasActiveSession) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
+      setUser(null);
+      setShowWelcome(false);
+      setIsLoading(false);
+      return;
     }
 
     // No active token means we should always land on the login screen.
@@ -281,6 +262,7 @@ function AppMain() {
     localStorage.removeItem("user");
     setUser(null);
     setShowWelcome(false);
+
     setIsLoading(false);
   };
 
@@ -353,25 +335,29 @@ function AppMain() {
 
   if (!user) {
     return (
-      <Router>
-        <Routes>
-          <Route
-            path="/login"
-            element={<LoginPage onLogin={setUser} language={language} setLanguage={setLanguage} />}
-          />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
+      <LoginPage
+        onLogin={handleLogin}
+        language={language}
+        setLanguage={handleLanguageChange}
+        isDarkMode={isDarkMode}
+      />
     );
   }
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/dashboard" element={<ERPSystemLuxury user={user} language={language} />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </Router>
+    <>
+      {showWelcome && (
+        <WelcomeOverlay user={user} language={language} onDone={() => setShowWelcome(false)} />
+      )}
+      <ERPSystemLuxury
+        user={user}
+        language={language}
+        isDarkMode={isDarkMode}
+        onLogout={handleLogout}
+        onLanguageChange={handleLanguageChange}
+        onThemeChange={handleThemeChange}
+      />
+    </>
   );
 }
 
