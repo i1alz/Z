@@ -57,6 +57,51 @@ function normalizeRows(language, employees = []) {
   });
 }
 
+const STATUS_STYLES = {
+  active: {
+    background: "rgba(184,148,106,0.15)",
+    color: "#d4a574",
+    border: "1px solid rgba(184,148,106,0.3)",
+  },
+  on_leave: {
+    background: "rgba(125,10,18,0.2)",
+    color: "#e08080",
+    border: "1px solid rgba(125,10,18,0.4)",
+  },
+  inactive: {
+    background: "rgba(100,100,100,0.15)",
+    border: "1px solid rgba(100,100,100,0.2)",
+  },
+};
+
+function StatusBadge({ statusKey, language, t, textMuted }) {
+  const styles = STATUS_STYLES[statusKey] || STATUS_STYLES.inactive;
+  const label =
+    statusKey === "active"
+      ? t(language, "نشط", "Active")
+      : statusKey === "on_leave"
+        ? t(language, "في إجازة", "On Leave")
+        : t(language, "غير نشط", "Inactive");
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "0.22rem 0.65rem",
+        borderRadius: "20px",
+        fontSize: "0.75rem",
+        fontWeight: 700,
+        color: styles.color || textMuted,
+        background: styles.background,
+        border: styles.border,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
 export default function EmployeesModule({
   theme,
   language,
@@ -424,6 +469,7 @@ export default function EmployeesModule({
               {filteredRows.map((row) => (
                 <tr
                   key={row.id}
+                  className="module-row"
                   style={{ borderBottom: `1px solid ${theme.border}` }}
                 >
                   <td
@@ -441,12 +487,8 @@ export default function EmployeesModule({
                   <td style={{ padding: "0.6rem 0.45rem", color: theme.text }}>
                     {row.department || "--"}
                   </td>
-                  <td style={{ padding: "0.6rem 0.45rem", color: theme.text }}>
-                    {row.statusKey === "active"
-                      ? t(language, "نشط", "Active")
-                      : row.statusKey === "on_leave"
-                        ? t(language, "في إجازة", "On Leave")
-                        : t(language, "غير نشط", "Inactive")}
+                  <td style={{ padding: "0.6rem 0.45rem" }}>
+                    <StatusBadge statusKey={row.statusKey} language={language} t={t} textMuted={theme.textMuted} />
                   </td>
                   <td style={{ padding: "0.6rem 0.45rem", color: theme.text }}>
                     {row.email || row.phone || "--"}

@@ -557,6 +557,7 @@ export default function HRDashboard({
             {quickActions.map((action) => (
               <div
                 key={`${action.permission}-${action.title}`}
+                className="quick-action-card"
                 style={{
                   background: "linear-gradient(145deg, #3a1a1a, #2a1210)",
                   border: "1px solid rgba(155,13,22,0.35)",
@@ -638,6 +639,7 @@ export default function HRDashboard({
             </h3>
             {!isMobile && (
               <button
+                className="view-all-btn"
                 style={{
                   background: "transparent",
                   border: "1px solid rgba(212,165,116,0.3)",
@@ -761,12 +763,14 @@ export default function HRDashboard({
               {data.recentEmployees.map((emp) => (
                 <div
                   key={`${emp.name}-${emp.date}`}
+                  className="employee-row"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "2fr 1.5fr 1.5fr 1fr",
                     padding: "0.85rem",
                     borderBottom: "1px solid rgba(212,165,116,0.08)",
                     alignItems: "center",
+                    borderRadius: "6px",
                   }}
                 >
                   <div
@@ -851,6 +855,7 @@ export default function HRDashboard({
             {data.upcomingLeaves.map((leave) => (
               <div
                 key={`${leave.name}-${leave.period}`}
+                className="leave-item"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -963,13 +968,6 @@ export default function HRDashboard({
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

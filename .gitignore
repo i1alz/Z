@@ -1,0 +1,25 @@
+# Java JDK / JRE directories
+java-*/
+jdk-*/
+jre-*/
+*.jdk/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# AI assistant local settings
+.claude/
+
+# Temporary and log files
+*.log
+*.tmp
+*.bak
